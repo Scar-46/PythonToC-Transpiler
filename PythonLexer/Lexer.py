@@ -1,8 +1,5 @@
 import ply.lex as lex
 
-# Error handling rule
-
-
 keywords = {
     # Logical Operators
     'and': 'AND',
@@ -64,11 +61,12 @@ tokens = [
     'DEDENT',
 ] + list(keywords.values())
 
+# Error handling rule
 def t_error(t):
      print("Illegal character '%s'" % t.value[0])
      t.lexer.skip(1)
 
-# Regular expression rules for keywords
+# Regular expression rules for keywords/identifiers
 def t_IDENTIFIER(t):
     r'[a-zA-Z_][a-zA-Z0-9_]*'
     if t.value in keywords:
