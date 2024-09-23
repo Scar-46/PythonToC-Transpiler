@@ -1,0 +1,2 @@
+def hola_mundo(x):
+  print("hola mundo")
