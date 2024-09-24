@@ -1,4 +1,5 @@
 import ply.lex as lex
+import os
 
 keywords = {
     # Logical Operators
@@ -61,10 +62,34 @@ tokens = [
     'DEDENT',
 ] + list(keywords.values())
 
+#TODO: Include INDENT management
+def t_NEWLINE(token):
+    r'\n+'
+    token.lexer.lineno += len(token.value)
+
+def find_column(input_text, token):
+    # Find the last newline character before the token
+    last_newline = input_text.rfind('\n', 0, token.lexpos)
+    
+    # If there's no newline, the token is on the first line
+    if last_newline < 0:
+        column = token.lexpos + 1
+    else:
+        column = token.lexpos - last_newline
+    return column
+
+#TODO: Add colors and fix position translation logic
 # Error handling rule
 def t_error(t):
-     print("Illegal character '%s'" % t.value[0])
-     t.lexer.skip(1)
+    #TODO: Dynamically set this value
+    file_path = "test.txt"
+    file_abs_path = os.path.abspath(file_path)
+
+    error_msg = f"Illegal character '{t.value[0] if t.value[0] != '\n' else '\\n'}' at ({t.lineno}, {t.lexpos})"
+    error_msg += f" in file: '{file_abs_path}:{t.lineno}:{t.lexpos}'"
+
+    print(error_msg)
+    t.lexer.skip(1)
 
 # Regular expression rules for keywords/identifiers
 def t_IDENTIFIER(t):
