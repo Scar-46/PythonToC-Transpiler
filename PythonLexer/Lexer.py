@@ -1,43 +1,36 @@
 import ply.lex as lex
 import os
 
-keywords = {
-    # Logical Operators
-    'and': 'AND',
-    'or': 'OR',
-    'not': 'NOT',
-    # Flow Control structures
-    'if': 'IF',
-    'else': 'ELSE',
-    'elif': 'ELIF',
-    'for': 'FOR',
-    'while': 'WHILE',
-    'break': 'BREAK',
-    'pass': 'PASS',
-    'continue': 'CONTINUE',
-    # Definitions
-    'def': 'DEF',
-    'as': 'AS',
-    'class': 'CLASS',
-    'return': 'RETURN',
-    # Boolean 
-    'True': 'TRUE',
-    'False': 'FALSE',
-    # Other
-    'del': 'DEL',
-    'finally': 'FINALLY',
-    'from': 'FROM',
-    'global': 'GLOBAL',
-    'in': 'IN',
-    'is': 'IS',
-    'None': 'NONE',
-    'nonlocal': 'NONLOCAL',
-    'raise': 'RAISE',
-}
 
 NO_INDENT = 0
 MAY_INDENT = 1
 MUST_INDENT = 2
+
+errorList = []
+tokens = []
+keyword_list = [
+    # Logical Operators
+    'and', 'or','not',
+    # Flow Control structures
+    'if', 'else', 'elif',
+    'for', 'while', 'break',
+    'pass', 'continue',
+    # Definitions
+    'def', 'as', 'class',
+    # Boolean 
+    'True', 'False',
+    # Other
+    'del', 'finally',  'from',
+    'global', 'in', 'is',
+    'None', 'nonlocal', 'raise',
+    'return'
+]
+
+RESERVED = {}
+for keyword in keyword_list:
+	name = keyword.upper()
+	RESERVED[keyword] = name
+	tokens.append(name)
 
 # ------------ Alphabet ------------
 errorList = []
@@ -61,13 +54,13 @@ tokens = [
     'D_DOT',
     'D_AT_SIGN',
     'C_ONE_LINE_COMMENT',
-    'WHITESPACE',
+    'WS',
     'TAB',
-    'NEWLINE'
+    'NEWLINE',
     'INDENT',
     'DEDENT',
     'ENDMARKER'
-]
+] + list(RESERVED.values())
 
 def newToken(newType, lineno):
     token = lex.LexToken()
@@ -77,30 +70,40 @@ def newToken(newType, lineno):
     token.lexpos = -100
     return token
 
-def t_INDENT(t):
-    r'\s+?'
-    return t
-
-def t_DEDENt(t):
-    r'\s*-+'
-    return t
-
 # TODO(Dwayne): Why would this be necessary
 def t_continueline(t):
     r'\\(\n)+'
 
 # Aims to tokenize all NEWLINE characters that are not inside parenthesis.
 # TODO(Dwayne): Needs testing.
-def t_newline(t):
-    r'\n+' # one or more newlines ar the end no?
+def t_NEWLINE(t):
+    r'\n+'
     t.lineno += len(t.value)
     t.type = "NEWLINE"
-    if lexer.parenthesisCount == 0:
+    if t.lexer.parenthesisCount == 0:
         return t
 
+def t_IDENTIFIER(t):
+    r'[a-zA-Z_][a-zA-Z0-9_]*'
+    if t.value in RESERVED:
+        t.type = RESERVED[t.value]
+    return t
+
+def t_error(t):
+    #TODO: Dynamically set this value
+    file_path = "test.txt"
+    file_abs_path = os.path.abspath(file_path)
+
+    error_msg = f"Illegal character '{t.value[0] if t.value[0] != '\n' else '\\n'}' at ({t.lineno}, {t.lexpos})"
+    error_msg += f" in file: '{file_abs_path}:{t.lineno}:{t.lexpos}'"
+
+    print(error_msg)
+    t.lexer.skip(1)
+
 def t_WS(t):
-    r" [ \t\f]+ "
+    r'\n[ \t\f]+'
     value = t.value
+    # print(f"Whitespace: at {t.lineno}, {t.lexpos}")
     value = value.rsplit("\f", 1)[-1]
     pos = 0
     while True:
@@ -110,14 +113,18 @@ def t_WS(t):
         n = 8 - (pos % 8)
         value = value[:pos] + " " * n + value[pos+1:]
     t.value = value
-    if t.lexer.atLinestart and t.lexer.parenthesisCount == 0:
+    if t.lexer.atLineStart and t.lexer.parenthesisCount == 0:
         return t
 
+# Ignore any other whitespace (not after a newline)
+def t_ignore_WS(t):
+    r'[ \t\f]+'  # Match spaces, tabs, or form feed not preceded by a newline
+    pass  # Ignore it (no return value means it won't be processed as a token)
 def INDENT(lineno):
     return newToken("INDENT", lineno)
 
-def DEDENT(leneno):
-    return lineno("DEDENT", lineno)
+def DEDENT(lineno):
+    return newToken("DEDENT", lineno)
 
 def identifyIndentations(lexer, token_stream):
     lexer.atLineStart = atLineStart = True
@@ -165,23 +172,21 @@ def assignIndentations(token_stream):
             # continue
         lastSeenWhitespace = False
         if token.must_indent:
-            if not (depth > levels[-1]):
-                # raise IndentationError("Expected an indented block")
+            if not (depth > levels[-1]): 
                 print(f"Indentation Error in line {token.lineno}.")
-                sys.exit()
+                raise IndentationError("Expected an indented block")
             levels.append(depth)
             yield INDENT(token.lineno)
         elif token.atLineStart:
             if depth == levels[-1]:
-                # raise IndentationError("IndentationError: not in new block")
                 print(f"Indentation Error in line {token.lineno}.")
-                sys.exit()
+                raise IndentationError("IndentationError: not in new block")
             else:
                 try:
                     i = levels.index(depth)
                 except ValueError:
-                    # raise IndentationError("IndentationError: not in new block")
                     print(f"Indentation Error in line {token.lineno}.")
+                    # raise IndentationError("IndentationError: not in new block")
                 for _ in range(i + 1, len(levels)):
                     yield DEDENT(token.lineno)
                     levels.pop()
@@ -206,22 +211,23 @@ def filter(lexer, addEndMarker=True):
 
 # They create a ply.lex wrapper to handle indentation
 class Lexer(object):
-    def __init(self):
+    def __init__(self):
         self.lexer = lex.lex()
         self.token_stream = None
+
     def input(self, data, addEndMarker=True):
         self.lexer.parenthesisCount = 0
         data += "\n"
         self.lexer.input(data)
         self.token_stream = filter(self.lexer, addEndMarker)
+
     def token(self):
         try:
-            return self.token_stream.next()
+            return next(self.token_stream)
         except StopIteration:
             return None
         
 # End of lexer, probs needs to be in separate file.
-
 def read_file(file_name):
     try:
         with open(file_name, 'r') as file:
