@@ -1,5 +1,39 @@
 import ply.lex as lex
-import sys
+import os
+
+keywords = {
+    # Logical Operators
+    'and': 'AND',
+    'or': 'OR',
+    'not': 'NOT',
+    # Flow Control structures
+    'if': 'IF',
+    'else': 'ELSE',
+    'elif': 'ELIF',
+    'for': 'FOR',
+    'while': 'WHILE',
+    'break': 'BREAK',
+    'pass': 'PASS',
+    'continue': 'CONTINUE',
+    # Definitions
+    'def': 'DEF',
+    'as': 'AS',
+    'class': 'CLASS',
+    'return': 'RETURN',
+    # Boolean 
+    'True': 'TRUE',
+    'False': 'FALSE',
+    # Other
+    'del': 'DEL',
+    'finally': 'FINALLY',
+    'from': 'FROM',
+    'global': 'GLOBAL',
+    'in': 'IN',
+    'is': 'IS',
+    'None': 'NONE',
+    'nonlocal': 'NONLOCAL',
+    'raise': 'RAISE',
+}
 
 NO_INDENT = 0
 MAY_INDENT = 1
@@ -207,3 +241,4 @@ while tok:
     tok = test_lexer.token()
 
 print ("Lexer finished")
+ 
