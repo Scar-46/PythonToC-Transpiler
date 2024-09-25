@@ -5,6 +5,14 @@ def hello_world():
     print("Good by world")  # This is also a comment
   print("What have I done?")
 
+def hello_balatro():
+  if (game == "balatro"):
+    mood = fantastic
+  elif (day == 
+    "monday"):
+    print("I hate mondays...")
+
+print("Good luck!")
   |
   
 

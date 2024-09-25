@@ -1,331 +1,162 @@
-import ply.lex as lex
-import os
+import re # Regex module
+import TokenRules # Token rules
+import ply.lex as lex # Lexing library
 
-
-NO_INDENT = 0
-MAY_INDENT = 1
-MUST_INDENT = 2
-
-errorList = []
-tokens = []
-# keyword_list = [
-#     # Logical Operators
-#     'and', 'or','not',
-#     # Flow Control structures
-#     'if', 'else', 'elif',
-#     'for', 'while', 'break',
-#     'pass', 'continue',
-#     # Definitions
-#     'def', 'as', 'class',
-#     # Boolean 
-#     'True', 'False',
-#     # Other
-#     'del', 'finally',  'from',
-#     'global', 'in', 'is',
-#     'None', 'nonlocal', 'raise',
-#     'return'
-# ]
-
-# RESERVED = {}
-# for keyword in keyword_list:
-#     name = keyword.upper()
-#     RESERVED[keyword] = name
-#     tokens.append(name)
-keywords = {
-    # Logical Operators
-    'and': 'AND',
-    'or': 'OR',
-    'not': 'NOT',
-    # Flow Control structures
-    'if': 'IF',
-    'else': 'ELSE',
-    'elif': 'ELIF',
-    'for': 'FOR',
-    'while': 'WHILE',
-    'break': 'BREAK',
-    'pass': 'PASS',
-    'continue': 'CONTINUE',
-    # Definitions
-    'def': 'DEF',
-    'as': 'AS',
-    'class': 'CLASS',
-    'return': 'RETURN',
-    # Boolean 
-    'True': 'TRUE',
-    'False': 'FALSE',
-    # Other
-    'del': 'DEL',
-    'finally': 'FINALLY',
-    'from': 'FROM',
-    'global': 'GLOBAL',
-    'in': 'IN',
-    'is': 'IS',
-    'None': 'NONE',
-    'nonlocal': 'NONLOCAL',
-    'raise': 'RAISE',
-}
-
-tokens = [
-    'KEYWORD',
-    'IDENTIFIER',
-    # Operators
-    'PLUS',
-    'MINUS',
-    'TIMES', # They called it star
-    'DIVIDE',
-    'MOD',
-    'POWER',
-    'LSHIFT',
-    'RSHIFT',
-    'LESS',
-    'LESS_EQUAL',
-    'GREATER',
-    'GREATER_EQUAL',
-    'EQUAL_EQUAL',
-    'NOT_EQUAL',
-    'TILDE',
-    'AMPER',
-    'CIRCUMFLEX',
-    'LEFT_SHIFT',
-    'RIGHT_SHIFT',
-    # Assignment
-    'EQUAL',
-    'PLUS_EQUAL',
-    'MINUS_EQUAL',
-    'TIMES_EQUAL',
-    'DIVIDE_EQUAL',
-    'MOD_EQUAL',
-    'POWER_EQUAL',
-    'LSHIFT_EQUAL',
-    'RSHIFT_EQUAL',
-    'AND_EQUAL',
-    'OR_EQUAL',
-    'XOR_EQUAL',
-    'LEFT_SHIFT_EQUAL',
-    'RIGHT_SHIFT_EQUAL',
-    # Literals
-    'L_NUMERICAL',
-    'STRING',
-    'L_BOOLEAN',
-    'O_ARITHMETIC',
-    'O_RELATIONAL',
-    'O_LOGICAL',
-    'O_ASSIGNMENT',
-    'O_OTHER',
-    # Delimiters
-    'LPARENTHESES',
-    'RPARENTHESES',
-    'LSQB',
-    'RSQB',
-    'LBRACE',
-    'RBRACE',
-    'COLON',
-    'SEMICOLON',
-    'COMA',
-    'DOT',
-    'AT',
-    # Indentation and new line
-    'WS',
-    'NEWLINE',
-    'INDENT',
-    'DEDENT',
-    'ENDMARKER'
-] + list(keywords.values())
-
-# Delimiters
-t_COLON = r':'
-t_SEMICOLON = r';'
-t_COMA = r','
-t_DOT = r'\.'
-t_AT = r'a' # May need to remove this
-
-# Delimiters
-def t_LPARENTHESES(t):
-    r'\('
-    t.lexer.parenthesisCount += 1
-    return t
-
-def t_RPARENTHESES(t):
-    r'\)'
-    t.lexer.parenthesisCount -= 1
-    return t
-
-def t_LSQB(t):
-    r'\['
-    t.lexer.parenthesisCount += 1
-    return t
-
-def t_RSQB(t):
-    r'\]'
-    t.lexer.parenthesisCount -= 1
-    return t
-
-def t_LBRACE(t):
-    r'\{'
-    t.lexer.parenthesisCount += 1
-    return t
-def t_RBRACE(t):
-    r'\}'
-    t.lexer.parenthesisCount -= 1
-    return t
-
-def newToken(newType, lineno):
+# ------------ Identation fixing ------------
+# Construct new tokens for a given lexer and line (value and position omitted)
+def NEW_TOKEN(newType: str, lineno: int):
     token = lex.LexToken()
     token.type = newType
     token.value = None
     token.lineno = lineno
-    token.lexpos = -100
+    token.lexpos = None
     return token
 
-def t_IDENTIFIER(t):
-    r'[a-zA-Z_][a-zA-Z0-9_]*'
-    if t.value in keywords:
-        t.type = keywords[t.value]
-    return t
+# Consruct virtual indentation tokens
+# - Entering new identation level
+def INDENT(lineno: int):
+    return NEW_TOKEN("INDENT", lineno)
+# - Existing current identation level
+def DEDENT(lineno: int):
+    return NEW_TOKEN("DEDENT", lineno)
 
-def t_error(t):
-    error_msg = f"Illegal character '{t.value[0] if t.value[0] != '\n' else '\\n'}' at ({t.lineno}, {t.lexpos})"
-    if t.lexer.filename != "":
-        #TODO: This may produce and error
-        file_abs_path = os.path.abspath(t.lexer.filename)
-        error_msg += f" in file: '{file_abs_path}:{t.lineno}:{t.lexpos}'"
+# Identify identations and their respective level for a given lexing stream
+def identifyIndentations(token_stream):
+    # Keep track on whether a deeper indentation level is forbidden, possibly
+    # mandatory or actually mandatory for a given token
+    POSSIBLE = 1
+    MANDATORY = 2
+    FORBIDDEN = 3
 
-    print(error_msg)
-    t.lexer.skip(1)
+    indentation = FORBIDDEN
 
-#ignore comments in source code
-def t_comment(t):
-	r'\s*\x23[^\n]*'
-	pass
-
-def t_STRING(t):
-    # TODO: check for escape characters
-	r'(\"(\\.|[^\"\n]|(\\\n))*\") | (\'(\\.|[^\'\n]|(\\\n))*\')'
-	return t
-
-def t_continueline(t):
-    r'\\(\n)+'
-
-# Aims to tokenize all NEWLINE characters that are not inside parenthesis.
-def t_NEWLINE(t):
-    r'\n+'
-    t.lexer.lineno += len(t.value)
-    if t.lexer.parenthesisCount == 0:
-        return t
-
-def t_WS(t):
-    r' [ \t\f]+ '
-    value = t.value
-    value = value.rsplit("\f", 1)[-1]
-    pos = 0
-    # Converts \t into whitespaces
-    while True:
-        pos = value.find("\t")
-        if pos == -1:
-            break
-        n = 8 - (pos % 8)
-        value = value[:pos] + " " * n + value[pos+1:]
-    t.value = value
-    if t.lexer.atLineStart and t.lexer.parenthesisCount == 0:
-        return t
-
-def INDENT(lineno):
-    return newToken("INDENT", lineno)
-
-def DEDENT(lineno):
-    return newToken("DEDENT", lineno)
-
-def identifyIndentations(lexer, token_stream):
-    lexer.atLineStart = atLineStart = True
-    indent = NO_INDENT
+    # For each token
     for token in token_stream:
-        token.atLineStart = atLineStart
-        if token.type == "COLON":
-            atLineStart = False
-            indent = MAY_INDENT
-            token.must_indent = False
-        elif token.type == "NEWLINE":
-            atLineStart = True
-            if indent == MAY_INDENT:
-                indent = MUST_INDENT
-            token.must_indent = False
-        elif token.type == "WS":
-            assert token.atLineStart == True
-            atLineStart = True
-            token.must_indent = False
-        else:
-            token.must_indent = indent == MUST_INDENT
-            atLineStart = False
-            indent = NO_INDENT
-        yield token
-        lexer.atLineStart = atLineStart
+        # Assume forbidden indentation unless proven otherwise
+        token.must_indent = False
 
+        match token.type:
+            # Colons allow for potential future indentation
+            case "D_COLON":
+                indentation = POSSIBLE
+
+            # Newlines mandate indentation if it was potentially allowed
+            # beforehand
+            case "NEWLINE":
+                if indentation == POSSIBLE:
+                    indentation = MANDATORY
+
+            # Any other token besides whitespace seals the deal
+            # and nullifies deeper indentation unless allowed otherwise 
+            case _:
+                if token.type != "WHITESPACE":
+                    token.must_indent = indentation == MANDATORY
+                    indentation = FORBIDDEN
+
+        yield token
+
+# Replace indentations with IDENT and DEDENT tokens for a given token stream
 def assignIndentations(token_stream):
-    levels = [0]
-    token = None
-    depth = 0
-    lastSeenWhitespace = False
+    # Keep track of..
+
+    # Current nested expression level (nested expressions nullify new lines) 
+    expression_depth: int = 0
+
+    # The current scope level of the expression and their parent scopes'
+    scope_depth: int = 0
+    previous_scope_depths: list[int] = [0]
+    
+    # Whether the previous token was the first on the current line
+    previous_line_start: bool = False
+    
+    # For every token in the stream:
+    # - Keep track of expression and scope depth accordingly
+    # - Remove whitespaces and newlines
+    # - Place INDENT and DEDENT tokens in their place
     for token in token_stream:
-        if token.type == "WS":
-            assert depth == 0
-            depth = len(token.value)
-            lastSeenWhitespace = True
-            continue
-        if token.type == "NEWLINE":
-            depth = 0
-            if not (lastSeenWhitespace or token.atLineStart):
-                yield token
-            continue
-        lastSeenWhitespace = False
-        if token.must_indent:
-            if not (depth > levels[-1]): 
-                raise IndentationError(f"IndentationError: expected an indented block at ({token.lineno}. {token.lexpos})")
-            levels.append(depth)
-            yield INDENT(token.lineno)
-        elif token.atLineStart:
-            if depth == levels[-1]:
-                pass
-            elif depth > levels[-1]:
-                raise IndentationError(f"IndentationError: unexpected indentation at ({token.lineno}. {token.lexpos})")
-            # Token is part of a block on a prior level to this one: MUST add DEDENT
-            else:
-                try:
-                    i = levels.index(depth)
-                    for _ in range(i + 1, len(levels)):
-                        yield DEDENT(token.lineno)
-                        levels.pop()
-                except ValueError:
-                    raise IndentationError(f"IndentationError: inconsistent indentation at ({token.lineno}. {token.lexpos})")
-        yield token
+        # Wrap a given token (except whitespaces and newlines) between INDENTs 
+        # and DEDENTs
+        if (token.type != "NEWLINE" and token.type != "WHITESPACE"):
+            # If the token must be indented, append its greater scope onto the stack
+            # and insert an INDENT
+            if token.must_indent:
+                if not (scope_depth > previous_scope_depths[-1]):
+                    raise IndentationError("Missing indentation in new block")
 
-    if len(levels) > 1:
-        assert token is not None
-        for _ in range(1, len(levels)):
-            yield DEDENT(token.lineno)
+                previous_scope_depths.append(scope_depth)
+                yield INDENT(token.lineno)
+            
+            # If the token musn't be indented yet begins at the start, pop all greater
+            # scopes from the stack and insert a DEDENT for each
+            elif previous_line_start:
+                if scope_depth > previous_scope_depths[-1]:
+                    raise IndentationError("Excessive indentation in new block")
+                elif scope_depth < previous_scope_depths[-1]:
+                    try:
+                        i = previous_scope_depths.index(scope_depth)
+                        for _ in range(i+1, len(previous_scope_depths)):
+                            yield DEDENT(token.lineno)
+                            previous_scope_depths.pop()
+                    except ValueError:
+                        raise IndentationError("Unmatched indentation in new block")
 
+            yield token
+
+        # Update the line start flag and expression and scope depth given
+        # the current token and previous information on them 
+        match token.type:
+            case "D_LEFT_PARENTHESIS":
+                expression_depth += 1
+                previous_line_start = False
+
+            case "D_RIGHT_PARENTHESIS":
+                expression_depth -= 1
+                previous_line_start = False
+            
+            case "NEWLINE":
+                if (expression_depth <= 0):
+                    scope_depth = 0
+                    previous_line_start = True
+
+            case "WHITESPACE":
+                if (previous_line_start):
+                    scope_depth = len(token.value)
+
+            case _:
+                previous_line_start = False
+
+# Construct a tab-filtered (INDENT and DEDENT) lexeme stream for a given lexer
 def filter(lexer, addEndMarker=True):
+    # Create a token stream
     token_stream = iter(lexer.token, None)
-    token_stream = identifyIndentations(lexer, token_stream)
+    # Mark the mandatory and optional indentations
+    token_stream = identifyIndentations(token_stream)
+    # Replace the whitespaces and newlines with INDENT and DEDENT for the given markings
     token_stream = assignIndentations(token_stream)
+
+    # Forward every token from the filtered steam 
     tok = None
     for tok in token_stream:
         yield tok
-    if addEndMarker:
-        lineno = 1
-        if tok is not None:
-            lineno = tok.lineno
-        yield newToken("ENDMARKER", lineno)
 
-# They create a ply.lex wrapper to handle indentation
+    # Return an end marker given the last line processed by the lexer
+    if addEndMarker:    
+        yield NEW_TOKEN("ENDMARKER", 1 if tok is None else tok.lineno)
+
+# ------------ Lexing ------------
+# Errors
+errorList = []
+
+# Lexer wrapper for Fangless Python 
 class Lexer(object):
     def __init__(self):
-        self.lexer = lex.lex()
-        self.token_stream = None
+        self.lexer = lex.lex(
+            module=TokenRules, 
+            reflags=int(re.MULTILINE)
+        )
 
-    def input(self, data, addEndMarker=True, filename=""):
-        self.lexer.parenthesisCount = 0
-        self.lexer.filename = filename
-        data += "\n"
+    def input(self, data: str, addEndMarker=True):
+        self.lexer.lineno = 0
         self.lexer.input(data)
         self.token_stream = filter(self.lexer, addEndMarker)
 
@@ -334,24 +165,4 @@ class Lexer(object):
             return next(self.token_stream)
         except StopIteration:
             return None
-        
-# End of lexer, probs needs to be in separate file.
-def read_file(file_name):
-    try:
-        with open(file_name, 'r') as file:
-            return file.read()
-    except FileNotFoundError:
-        print(f"File {file_name} not found.")
-        exit (1)
-
-#Give the lexer the test file
-file_name = 'test.txt'
-test_lexer = Lexer()
-test_lexer.input(read_file(file_name),filename=file_name)
-
-tok = test_lexer.token()
-while tok:
-    print(tok)
-    tok = test_lexer.token()
-
-print ("Lexer finished")
+           
