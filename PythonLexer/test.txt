@@ -2,7 +2,7 @@
 def hello_world():
   print("Hello world")
   if True:
-    print("Good by world")  # This is also a comment
+    print("Good bye world")  # This is also a comment
   print("What have I done?")
 
 def hello_balatro():
@@ -13,6 +13,5 @@ def hello_balatro():
     print("I hate mondays...")
 
 print("Good luck!")
-  |
   
 
