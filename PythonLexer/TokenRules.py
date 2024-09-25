@@ -216,24 +216,7 @@ def t_NEWLINE(t):
     t.lexer.lineno += len(t.value)
     return t
 
-# TODO:
-# ¿Qué representa este token y efecto secundario?
-# def t_WS(t):
-#     r" [ \t\f]+ "
-#     value = t.value
-#     value = value.rsplit("\f", 1)[-1]
-#     pos = 0
-#     while True:
-#         pos = value.find("\t")
-#         if pos == -1:
-#             break
-#         n = 8 - (pos % 8)
-#         value = value[:pos] + " " * n + value[pos+1:]
-#     t.value = value
-#     if t.lexer.atLinestart and t.lexer.parenthesisCount == 0:
-#         return t
-
-# - Contigous Whitespace
+# - Contiguous Whitespace
 def t_WHITESPACE(t):
     r'[ \t\f]+'
     return t
