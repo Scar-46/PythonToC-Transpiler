@@ -204,5 +204,5 @@ def t_WHITESPACE(t):
 # Unmatched token
 def t_error(t):
     decoded = t.value.encode('unicode_escape').decode('utf-8')
-    print(f"Unrecognized sequence: %s" % decoded)
+    raise SyntaxError(f"unrecognized sequence: {decoded}")
     t.lexer.skip(1)

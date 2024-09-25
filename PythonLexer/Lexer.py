@@ -47,6 +47,7 @@ def identifyIndentations(token_stream):
 
 # Replace indentations with IDENT and DEDENT tokens for a given token stream
 def assignIndentations(token_stream):
+    token = None
     expression_depth: int = 0
     scope_depth: int = 0
     previous_scope_depths: list[int] = [0]
@@ -72,8 +73,8 @@ def assignIndentations(token_stream):
                     try:
                         i = previous_scope_depths.index(scope_depth)
                         for _ in range(i+1, len(previous_scope_depths)):
-                            yield DEDENT(token.lineno)
                             previous_scope_depths.pop()
+                            yield DEDENT(token.lineno)
                     except ValueError:
                         raise IndentationError(f"unmatched indentation on line {token.lineno}")
             yield token
@@ -98,6 +99,10 @@ def assignIndentations(token_stream):
 
             case _:
                 previous_line_start = False
+    if len(previous_scope_depths) > 1:
+        assert token is not None
+        for z in range(1, len(previous_scope_depths)):
+            yield DEDENT(token.lineno)
 
 # Construct a tab-filtered (INDENT and DEDENT) lexeme stream for a given lexer
 def filter(lexer, addEndMarker=True):

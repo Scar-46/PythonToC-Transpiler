@@ -1,14 +1,15 @@
 # This is a comment
 def hello_world():
   print("Hello world")
-  if True:
++def foo():
+   if True:
     print("Good bye world")  # This is also a comment
   print("What have I done?")
 
 def hello_balatro():
   if (game == "balatro"):
     mood = fantastic
-  elif (day == 
+  elif (day ==
     "monday"):
     print("I hate mondays...")
 
