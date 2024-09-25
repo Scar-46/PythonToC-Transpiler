@@ -28,9 +28,9 @@ tokens = []
 
 # RESERVED = {}
 # for keyword in keyword_list:
-# 	name = keyword.upper()
-# 	RESERVED[keyword] = name
-# 	tokens.append(name)
+#     name = keyword.upper()
+#     RESERVED[keyword] = name
+#     tokens.append(name)
 keywords = {
     # Logical Operators
     'and': 'AND',
@@ -68,31 +68,107 @@ keywords = {
 tokens = [
     'KEYWORD',
     'IDENTIFIER',
+    # Operators
+    'PLUS',
+    'MINUS',
+    'TIMES', # They called it star
+    'DIVIDE',
+    'MOD',
+    'POWER',
+    'LSHIFT',
+    'RSHIFT',
+    'LESS',
+    'LESS_EQUAL',
+    'GREATER',
+    'GREATER_EQUAL',
+    'EQUAL_EQUAL',
+    'NOT_EQUAL',
+    'TILDE',
+    'AMPER',
+    'CIRCUMFLEX',
+    'LEFT_SHIFT',
+    'RIGHT_SHIFT',
+    # Assignment
+    'EQUAL',
+    'PLUS_EQUAL',
+    'MINUS_EQUAL',
+    'TIMES_EQUAL',
+    'DIVIDE_EQUAL',
+    'MOD_EQUAL',
+    'POWER_EQUAL',
+    'LSHIFT_EQUAL',
+    'RSHIFT_EQUAL',
+    'AND_EQUAL',
+    'OR_EQUAL',
+    'XOR_EQUAL',
+    'LEFT_SHIFT_EQUAL',
+    'RIGHT_SHIFT_EQUAL',
+    # Literals
     'L_NUMERICAL',
-    'L_STRING',
+    'STRING',
     'L_BOOLEAN',
     'O_ARITHMETIC',
     'O_RELATIONAL',
     'O_LOGICAL',
     'O_ASSIGNMENT',
     'O_OTHER',
-    'D_PARENTHESES',
-    'D_BRACKETS',
-    'D_BRACES',
+    # Delimiters
+    'LPARENTHESES',
+    'RPARENTHESES',
+    'LSQB',
+    'RSQB',
+    'LBRACE',
+    'RBRACE',
     'COLON',
-    'D_COMMA',
-    'D_DOT',
-    'D_AT_SIGN',
-    'C_ONE_LINE_COMMENT',
+    'SEMICOLON',
+    'COMA',
+    'DOT',
+    'AT',
+    # Indentation and new line
     'WS',
-    'TAB',
     'NEWLINE',
     'INDENT',
     'DEDENT',
     'ENDMARKER'
 ] + list(keywords.values())
 
+# Delimiters
 t_COLON = r':'
+t_SEMICOLON = r';'
+t_COMA = r','
+t_DOT = r'\.'
+t_AT = r'a' # May need to remove this
+
+# Delimiters
+def t_LPARENTHESES(t):
+    r'\('
+    t.lexer.parenthesisCount += 1
+    return t
+
+def t_RPARENTHESES(t):
+    r'\)'
+    t.lexer.parenthesisCount -= 1
+    return t
+
+def t_LSQB(t):
+    r'\['
+    t.lexer.parenthesisCount += 1
+    return t
+
+def t_RSQB(t):
+    r'\]'
+    t.lexer.parenthesisCount -= 1
+    return t
+
+def t_LBRACE(t):
+    r'\{'
+    t.lexer.parenthesisCount += 1
+    return t
+def t_RBRACE(t):
+    r'\}'
+    t.lexer.parenthesisCount -= 1
+    return t
+
 def newToken(newType, lineno):
     token = lex.LexToken()
     token.type = newType
@@ -118,7 +194,16 @@ def t_error(t):
     print(error_msg)
     t.lexer.skip(1)
 
-# TODO(Dwayne): Why would this be necessary
+#ignore comments in source code
+def t_comment(t):
+	r'\s*\x23[^\n]*'
+	pass
+
+def t_STRING(t):
+    # TODO: check for escape characters
+	r'(\"(\\.|[^\"\n]|(\\\n))*\") | (\'(\\.|[^\'\n]|(\\\n))*\')'
+	return t
+
 def t_continueline(t):
     r'\\(\n)+'
 
@@ -174,7 +259,7 @@ def identifyIndentations(lexer, token_stream):
             atLineStart = True
             token.must_indent = False
         else:
-            token.must_indent = (indent == MUST_INDENT)
+            token.must_indent = indent == MUST_INDENT
             atLineStart = False
             indent = NO_INDENT
         yield token

@@ -1,7 +1,8 @@
+# This is a comment
 def hello_world():
   print("Hello world")
   if True:
-    print("Good by world")
+    print("Good by world")  # This is also a comment
   print("What have I done?")
   
 
