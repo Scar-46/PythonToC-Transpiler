@@ -18,7 +18,6 @@ class TestLexer(unittest.TestCase):
             tokens.append(token)
             token = self.lexer.token()
         
-        # Assert token types and values match the expected sequence
         self.assertEqual(len(tokens), len(expected_tokens), f"Expected {len(expected_tokens)} tokens, got {len(tokens)}")
         
         for i, (token, expected) in enumerate(zip(tokens, expected_tokens)):
@@ -27,7 +26,6 @@ class TestLexer(unittest.TestCase):
                 self.assertEqual(token.lineno, expected.lineno, f"Token line number mismatch at index {i}")
 
     def test_keywords(self):
-        # Test for reserved keywords
         input_str = "if elif else while break"
         expected_tokens = [
             NEW_TOKEN("IF", 0),
@@ -40,8 +38,7 @@ class TestLexer(unittest.TestCase):
         self.assertTokens(input_str, expected_tokens)
 
     def test_operators(self):
-        # Test for different operators
-        input_str = "== != >= <= + - * / // % **"
+        input_str = "== != >= <= + - * / // % ** << >>"
         expected_tokens = [
             NEW_TOKEN("EQUALITY", 0),
             NEW_TOKEN("INEQUALITY", 0),
@@ -54,12 +51,13 @@ class TestLexer(unittest.TestCase):
             NEW_TOKEN("INTEGER_DIVISION", 0),
             NEW_TOKEN("MODULUS", 0),
             NEW_TOKEN("EXPONENTIATION", 0),
+            NEW_TOKEN("L_SHIFT", 0),
+            NEW_TOKEN("R_SHIFT", 0),
             NEW_TOKEN("ENDMARKER", 0)
         ]
         self.assertTokens(input_str, expected_tokens)
     
     def test_assignment_operators(self):
-        # Test for different operators
         input_str = "= += -= *= /= //= %= **="
         expected_tokens = [
             NEW_TOKEN("ASSIGNMENT", 0),
@@ -75,7 +73,7 @@ class TestLexer(unittest.TestCase):
         self.assertTokens(input_str, expected_tokens)
 
     def test_literals(self):
-        # Test for string literals
+        # Test for normal strings
         input_str = '"Hello" \'World\''
         expected_tokens = [
             NEW_TOKEN("STRING", 0),
@@ -84,17 +82,37 @@ class TestLexer(unittest.TestCase):
         ]
         self.assertTokens(input_str, expected_tokens)
 
-        # Test for integer and floating-point literals
-        input_str = '012 35.67'
+        # Test for numbers
+        input_str = '012 35.67 0x1A 0o17 0b1010'
         expected_tokens = [
-            NEW_TOKEN("I_NUMBER", 0),
+            NEW_TOKEN("NUMBER", 0),
             NEW_TOKEN("F_NUMBER", 0),
+            NEW_TOKEN("HEX_NUMBER", 0),
+            NEW_TOKEN("OCT_NUMBER", 0),
+            NEW_TOKEN("BIN_NUMBER", 0),
+            NEW_TOKEN("ENDMARKER", 0)
+        ]
+        self.assertTokens(input_str, expected_tokens)
+
+        # Test for Raw strings
+        input_str = 'r"Raw String" r\'Another\''
+        expected_tokens = [
+            NEW_TOKEN("RAW_STRING", 0),
+            NEW_TOKEN("RAW_STRING", 0),
+            NEW_TOKEN("ENDMARKER", 0)
+        ]
+        self.assertTokens(input_str, expected_tokens)
+
+        # Test for Triple strings
+        input_str = '"""Triple Quote""" \'\'\'Another Triple\'\'\''
+        expected_tokens = [
+            NEW_TOKEN("TRIPLE_STRING", 0),
+            NEW_TOKEN("TRIPLE_STRING", 0),
             NEW_TOKEN("ENDMARKER", 0)
         ]
         self.assertTokens(input_str, expected_tokens)
 
     def test_identifiers(self):
-        # Test for identifiers
         input_str = "variable_name another_var func012"
         expected_tokens = [
             NEW_TOKEN("IDENTIFIER", 0),
@@ -105,7 +123,6 @@ class TestLexer(unittest.TestCase):
         self.assertTokens(input_str, expected_tokens)
 
     def test_indentation(self):
-        # Test for indent and dedent tokens
         input_str = "def foo():\n\tif True:\n\t\tpass\n\treturn" 
         expected_tokens = [
             NEW_TOKEN("DEF", 0),

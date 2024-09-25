@@ -33,7 +33,7 @@ keywords = {
     'in': 'IN',
     'is': 'IS',
     'None': 'NONE',
-    'nonlocal': 'NONLOCAL',
+    'nonlocal': 'NONLOCAL', # ???? Quejesto?
     'raise': 'RAISE',
 }
 
@@ -41,11 +41,16 @@ keywords = {
 tokens = [
     # Literals
     # - String
+    'RAW_STRING',
+    'TRIPLE_STRING',
     'STRING',
 
     # - Numerical
     'F_NUMBER',
-    'I_NUMBER',
+    'HEX_NUMBER',
+    'OCT_NUMBER',
+    'BIN_NUMBER',
+    'NUMBER',
 
     # Variables
     'IDENTIFIER',
@@ -75,6 +80,9 @@ tokens = [
     'LESSER_EQUAL',
     'GREATER',
     'LESSER',
+    'L_SHIFT',
+    'R_SHIFT',
+
     # - Assignment
     'EXPONENTIATION_ASSIGNMENT',
     'PRODUCT_ASSIGNMENT',
@@ -84,6 +92,7 @@ tokens = [
     'SUBTRACTION_ASSIGNMENT',
     'MODULUS_ASSIGNMENT',
     'ASSIGNMENT',
+
     # - Arithmetic
     'EXPONENTIATION',
     'PRODUCT',
@@ -106,18 +115,6 @@ tokens = [
 def t_comment(t):
     r'\#[^\n\r]*((\n\r)|(\n)|(\r))?'
     pass
-
-# Literals
-def t_STRING(t):
-    (
-        r'('
-            r'"((\\t)|(\\n)|(\\")|(\\\\)|[^\n\r\\"])*"'
-        r')|('
-            r'\'((\\t)|(\\n)|(\\\')|(\\\\)|[^\n\r\\\'])*\''
-        r')'
-    )
-    t.value = bytes(t.value, "utf-8").decode("unicode_escape")[1:-1]
-    return t
 
 # Delimiters
 # - Grouping
@@ -144,6 +141,8 @@ t_GREATER_EQUAL = r'>='
 t_LESSER_EQUAL = r'<='
 t_GREATER = r'>'
 t_LESSER = r'<'
+t_L_SHIFT = r'<<'
+t_R_SHIFT = r'>>'
 
 # - Assignment
 t_EXPONENTIATION_ASSIGNMENT = r'\*\*='
@@ -166,12 +165,28 @@ t_MODULUS = r'%'
 t_BITWISE_OR = r'\|'
 t_BITWISE_AND = r'&'
 
+# Literals
+def t_HEX_NUMBER(t):
+    r'0[xX][0-9a-fA-F]+'
+    t.value = int(t.value, 16)
+    return t
+
+def t_OCT_NUMBER(t):
+    r'0[oO][0-7]+'
+    t.value = int(t.value, 8)
+    return t
+
+def t_BIN_NUMBER(t):
+    r'0[bB][01]+'
+    t.value = int(t.value, 2)
+    return t
+
 def t_F_NUMBER(t):
     r'\d*\.\d+(e(\+|-)?\d+)?'
     t.value = float(t.value)
     return t
 
-def t_I_NUMBER(t):
+def t_NUMBER(t):
     r'\d+'
     t.value = int(t.value)
     return t
@@ -180,6 +195,20 @@ def t_BOOLEAN(t):
     r'True|False'
     t.type = t.value.upper()
     t.value = (t.value == r'True')
+    return t
+
+def t_TRIPLE_STRING(t):
+    r'("""(.*?)(?<!\\)"""|\'\'\'(.*?)(?<!\\)\'\'\')'
+    t.value = t.value[3:-3]
+    return t
+
+def t_RAW_STRING(t):
+    r'[rR]((\"(\\.|[^\"\n])*\"|\'(\\.|[^\'\n])*\'))'
+    return t
+
+def t_STRING(t):
+    r'(\"(\\.|[^\"\n])*\"|\'(\\.|[^\'\n])*\')'
+    t.value = bytes(t.value, "utf-8").decode("unicode_escape")[1:-1]
     return t
 
 def t_IDENTIFIER(t):

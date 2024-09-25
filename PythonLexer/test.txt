@@ -14,5 +14,5 @@ def hello_balatro():
     print("I hate mondays...")
 
 print("Good luck!")
-  
-
+"""Triple Quote"""
+'''Another Triple'''
