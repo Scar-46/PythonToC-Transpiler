@@ -1,5 +1,7 @@
-def hello_world:
+def hello_world():
   print("Hello world")
+  if True:
+    print("Good by world")
+  print("What have I done?")
+  
 
-def goodby_world:
-    print("goodby_world")
