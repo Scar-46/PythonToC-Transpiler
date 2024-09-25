@@ -86,6 +86,7 @@ tokens = [
     'O_SUM_ASSIGNMENT',
     'O_SUBSTRACTION_ASSIGNMENT',
     'O_MODULUS_ASSIGNMENT',
+    'O_ASSIGNMENT',
     # - Logical
     'O_LOGICAL_AND',
     'O_LOGICAL_OR',
@@ -186,6 +187,7 @@ t_O_DIVISION_ASSIGNMENT = r'\/='
 t_O_SUM_ASSIGNMENT = r'\+='
 t_O_SUBSTRACTION_ASSIGNMENT = r'-='
 t_O_MODULUS_ASSIGNMENT = r'%='
+t_O_ASSIGNMENT = r'='
 # - Logical
 t_O_LOGICAL_AND = r'(&&)|(and)'
 t_O_LOGICAL_OR = r'(\|\|)|(or)'
@@ -233,7 +235,7 @@ def t_NEWLINE(t):
 
 # - Contigous Whitespace
 def t_WHITESPACE(t):
-    r'\s+'
+    r'[ \t\f]+'
     return t
 
 # Unmatched token
