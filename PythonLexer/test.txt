@@ -1,2 +1,8 @@
 def hello_world:
-  print("Hello world!")
+  if (game == "balatro"):
+    mood = fantastic
+  else if (day == 
+    "monday"):
+    print("I hate mondays...")
+
+print("Hello World")
