@@ -184,12 +184,11 @@ def t_IDENTIFIER(t):
     return t
 
 def t_error(t):
-    #TODO: Dynamically set this value
-    file_path = "test.txt"
-    file_abs_path = os.path.abspath(file_path)
-
     error_msg = f"Illegal character '{t.value[0] if t.value[0] != '\n' else '\\n'}' at ({t.lineno}, {t.lexpos})"
-    error_msg += f" in file: '{file_abs_path}:{t.lineno}:{t.lexpos}'"
+    if t.lexer.filename != "":
+        #TODO: This may produce and error
+        file_abs_path = os.path.abspath(t.lexer.filename)
+        error_msg += f" in file: '{file_abs_path}:{t.lineno}:{t.lexpos}'"
 
     print(error_msg)
     t.lexer.skip(1)
@@ -210,7 +209,7 @@ def t_continueline(t):
 # Aims to tokenize all NEWLINE characters that are not inside parenthesis.
 def t_NEWLINE(t):
     r'\n+'
-    t.lineno += len(t.value)
+    t.lexer.lineno += len(t.value)
     if t.lexer.parenthesisCount == 0:
         return t
 
@@ -230,10 +229,6 @@ def t_WS(t):
     if t.lexer.atLineStart and t.lexer.parenthesisCount == 0:
         return t
 
-# Ignore any other whitespace (not after a newline)
-# def t_ignore_WS(t):
-#     r' [ \t\f]+ '  # Match spaces, tabs, or form feed not preceded by a newline
-#     pass  # Ignore it (no return value means it won't be processed as a token)
 def INDENT(lineno):
     return newToken("INDENT", lineno)
 
@@ -327,8 +322,9 @@ class Lexer(object):
         self.lexer = lex.lex()
         self.token_stream = None
 
-    def input(self, data, addEndMarker=True):
+    def input(self, data, addEndMarker=True, filename=""):
         self.lexer.parenthesisCount = 0
+        self.lexer.filename = filename
         data += "\n"
         self.lexer.input(data)
         self.token_stream = filter(self.lexer, addEndMarker)
@@ -351,7 +347,7 @@ def read_file(file_name):
 #Give the lexer the test file
 file_name = 'test.txt'
 test_lexer = Lexer()
-test_lexer.input(read_file(file_name))
+test_lexer.input(read_file(file_name),filename=file_name)
 
 tok = test_lexer.token()
 while tok:
