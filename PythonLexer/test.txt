@@ -1,8 +1,24 @@
-def hello_world:
+# This is a comment
+def hello_world():
+  print("Hello world")
+  def foo():
+   if True:
+    print("Good bye world")  # This is also a comment
+  print("What have I done?")
+
+def hello_balatro():
   if (game == "balatro"):
     mood = fantastic
-  else if (day == 
+  elif (day ==
     "monday"):
     print("I hate mondays...")
 
-print("Hello World")
+print("Good luck! \"")
+"""
+Triple Quote " '
+"""
+'''Another Triple ' "'''
+"\""
+"Hello
+\" \'"
+'World'

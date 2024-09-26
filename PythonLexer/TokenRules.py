@@ -27,219 +27,206 @@ keywords = {
     'False': 'FALSE',
     # Other
     'del': 'DEL',
-    'finally': 'FINALLY',
-    'from': 'FROM',
     'global': 'GLOBAL',
     'in': 'IN',
     'is': 'IS',
     'None': 'NONE',
-    'nonlocal': 'NONLOCAL',
-    'raise': 'RAISE',
 }
 
 # Regular language tokens
 tokens = [
-    # Comments
-    # - Line comment
-    'C_LINE',
-
     # Literals
     # - String
-    'L_LINE_STRING',
+    'TRIPLE_STRING',
+    'STRING',
+
     # - Numerical
-    'L_FLOATING_POINT',
-    'L_INTEGER',
-    # - Boolean
-    'L_BOOLEAN',
+    'F_NUMBER',
+    'HEX_NUMBER',
+    'OCT_NUMBER',
+    'BIN_NUMBER',
+    'NUMBER',
 
     # Variables
     'IDENTIFIER',
 
     # Delimiters
     # - Grouping
-    'D_LEFT_PARENTHESIS',
-    'D_RIGHT_PARENTHESIS',
-    'D_LEFT_SQUARE_BRACKET',
-    'D_RIGHT_SQUARE_BRACKET',
-    'D_LEFT_CURLY_BRACE',
-    'D_RIGHT_CURLY_BRACE',
+    'L_PARENTHESIS',
+    'R_PARENTHESIS',
+    'L_SQB',
+    'R_SQB',
+    'L_CB',
+    'R_CB',
+
     # - Accesors
-    'D_DOT',
-    'D_AT_SIGN',
+    'DOT',
+    # Since decorators are not allowed could be remove, but apparently this is a matrix multiplication operator.
+    'AT',
+
     # - Separators
-    'D_COLON',
-    'D_COMMA',
+    'COLON',
+    'COMMA',
 
     # Operators
     # - Relational
-    'O_EQUALITY',
-    'O_INEQUALITY',
-    'O_GREATER_EQUAL',
-    'O_LESSER_EQUAL',
-    'O_GREATER',
-    'O_LESSER',
-    # - Assignment
-    'O_EXPONENTIATION_ASSIGNMENT',
-    'O_PRODUCT_ASSIGNMENT',
-    'O_INTEGER_DIVISION_ASSIGNMENT',
-    'O_DIVISION_ASSIGNMENT',
-    'O_SUM_ASSIGNMENT',
-    'O_SUBSTRACTION_ASSIGNMENT',
-    'O_MODULUS_ASSIGNMENT',
-    'O_ASSIGNMENT',
-    # - Logical
-    'O_LOGICAL_AND',
-    'O_LOGICAL_OR',
-    'O_LOGICAL_NOT',
-    # - Arithmetic
-    'O_EXPONENTIATION',
-    'O_PRODUCT',
-    'O_INTEGER_DIVISION',
-    'O_DIVISION',
-    'O_SUM',
-    'O_SUBSTRACTION',
-    'O_MODULUS',
-    'O_BITWISE_OR',
-    'O_BITWISE_AND',
+    'EQUALITY',
+    'INEQUALITY',
+    'GREATER_EQUAL',
+    'LESSER_EQUAL',
+    'GREATER',
+    'LESSER',
+    'L_SHIFT',
+    'R_SHIFT',
 
-    # Context-sensitive deliminters
-    'ESCAPED_NEWLINE',
+    # - Assignment
+    'EXPONENTIATION_ASSIGNMENT',
+    'PRODUCT_ASSIGNMENT',
+    'INTEGER_DIVISION_ASSIGNMENT',
+    'DIVISION_ASSIGNMENT',
+    'SUM_ASSIGNMENT',
+    'SUBTRACTION_ASSIGNMENT',
+    'MODULUS_ASSIGNMENT',
+    'ASSIGNMENT',
+
+    # - Arithmetic
+    'EXPONENTIATION',
+    'PRODUCT',
+    'INTEGER_DIVISION',
+    'DIVISION',
+    'SUM',
+    'SUBTRACTION',
+    'MODULUS',
+    'BITWISE_OR',
+    'BITWISE_AND',
+
     'NEWLINE',
     'WHITESPACE',
-
-    # Virtual delimiters
     'INDENT',
     'DEDENT',
     'ENDMARKER',
-
 ] + list(keywords.values())
 
 # Comments
-# - Line comment
-def t_C_LINE(t):
-    r'\#[^\n\r]*((\n\r)|(\n)|(\r))?'
+def t_comment(t):
+    r'\#[^\n\r]*$'
     pass
 
+# Delimiters
+# - Grouping
+t_L_PARENTHESIS = r'\('
+t_R_PARENTHESIS = r'\)'
+t_L_SQB = r'\['
+t_R_SQB = r'\]'
+t_L_CB = r'\{'
+t_R_CB = r'\}'
+
+# - Accesors
+t_DOT = r'\.'
+t_AT = r'@'
+
+# - Separators
+t_COLON = r':'
+t_COMMA = r','
+
+# Operators
+# - Relational
+t_EQUALITY = r'=='
+t_INEQUALITY = r'!='
+t_GREATER_EQUAL = r'>='
+t_LESSER_EQUAL = r'<='
+t_GREATER = r'>'
+t_LESSER = r'<'
+
+# - Assignment
+t_EXPONENTIATION_ASSIGNMENT = r'\*\*='
+t_PRODUCT_ASSIGNMENT = r'\*='
+t_INTEGER_DIVISION_ASSIGNMENT = r'\/\/='
+t_DIVISION_ASSIGNMENT = r'\/='
+t_SUM_ASSIGNMENT = r'\+='
+t_SUBTRACTION_ASSIGNMENT = r'-='
+t_MODULUS_ASSIGNMENT = r'%='
+t_ASSIGNMENT = r'='
+
+# - Arithmetic
+t_EXPONENTIATION = r'\*\*'
+t_PRODUCT = r'\*'
+t_INTEGER_DIVISION = r'\/\/'
+t_DIVISION = r'\/'
+t_SUM = r'\+'
+t_SUBTRACTION = r'-'
+t_MODULUS = r'%'
+t_BITWISE_OR = r'\|'
+t_BITWISE_AND = r'&'
+
 # Literals
-# - Line string
-def t_L_LINE_STRING(t):
-    (
-        r'('
-            r'"((\\t)|(\\n)|(\\")|(\\\\)|[^\n\r\\"])*"'
-        r')|('
-            r'\'((\\t)|(\\n)|(\\\')|(\\\\)|[^\n\r\\\'])*\''
-        r')'
-    )
-    t.value = bytes(t.value, "utf-8").decode("unicode_escape")[1:-1]
+# Rule for matching single and double-quoted strings
+def t_TRIPLE_STRING(t):
+    r'("""((\\n|\\t|\\\\|\\"|\\\'|\')|[^\\])*?"""|\'\'\'((\\n|\\t|\\\\|\\\'|\\\")|[^\\])*?\'\'\')'
+    t.value = bytes(t.value[3:-3], "utf-8").decode("unicode_escape")
     return t
 
-# - Numerical
-def t_L_FLOATING_POINT(t):
-    r'\d*\.\d+(e(\+|-)?\d+)?'
+# Rule for matching triple-quoted strings (both """ and ''')
+def t_STRING(t):
+    r'("((\\["\'\\tn]|[^"\\])*)")|(\'((\\["\'\\tn]|[^\'\\])*)\')'
+    t.value = bytes(t.value[1:-1], "utf-8").decode("unicode_escape")
+    return t
+
+
+def t_HEX_NUMBER(t):
+    r'0[xX][0-9a-fA-F]+'
+    t.value = int(t.value, 16)
+    return t
+
+def t_OCT_NUMBER(t):
+    r'0[oO][0-7]+'
+    t.value = int(t.value, 8)
+    return t
+
+def t_BIN_NUMBER(t):
+    r'0[bB][01]+'
+    t.value = int(t.value, 2)
+    return t
+
+def t_F_NUMBER(t):
+    r'(\.\d+|\d+\.\d*)((e(\+|-)?\d+)?)|\d+(e(\+|-)?\d+)'
     t.value = float(t.value)
     return t
 
-def t_L_INTEGER(t):
+def t_NUMBER(t):
     r'\d+'
     t.value = int(t.value)
     return t
 
-# - Boolean
-def t_L_BOOLEAN(t):
+def t_BOOLEAN(t):
     r'True|False'
+    t.type = t.value.upper()
     t.value = (t.value == r'True')
     return t
 
-# Keywords (fallback identifier)
 def t_IDENTIFIER(t):
     r'[a-zA-Z_][a-zA-Z0-9_]*'
     t.type = keywords.get(t.value,'IDENTIFIER')
     return t
 
-# Delimiters
-# - Grouping
-t_D_LEFT_PARENTHESIS = r'\('
-t_D_RIGHT_PARENTHESIS = r'\)'
-t_D_LEFT_SQUARE_BRACKET = r'\['
-t_D_RIGHT_SQUARE_BRACKET = r'\]'
-t_D_LEFT_CURLY_BRACE = r'\{'
-t_D_RIGHT_CURLY_BRACE = r'\}'
-# - Accesors
-t_D_DOT = r'\.'
-t_D_AT_SIGN = r'@'
-# - Separators
-t_D_COLON = r':'
-t_D_COMMA = r','
-
-# Operators
-# - Relational
-t_O_EQUALITY = r'=='
-t_O_INEQUALITY = r'!='
-t_O_GREATER_EQUAL = r'>='
-t_O_LESSER_EQUAL = r'<='
-t_O_GREATER = r'>'
-t_O_LESSER = r'<'
-# - Assignment
-t_O_EXPONENTIATION_ASSIGNMENT = r'\*\*='
-t_O_PRODUCT_ASSIGNMENT = r'\*='
-t_O_INTEGER_DIVISION_ASSIGNMENT = r'\/\/='
-t_O_DIVISION_ASSIGNMENT = r'\/='
-t_O_SUM_ASSIGNMENT = r'\+='
-t_O_SUBSTRACTION_ASSIGNMENT = r'-='
-t_O_MODULUS_ASSIGNMENT = r'%='
-t_O_ASSIGNMENT = r'='
-# - Logical
-t_O_LOGICAL_AND = r'(&&)|(and)'
-t_O_LOGICAL_OR = r'(\|\|)|(or)'
-t_O_LOGICAL_NOT = r'(!)|(not)'
-# - Arithmetic
-t_O_EXPONENTIATION = r'\*\*'
-t_O_PRODUCT = r'\*'
-t_O_INTEGER_DIVISION = r'\/\/'
-t_O_DIVISION = r'\/'
-t_O_SUM = r'\+'
-t_O_SUBSTRACTION = r'-'
-t_O_MODULUS = r'%'
-t_O_BITWISE_OR = r'\|'
-t_O_BITWISE_AND = r'&'
-
-# Context-sensitive delimiters
-# - Escaped newline
-def t_ESCAPED_NEWLINE(t):
+def t_escaped_newline(t):
     r'\\(\n\r|\n|\r)'
     t.lexer.lineno += 1
     pass
 
-# - Newline
 def t_NEWLINE(t):
     r'(\n\r|\n|\r)+'
     t.lexer.lineno += len(t.value)
     return t
 
-# TODO:
-# ¿Qué representa este token y efecto secundario?
-# def t_WS(t):
-#     r" [ \t\f]+ "
-#     value = t.value
-#     value = value.rsplit("\f", 1)[-1]
-#     pos = 0
-#     while True:
-#         pos = value.find("\t")
-#         if pos == -1:
-#             break
-#         n = 8 - (pos % 8)
-#         value = value[:pos] + " " * n + value[pos+1:]
-#     t.value = value
-#     if t.lexer.atLinestart and t.lexer.parenthesisCount == 0:
-#         return t
-
-# - Contigous Whitespace
 def t_WHITESPACE(t):
     r'[ \t\f]+'
     return t
 
-# Unmatched token
+# May want to log errors on errorlist to give them formatting.
+class LexingError(Exception):
+    pass
+
 def t_error(t):
-    decoded = t.value.encode('unicode_escape').decode('utf-8')
-    print("Unrecognized sequence: %s" % decoded)
     t.lexer.skip(1)
+    raise LexingError(f"unrecognized sequence: {t.value} on line {t.lineno}")
