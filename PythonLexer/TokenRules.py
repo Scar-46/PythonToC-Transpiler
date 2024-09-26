@@ -109,7 +109,7 @@ tokens = [
 
 # Comments
 def t_comment(t):
-    r'\#[^\n\r]*((\n\r)|(\n)|(\r))?'
+    r'\#[^\n\r]*$'
     pass
 
 # Delimiters
@@ -162,21 +162,17 @@ t_BITWISE_AND = r'&'
 # Literals
 # Rule for matching single and double-quoted strings
 def t_TRIPLE_STRING(t):
-    r'("""((\\n|\\t|\\\\|\\"|\\\')|[^"\\])*?"""|\'\'\'((\\n|\\t|\\\\|\\\'|\\\')|[^\'\\])*?\'\'\')'
+    r'("""((\\n|\\t|\\\\|\\"|\\\'|\')|[^\\])*?"""|\'\'\'((\\n|\\t|\\\\|\\\'|\\\")|[^\\])*?\'\'\')'
     t.value = bytes(t.value[3:-3], "utf-8").decode("unicode_escape")
     return t
 
-
-
 # Rule for matching triple-quoted strings (both """ and ''')
 def t_STRING(t):
-    r'("((\\n|\\t|\\\\|\\"|\\\')|[^"\\])*?")|(\'((\\n|\\t|\\\\|\\\'|\\\')|[^\'\\])*?\')'
+    r'("((\\["\'\\tn]|[^"\\])*)")|(\'((\\["\'\\tn]|[^\'\\])*)\')'
     t.value = bytes(t.value[1:-1], "utf-8").decode("unicode_escape")
     return t
 
 
-
-    
 def t_HEX_NUMBER(t):
     r'0[xX][0-9a-fA-F]+'
     t.value = int(t.value, 16)
@@ -193,7 +189,7 @@ def t_BIN_NUMBER(t):
     return t
 
 def t_F_NUMBER(t):
-    r'\d*\.\d+(e(\+|-)?\d+)?'
+    r'(\.\d+|\d+\.\d*)((e(\+|-)?\d+)?)|\d+(e(\+|-)?\d+)'
     t.value = float(t.value)
     return t
 
@@ -228,7 +224,9 @@ def t_WHITESPACE(t):
     return t
 
 # May want to log errors on errorlist to give them formatting.
+class LexingError(Exception):
+    pass
+
 def t_error(t):
     t.lexer.skip(1)
-    raise SyntaxError(f"unrecognized sequence: {t.value}")
-    
+    raise LexingError(f"unrecognized sequence: {t.value} on line {t.lineno}")

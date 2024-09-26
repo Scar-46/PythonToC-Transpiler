@@ -72,7 +72,7 @@ class TestLexer(unittest.TestCase):
 
     def test_literals(self):
         # Test for normal strings
-        input_str = '"Hello" \'World\''
+        input_str = "\"Hello \\\" \\'\" 'World'"
         expected_tokens = [
             NEW_TOKEN("STRING", 0),
             NEW_TOKEN("STRING", 0),
@@ -93,8 +93,10 @@ class TestLexer(unittest.TestCase):
         self.assertTokens(input_str, expected_tokens)
 
         # Test for Triple strings
-        input_str = '"""Triple Quote""" \'\'\'Another Triple\'\'\''
+        input_str = '"""Triple\nQuote""" \'\'\'Another Triple\'\'\' """Hello " """ \'\'\'Hello \' \'\'\''
         expected_tokens = [
+            NEW_TOKEN("TRIPLE_STRING", 0),
+            NEW_TOKEN("TRIPLE_STRING", 0),
             NEW_TOKEN("TRIPLE_STRING", 0),
             NEW_TOKEN("TRIPLE_STRING", 0),
             NEW_TOKEN("ENDMARKER", 0)
