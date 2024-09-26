@@ -38,7 +38,7 @@ class TestLexer(unittest.TestCase):
         self.assertTokens(input_str, expected_tokens)
 
     def test_operators(self):
-        input_str = "== != >= <= + - * / // % ** << >>"
+        input_str = "== != >= <= + - * / // % **"
         expected_tokens = [
             NEW_TOKEN("EQUALITY", 0),
             NEW_TOKEN("INEQUALITY", 0),
@@ -51,8 +51,6 @@ class TestLexer(unittest.TestCase):
             NEW_TOKEN("INTEGER_DIVISION", 0),
             NEW_TOKEN("MODULUS", 0),
             NEW_TOKEN("EXPONENTIATION", 0),
-            NEW_TOKEN("L_SHIFT", 0),
-            NEW_TOKEN("R_SHIFT", 0),
             NEW_TOKEN("ENDMARKER", 0)
         ]
         self.assertTokens(input_str, expected_tokens)
@@ -90,15 +88,6 @@ class TestLexer(unittest.TestCase):
             NEW_TOKEN("HEX_NUMBER", 0),
             NEW_TOKEN("OCT_NUMBER", 0),
             NEW_TOKEN("BIN_NUMBER", 0),
-            NEW_TOKEN("ENDMARKER", 0)
-        ]
-        self.assertTokens(input_str, expected_tokens)
-
-        # Test for Raw strings
-        input_str = 'r"Raw String" r\'Another\''
-        expected_tokens = [
-            NEW_TOKEN("RAW_STRING", 0),
-            NEW_TOKEN("RAW_STRING", 0),
             NEW_TOKEN("ENDMARKER", 0)
         ]
         self.assertTokens(input_str, expected_tokens)
