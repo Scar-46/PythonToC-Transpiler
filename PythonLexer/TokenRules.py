@@ -66,6 +66,7 @@ tokens = [
 
     # - Separators
     'COLON',
+    'SEMICOLON',
     'COMMA',
 
     # Operators
@@ -91,7 +92,7 @@ tokens = [
 
     # - Arithmetic
     'EXPONENTIATION',
-    'PRODUCT',
+    'STAR',
     'INTEGER_DIVISION',
     'DIVISION',
     'SUM',
@@ -127,6 +128,7 @@ t_AT = r'@'
 
 # - Separators
 t_COLON = r':'
+t_SEMICOLON = r';'
 t_COMMA = r','
 
 # Operators
@@ -150,7 +152,7 @@ t_ASSIGNMENT = r'='
 
 # - Arithmetic
 t_EXPONENTIATION = r'\*\*'
-t_PRODUCT = r'\*'
+t_STAR = r'\*'
 t_INTEGER_DIVISION = r'\/\/'
 t_DIVISION = r'\/'
 t_SUM = r'\+'
