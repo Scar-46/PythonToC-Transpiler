@@ -7,7 +7,6 @@ def test_valid_input():
     
     # A simple Python-like code snippet (could be enhanced based on your grammar)
     code = 'print("Hello World")\n'
-    
     # Ensure that no syntax errors occur during parsing
     try:
         result = parser.parse(code)
@@ -31,7 +30,6 @@ def test_empty_input():
 def test_input_with_newline():
     parser = Parser()
     code = 'print("Hello World")\n'
-    
     try:
         result = parser.parse(code)
         assert result is not None

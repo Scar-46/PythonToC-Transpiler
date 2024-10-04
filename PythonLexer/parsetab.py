@@ -6,9 +6,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = "file_inputAND AS ASSIGNMENT AT BIN_NUMBER BITWISE_AND BITWISE_OR BREAK CLASS COLON COMMA CONTINUE DEDENT DEF DEL DIVISION DIVISION_ASSIGNMENT DOT ELIF ELSE ENDMARKER EQUALITY EXPONENTIATION EXPONENTIATION_ASSIGNMENT FALSE FOR F_NUMBER GLOBAL GREATER GREATER_EQUAL HEX_NUMBER IDENTIFIER IF IN INDENT INEQUALITY INTEGER_DIVISION INTEGER_DIVISION_ASSIGNMENT IS LESSER LESSER_EQUAL L_CB L_PARENTHESIS L_SHIFT L_SQB MODULUS MODULUS_ASSIGNMENT NEWLINE NONE NOT NUMBER OCT_NUMBER OR PASS PRODUCT PRODUCT_ASSIGNMENT RETURN R_CB R_PARENTHESIS R_SHIFT R_SQB STRING SUBTRACTION SUBTRACTION_ASSIGNMENT SUM SUM_ASSIGNMENT TRIPLE_STRING TRUE WHILE WHITESPACEfile_input : stmt_list ENDMARKER\n    stmt_list : stmt_list stmt\n                 | empty\n    stmt : simple_stmt\n            | expr_stmt\n            | func_call_stmt\n    simple_stmt : NEWLINE\n    expr_stmt : expr\n    func_call_stmt : function_call\n    expr : STRING\n            | NUMBER\n    function_call : IDENTIFIER L_PARENTHESIS arg_list R_PARENTHESIS\n    arg_list : expr\n                | expr ',' arg_list\n                | empty\n    empty :"
+_lr_signature = 'fileAND AS ASSIGNMENT AT BIN_NUMBER BITWISE_AND BITWISE_OR BREAK CLASS COLON COMMA CONTINUE DEDENT DEF DEL DIVISION DIVISION_ASSIGNMENT DOT ELIF ELSE ENDMARKER EQUALITY EXPONENTIATION EXPONENTIATION_ASSIGNMENT FALSE FOR F_NUMBER GLOBAL GREATER GREATER_EQUAL HEX_NUMBER IDENTIFIER IF IN INDENT INEQUALITY INTEGER_DIVISION INTEGER_DIVISION_ASSIGNMENT IS LESSER LESSER_EQUAL L_CB L_PARENTHESIS L_SHIFT L_SQB MODULUS MODULUS_ASSIGNMENT NEWLINE NONE NOT NUMBER OCT_NUMBER OR PASS PRODUCT PRODUCT_ASSIGNMENT RETURN R_CB R_PARENTHESIS R_SHIFT R_SQB SEMICOLON STRING SUBTRACTION SUBTRACTION_ASSIGNMENT SUM SUM_ASSIGNMENT TRIPLE_STRING TRUE WHILE WHITESPACEfile : statements ENDMARKER\n    statements : statements statement\n                  | statement\n    statement : compound_stmt\n                 | simple_stmts\n    simple_stmts : simple_stmt SEMICOLON simple_stmts\n                    | simple_stmt NEWLINE\n    simple_stmt : assignment\n                   | return_stmt\n                   | PASS\n                   | del_stmt\n                   | BREAK \n                   | CONTINUE \n                   | global_stmt\n    compound_stmt : function_def\n                     | if_stmt\n                     | class_def\n                     | for_stmt\n                     | while_stmt\n    assignment : IDENTIFIER augmentation_assignment expressions\n                  | IDENTIFIER augmentation_assignment IDENTIFIER\n    augmentation_assignment : SUM_ASSIGNMENT\n                               | SUBTRACTION_ASSIGNMENT\n                               | PRODUCT_ASSIGNMENT\n                               | DIVISION_ASSIGNMENT\n                               | MODULUS_ASSIGNMENT\n                               | EXPONENTIATION_ASSIGNMENT\n                               | INTEGER_DIVISION_ASSIGNMENT\n    return_stmt : RETURN expressions\n    global_stmt : GLOBAL IDENTIFIER COMMA global_stmt\n                   | GLOBAL IDENTIFIER\n    del_stmt : DEL IDENTIFIER COMMA del_stmt\n                | DEL IDENTIFIER\n    block : NEWLINE INDENT statements DEDENT\n             | simple_stmts\n    class_def : class_def_raw\n    class_def_raw : CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block\n                     | CLASS IDENTIFIER COLON block\n    function_def : function_def_raw \n    function_def_raw : DEF IDENTIFIER L_PARENTHESIS params R_PARENTHESIS COLON block\n                        | DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block\n    params : parameters\n    parameters : IDENTIFIER COMMA parameters\n                  | IDENTIFIER\n    if_stmt : IF named_expression COLON block elif_stmt\n               | IF named_expression COLON block else_block\n               | IF named_expression COLON block\n    elif_stmt : ELIF named_expression COLON block elif_stmt\n                 | ELIF named_expression COLON block else_block\n                 | ELIF named_expression COLON block\n    else_block : ELSE COLON block\n    while_stmt : WHILE named_expression COLON block else_block\n                  | WHILE named_expression COLON block\n    for_stmt : FOR IDENTIFIER IN IDENTIFIER COLON else_block\n                | FOR IDENTIFIER IN IDENTIFIER COLON block\n    expressions : expression COMMA expressions COMMA\n                   | expression COMMA expressions\n                   | expression COMMA\n                   | expression\n    expression : empty\n    named_expression : expression\n    arguments :\n    empty :'
     
-_lr_action_items = {'ENDMARKER':([0,2,3,5,6,7,8,9,10,11,12,13,19,],[-16,4,-3,-2,-4,-5,-6,-7,-8,-9,-10,-11,-12,]),'NEWLINE':([0,2,3,5,6,7,8,9,10,11,12,13,19,],[-16,9,-3,-2,-4,-5,-6,-7,-8,-9,-10,-11,-12,]),'STRING':([0,2,3,5,6,7,8,9,10,11,12,13,15,19,20,],[-16,12,-3,-2,-4,-5,-6,-7,-8,-9,-10,-11,12,-12,12,]),'NUMBER':([0,2,3,5,6,7,8,9,10,11,12,13,15,19,20,],[-16,13,-3,-2,-4,-5,-6,-7,-8,-9,-10,-11,13,-12,13,]),'IDENTIFIER':([0,2,3,5,6,7,8,9,10,11,12,13,19,],[-16,14,-3,-2,-4,-5,-6,-7,-8,-9,-10,-11,-12,]),'$end':([1,4,],[0,-1,]),',':([12,13,17,],[-10,-11,20,]),'R_PARENTHESIS':([12,13,15,16,17,18,20,21,],[-10,-11,-16,19,-13,-15,-16,-14,]),'L_PARENTHESIS':([14,],[15,]),}
+_lr_action_items = {'IF':([0,2,3,4,5,6,7,8,9,10,12,14,31,33,53,65,67,69,75,79,80,83,85,93,94,95,98,101,102,103,104,105,106,107,],[13,13,-3,-4,-5,-15,-16,-17,-18,-19,-39,-36,-2,-7,-6,-47,-35,-53,-38,-45,-46,13,-52,13,-54,-55,-41,-51,-34,-40,-37,-50,-48,-49,]),'FOR':([0,2,3,4,5,6,7,8,9,10,12,14,31,33,53,65,67,69,75,79,80,83,85,93,94,95,98,101,102,103,104,105,106,107,],[15,15,-3,-4,-5,-15,-16,-17,-18,-19,-39,-36,-2,-7,-6,-47,-35,-53,-38,-45,-46,15,-52,15,-54,-55,-41,-51,-34,-40,-37,-50,-48,-49,]),'WHILE':([0,2,3,4,5,6,7,8,9,10,12,14,31,33,53,65,67,69,75,79,80,83,85,93,94,95,98,101,102,103,104,105,106,107,],[17,17,-3,-4,-5,-15,-16,-17,-18,-19,-39,-36,-2,-7,-6,-47,-35,-53,-38,-45,-46,17,-52,17,-54,-55,-41,-51,-34,-40,-37,-50,-48,-49,]),'PASS':([0,2,3,4,5,6,7,8,9,10,12,14,31,32,33,53,54,58,61,65,67,69,75,79,80,83,84,85,88,92,93,94,95,97,98,99,100,101,102,103,104,105,106,107,],[20,20,-3,-4,-5,-15,-16,-17,-18,-19,-39,-36,-2,20,-7,-6,20,20,20,-47,-35,-53,-38,-45,-46,20,20,-52,20,20,20,-54,-55,20,-41,20,20,-51,-34,-40,-37,-50,-48,-49,]),'BREAK':([0,2,3,4,5,6,7,8,9,10,12,14,31,32,33,53,54,58,61,65,67,69,75,79,80,83,84,85,88,92,93,94,95,97,98,99,100,101,102,103,104,105,106,107,],[22,22,-3,-4,-5,-15,-16,-17,-18,-19,-39,-36,-2,22,-7,-6,22,22,22,-47,-35,-53,-38,-45,-46,22,22,-52,22,22,22,-54,-55,22,-41,22,22,-51,-34,-40,-37,-50,-48,-49,]),'CONTINUE':([0,2,3,4,5,6,7,8,9,10,12,14,31,32,33,53,54,58,61,65,67,69,75,79,80,83,84,85,88,92,93,94,95,97,98,99,100,101,102,103,104,105,106,107,],[23,23,-3,-4,-5,-15,-16,-17,-18,-19,-39,-36,-2,23,-7,-6,23,23,23,-47,-35,-53,-38,-45,-46,23,23,-52,23,23,23,-54,-55,23,-41,23,23,-51,-34,-40,-37,-50,-48,-49,]),'DEF':([0,2,3,4,5,6,7,8,9,10,12,14,31,33,53,65,67,69,75,79,80,83,85,93,94,95,98,101,102,103,104,105,106,107,],[25,25,-3,-4,-5,-15,-16,-17,-18,-19,-39,-36,-2,-7,-6,-47,-35,-53,-38,-45,-46,25,-52,25,-54,-55,-41,-51,-34,-40,-37,-50,-48,-49,]),'CLASS':([0,2,3,4,5,6,7,8,9,10,12,14,31,33,53,65,67,69,75,79,80,83,85,93,94,95,98,101,102,103,104,105,106,107,],[26,26,-3,-4,-5,-15,-16,-17,-18,-19,-39,-36,-2,-7,-6,-47,-35,-53,-38,-45,-46,26,-52,26,-54,-55,-41,-51,-34,-40,-37,-50,-48,-49,]),'IDENTIFIER':([0,2,3,4,5,6,7,8,9,10,12,14,15,25,26,28,29,31,32,33,38,39,40,41,42,43,44,45,53,54,55,58,59,61,65,67,69,75,79,80,83,84,85,86,88,92,93,94,95,97,98,99,100,101,102,103,104,105,106,107,],[16,16,-3,-4,-5,-15,-16,-17,-18,-19,-39,-36,37,47,48,51,52,-2,16,-7,56,-22,-23,-24,-25,-26,-27,-28,-6,16,68,16,70,16,-47,-35,-53,-38,-45,-46,16,16,-52,70,16,16,16,-54,-55,16,-41,16,16,-51,-34,-40,-37,-50,-48,-49,]),'RETURN':([0,2,3,4,5,6,7,8,9,10,12,14,31,32,33,53,54,58,61,65,67,69,75,79,80,83,84,85,88,92,93,94,95,97,98,99,100,101,102,103,104,105,106,107,],[27,27,-3,-4,-5,-15,-16,-17,-18,-19,-39,-36,-2,27,-7,-6,27,27,27,-47,-35,-53,-38,-45,-46,27,27,-52,27,27,27,-54,-55,27,-41,27,27,-51,-34,-40,-37,-50,-48,-49,]),'DEL':([0,2,3,4,5,6,7,8,9,10,12,14,31,32,33,53,54,58,61,63,65,67,69,75,79,80,83,84,85,88,92,93,94,95,97,98,99,100,101,102,103,104,105,106,107,],[28,28,-3,-4,-5,-15,-16,-17,-18,-19,-39,-36,-2,28,-7,-6,28,28,28,28,-47,-35,-53,-38,-45,-46,28,28,-52,28,28,28,-54,-55,28,-41,28,28,-51,-34,-40,-37,-50,-48,-49,]),'GLOBAL':([0,2,3,4,5,6,7,8,9,10,12,14,31,32,33,53,54,58,61,64,65,67,69,75,79,80,83,84,85,88,92,93,94,95,97,98,99,100,101,102,103,104,105,106,107,],[29,29,-3,-4,-5,-15,-16,-17,-18,-19,-39,-36,-2,29,-7,-6,29,29,29,29,-47,-35,-53,-38,-45,-46,29,29,-52,29,29,29,-54,-55,29,-41,29,29,-51,-34,-40,-37,-50,-48,-49,]),'$end':([1,30,],[0,-1,]),'ENDMARKER':([2,3,4,5,6,7,8,9,10,12,14,31,33,53,65,67,69,75,79,80,85,94,95,98,101,102,103,104,105,106,107,],[30,-3,-4,-5,-15,-16,-17,-18,-19,-39,-36,-2,-7,-6,-47,-35,-53,-38,-45,-46,-52,-54,-55,-41,-51,-34,-40,-37,-50,-48,-49,]),'DEDENT':([3,4,5,6,7,8,9,10,12,14,31,33,53,65,67,69,75,79,80,85,93,94,95,98,101,102,103,104,105,106,107,],[-3,-4,-5,-15,-16,-17,-18,-19,-39,-36,-2,-7,-6,-47,-35,-53,-38,-45,-46,-52,102,-54,-55,-41,-51,-34,-40,-37,-50,-48,-49,]),'SEMICOLON':([11,18,19,20,21,22,23,24,27,36,38,39,40,41,42,43,44,45,49,50,51,52,56,57,62,76,77,78,90,],[32,-8,-9,-10,-11,-12,-13,-14,-63,-60,-63,-22,-23,-24,-25,-26,-27,-28,-29,-59,-33,-31,-21,-20,-58,-57,-32,-30,-56,]),'NEWLINE':([11,18,19,20,21,22,23,24,27,36,38,39,40,41,42,43,44,45,49,50,51,52,54,56,57,58,61,62,76,77,78,84,88,90,92,97,99,100,],[33,-8,-9,-10,-11,-12,-13,-14,-63,-60,-63,-22,-23,-24,-25,-26,-27,-28,-29,-59,-33,-31,66,-21,-20,66,66,-58,-57,-32,-30,66,66,-56,66,66,66,66,]),'COLON':([13,17,34,35,36,46,48,68,72,81,82,87,89,91,],[-63,-63,54,-61,-60,58,61,84,88,-63,92,97,99,100,]),'SUM_ASSIGNMENT':([16,],[39,]),'SUBTRACTION_ASSIGNMENT':([16,],[40,]),'PRODUCT_ASSIGNMENT':([16,],[41,]),'DIVISION_ASSIGNMENT':([16,],[42,]),'MODULUS_ASSIGNMENT':([16,],[43,]),'EXPONENTIATION_ASSIGNMENT':([16,],[44,]),'INTEGER_DIVISION_ASSIGNMENT':([16,],[45,]),'COMMA':([27,36,38,39,40,41,42,43,44,45,50,51,52,62,70,76,90,],[-63,-60,-63,-22,-23,-24,-25,-26,-27,-28,62,63,64,-58,86,90,-56,]),'ELIF':([33,53,65,67,102,105,],[-7,-6,81,-35,-34,81,]),'ELSE':([33,53,65,67,69,84,102,105,],[-7,-6,82,-35,82,82,-34,82,]),'IN':([37,],[55,]),'L_PARENTHESIS':([47,48,],[59,60,]),'R_PARENTHESIS':([59,60,70,71,73,74,96,],[72,-62,-44,87,-42,89,-43,]),'INDENT':([66,],[83,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -17,7 +17,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'file_input':([0,],[1,]),'stmt_list':([0,],[2,]),'empty':([0,15,20,],[3,18,18,]),'stmt':([2,],[5,]),'simple_stmt':([2,],[6,]),'expr_stmt':([2,],[7,]),'func_call_stmt':([2,],[8,]),'expr':([2,15,20,],[10,17,17,]),'function_call':([2,],[11,]),'arg_list':([15,20,],[16,21,]),}
+_lr_goto_items = {'file':([0,],[1,]),'statements':([0,83,],[2,93,]),'statement':([0,2,83,93,],[3,31,3,31,]),'compound_stmt':([0,2,83,93,],[4,4,4,4,]),'simple_stmts':([0,2,32,54,58,61,83,84,88,92,93,97,99,100,],[5,5,53,67,67,67,5,67,67,67,5,67,67,67,]),'function_def':([0,2,83,93,],[6,6,6,6,]),'if_stmt':([0,2,83,93,],[7,7,7,7,]),'class_def':([0,2,83,93,],[8,8,8,8,]),'for_stmt':([0,2,83,93,],[9,9,9,9,]),'while_stmt':([0,2,83,93,],[10,10,10,10,]),'simple_stmt':([0,2,32,54,58,61,83,84,88,92,93,97,99,100,],[11,11,11,11,11,11,11,11,11,11,11,11,11,11,]),'function_def_raw':([0,2,83,93,],[12,12,12,12,]),'class_def_raw':([0,2,83,93,],[14,14,14,14,]),'assignment':([0,2,32,54,58,61,83,84,88,92,93,97,99,100,],[18,18,18,18,18,18,18,18,18,18,18,18,18,18,]),'return_stmt':([0,2,32,54,58,61,83,84,88,92,93,97,99,100,],[19,19,19,19,19,19,19,19,19,19,19,19,19,19,]),'del_stmt':([0,2,32,54,58,61,63,83,84,88,92,93,97,99,100,],[21,21,21,21,21,21,77,21,21,21,21,21,21,21,21,]),'global_stmt':([0,2,32,54,58,61,64,83,84,88,92,93,97,99,100,],[24,24,24,24,24,24,78,24,24,24,24,24,24,24,24,]),'named_expression':([13,17,81,],[34,46,91,]),'expression':([13,17,27,38,62,81,],[35,35,50,50,50,35,]),'empty':([13,17,27,38,62,81,],[36,36,36,36,36,36,]),'augmentation_assignment':([16,],[38,]),'expressions':([27,38,62,],[49,57,76,]),'block':([54,58,61,84,88,92,97,99,100,],[65,69,75,95,98,101,103,104,105,]),'params':([59,],[71,]),'parameters':([59,86,],[73,96,]),'arguments':([60,],[74,]),'elif_stmt':([65,105,],[79,106,]),'else_block':([65,69,84,105,],[80,85,94,107,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -26,21 +26,68 @@ for _k, _v in _lr_goto_items.items():
        _lr_goto[_x][_k] = _y
 del _lr_goto_items
 _lr_productions = [
-  ("S' -> file_input","S'",1,None,None,None),
-  ('file_input -> stmt_list ENDMARKER','file_input',2,'p_file_input','Parser.py',7),
-  ('stmt_list -> stmt_list stmt','stmt_list',2,'p_stmt_list','Parser.py',12),
-  ('stmt_list -> empty','stmt_list',1,'p_stmt_list','Parser.py',13),
-  ('stmt -> simple_stmt','stmt',1,'p_stmt','Parser.py',18),
-  ('stmt -> expr_stmt','stmt',1,'p_stmt','Parser.py',19),
-  ('stmt -> func_call_stmt','stmt',1,'p_stmt','Parser.py',20),
-  ('simple_stmt -> NEWLINE','simple_stmt',1,'p_simple_stmt','Parser.py',25),
-  ('expr_stmt -> expr','expr_stmt',1,'p_expr_stmt','Parser.py',30),
-  ('func_call_stmt -> function_call','func_call_stmt',1,'p_func_call_stmt','Parser.py',35),
-  ('expr -> STRING','expr',1,'p_expr','Parser.py',40),
-  ('expr -> NUMBER','expr',1,'p_expr','Parser.py',41),
-  ('function_call -> IDENTIFIER L_PARENTHESIS arg_list R_PARENTHESIS','function_call',4,'p_function_call','Parser.py',46),
-  ('arg_list -> expr','arg_list',1,'p_arg_list','Parser.py',51),
-  ('arg_list -> expr , arg_list','arg_list',3,'p_arg_list','Parser.py',52),
-  ('arg_list -> empty','arg_list',1,'p_arg_list','Parser.py',53),
-  ('empty -> <empty>','empty',0,'p_empty','Parser.py',58),
+  ("S' -> file","S'",1,None,None,None),
+  ('file -> statements ENDMARKER','file',2,'p_file','Parser.py',67),
+  ('statements -> statements statement','statements',2,'p_statements','Parser.py',76),
+  ('statements -> statement','statements',1,'p_statements','Parser.py',77),
+  ('statement -> compound_stmt','statement',1,'p_statement','Parser.py',83),
+  ('statement -> simple_stmts','statement',1,'p_statement','Parser.py',84),
+  ('simple_stmts -> simple_stmt SEMICOLON simple_stmts','simple_stmts',3,'p_simple_stmts','Parser.py',93),
+  ('simple_stmts -> simple_stmt NEWLINE','simple_stmts',2,'p_simple_stmts','Parser.py',94),
+  ('simple_stmt -> assignment','simple_stmt',1,'p_simple_stmt','Parser.py',101),
+  ('simple_stmt -> return_stmt','simple_stmt',1,'p_simple_stmt','Parser.py',102),
+  ('simple_stmt -> PASS','simple_stmt',1,'p_simple_stmt','Parser.py',103),
+  ('simple_stmt -> del_stmt','simple_stmt',1,'p_simple_stmt','Parser.py',104),
+  ('simple_stmt -> BREAK','simple_stmt',1,'p_simple_stmt','Parser.py',105),
+  ('simple_stmt -> CONTINUE','simple_stmt',1,'p_simple_stmt','Parser.py',106),
+  ('simple_stmt -> global_stmt','simple_stmt',1,'p_simple_stmt','Parser.py',107),
+  ('compound_stmt -> function_def','compound_stmt',1,'p_compound_stmt','Parser.py',113),
+  ('compound_stmt -> if_stmt','compound_stmt',1,'p_compound_stmt','Parser.py',114),
+  ('compound_stmt -> class_def','compound_stmt',1,'p_compound_stmt','Parser.py',115),
+  ('compound_stmt -> for_stmt','compound_stmt',1,'p_compound_stmt','Parser.py',116),
+  ('compound_stmt -> while_stmt','compound_stmt',1,'p_compound_stmt','Parser.py',117),
+  ('assignment -> IDENTIFIER augmentation_assignment expressions','assignment',3,'p_assignment','Parser.py',126),
+  ('assignment -> IDENTIFIER augmentation_assignment IDENTIFIER','assignment',3,'p_assignment','Parser.py',127),
+  ('augmentation_assignment -> SUM_ASSIGNMENT','augmentation_assignment',1,'p_augmentation_assignment','Parser.py',133),
+  ('augmentation_assignment -> SUBTRACTION_ASSIGNMENT','augmentation_assignment',1,'p_augmentation_assignment','Parser.py',134),
+  ('augmentation_assignment -> PRODUCT_ASSIGNMENT','augmentation_assignment',1,'p_augmentation_assignment','Parser.py',135),
+  ('augmentation_assignment -> DIVISION_ASSIGNMENT','augmentation_assignment',1,'p_augmentation_assignment','Parser.py',136),
+  ('augmentation_assignment -> MODULUS_ASSIGNMENT','augmentation_assignment',1,'p_augmentation_assignment','Parser.py',137),
+  ('augmentation_assignment -> EXPONENTIATION_ASSIGNMENT','augmentation_assignment',1,'p_augmentation_assignment','Parser.py',138),
+  ('augmentation_assignment -> INTEGER_DIVISION_ASSIGNMENT','augmentation_assignment',1,'p_augmentation_assignment','Parser.py',139),
+  ('return_stmt -> RETURN expressions','return_stmt',2,'p_return_stmt','Parser.py',146),
+  ('global_stmt -> GLOBAL IDENTIFIER COMMA global_stmt','global_stmt',4,'p_global_stmt','Parser.py',151),
+  ('global_stmt -> GLOBAL IDENTIFIER','global_stmt',2,'p_global_stmt','Parser.py',152),
+  ('del_stmt -> DEL IDENTIFIER COMMA del_stmt','del_stmt',4,'p_del_stmt','Parser.py',157),
+  ('del_stmt -> DEL IDENTIFIER','del_stmt',2,'p_del_stmt','Parser.py',158),
+  ('block -> NEWLINE INDENT statements DEDENT','block',4,'p_block','Parser.py',168),
+  ('block -> simple_stmts','block',1,'p_block','Parser.py',169),
+  ('class_def -> class_def_raw','class_def',1,'p_class_def','Parser.py',177),
+  ('class_def_raw -> CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block','class_def_raw',7,'p_class_def_raw','Parser.py',184),
+  ('class_def_raw -> CLASS IDENTIFIER COLON block','class_def_raw',4,'p_class_def_raw','Parser.py',185),
+  ('function_def -> function_def_raw','function_def',1,'p_function_def','Parser.py',190),
+  ('function_def_raw -> DEF IDENTIFIER L_PARENTHESIS params R_PARENTHESIS COLON block','function_def_raw',7,'p_function_def_raw','Parser.py',198),
+  ('function_def_raw -> DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block','function_def_raw',6,'p_function_def_raw','Parser.py',199),
+  ('params -> parameters','params',1,'p_params','Parser.py',204),
+  ('parameters -> IDENTIFIER COMMA parameters','parameters',3,'p_parameters','Parser.py',216),
+  ('parameters -> IDENTIFIER','parameters',1,'p_parameters','Parser.py',217),
+  ('if_stmt -> IF named_expression COLON block elif_stmt','if_stmt',5,'p_if_stmt','Parser.py',227),
+  ('if_stmt -> IF named_expression COLON block else_block','if_stmt',5,'p_if_stmt','Parser.py',228),
+  ('if_stmt -> IF named_expression COLON block','if_stmt',4,'p_if_stmt','Parser.py',229),
+  ('elif_stmt -> ELIF named_expression COLON block elif_stmt','elif_stmt',5,'p_elif_stmt','Parser.py',238),
+  ('elif_stmt -> ELIF named_expression COLON block else_block','elif_stmt',5,'p_elif_stmt','Parser.py',239),
+  ('elif_stmt -> ELIF named_expression COLON block','elif_stmt',4,'p_elif_stmt','Parser.py',240),
+  ('else_block -> ELSE COLON block','else_block',3,'p_else_block','Parser.py',245),
+  ('while_stmt -> WHILE named_expression COLON block else_block','while_stmt',5,'p_while_stmt','Parser.py',253),
+  ('while_stmt -> WHILE named_expression COLON block','while_stmt',4,'p_while_stmt','Parser.py',254),
+  ('for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON else_block','for_stmt',6,'p_for_stmt','Parser.py',263),
+  ('for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON block','for_stmt',6,'p_for_stmt','Parser.py',264),
+  ('expressions -> expression COMMA expressions COMMA','expressions',4,'p_expressions','Parser.py',273),
+  ('expressions -> expression COMMA expressions','expressions',3,'p_expressions','Parser.py',274),
+  ('expressions -> expression COMMA','expressions',2,'p_expressions','Parser.py',275),
+  ('expressions -> expression','expressions',1,'p_expressions','Parser.py',276),
+  ('expression -> empty','expression',1,'p_expression','Parser.py',282),
+  ('named_expression -> expression','named_expression',1,'p_named_expression','Parser.py',286),
+  ('arguments -> <empty>','arguments',0,'p_arguments','Parser.py',294),
+  ('empty -> <empty>','empty',0,'p_empty','Parser.py',299),
 ]
