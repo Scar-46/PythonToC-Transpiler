@@ -1,0 +1,225 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    AND
+    AS
+    ASSIGNMENT
+    AT
+    BIN_NUMBER
+    BITWISE_AND
+    BITWISE_OR
+    CLASS
+    COMMA
+    DEF
+    DEL
+    DIVISION
+    DOT
+    EQUALITY
+    EXPONENTIATION
+    FALSE
+    FOR
+    F_NUMBER
+    GLOBAL
+    GREATER
+    GREATER_EQUAL
+    HEX_NUMBER
+    IDENTIFIER
+    IN
+    INEQUALITY
+    INTEGER_DIVISION
+    IS
+    LESSER
+    LESSER_EQUAL
+    L_CB
+    L_PARENTHESIS
+    L_SHIFT
+    L_SQB
+    MODULUS
+    MODULUS_ASSIGNMENT
+    NONE
+    NUMBER
+    OCT_NUMBER
+    OR
+    R_CB
+    R_PARENTHESIS
+    R_SHIFT
+    R_SQB
+    SEMICOLON
+    STRING
+    SUBTRACTION
+    SUM
+    TRIPLE_STRING
+    TRUE
+    WHITESPACE
+
+Grammar
+
+Rule 0     S' -> file
+Rule 1     file -> statements ENDMARKER
+Rule 2     statements -> statements statement
+Rule 3     statements -> statement
+Rule 4     statement -> compound_stmt
+Rule 5     statement -> simple_stmts
+Rule 6     statement_newline -> compound_stmt NEWLINE
+Rule 7     statement_newline -> simple_stmts
+Rule 8     statement_newline -> NEWLINE
+Rule 9     statement_newline -> ENDMARKER
+Rule 10    simple_stmt -> assignment
+Rule 11    simple_stmt -> type_alias
+Rule 12    simple_stmt -> star_expressions
+Rule 13    simple_stmt -> return_stmt
+Rule 14    simple_stmt -> PASS
+Rule 15    simple_stmt -> del_stmt
+Rule 16    simple_stmt -> assert_stmt
+Rule 17    simple_stmt -> BREAK
+Rule 18    simple_stmt -> CONTINUE
+Rule 19    simple_stmt -> global_stmt
+Rule 20    compound_stmt -> function_def
+Rule 21    compound_stmt -> if_stmt
+Rule 22    compound_stmt -> class_def
+Rule 23    compound_stmt -> with_stmt
+Rule 24    compound_stmt -> for_stmt
+Rule 25    compound_stmt -> while_stmt
+Rule 26    augmentation_assignment -> SUM_ASSIGNMENT
+Rule 27    augmentation_assignment -> SUBTRACTION_ASSIGNMENT
+Rule 28    augmentation_assignment -> PRODUCT_ASSIGNMENT
+Rule 29    augmentation_assignment -> DIVISION_ASSIGNMENT
+Rule 30    augmentation_assignment -> MODULO_ASSIGNMENT
+Rule 31    augmentation_assignment -> EXPONENTIATION_ASSIGNMENT
+Rule 32    augmentation_assignment -> INTEGER_DIVISION_ASSIGNMENT
+Rule 33    return_stmt -> RETURN star_expressions
+Rule 34    block -> NEWLINE INDENT statements DEDENT
+Rule 35    block -> simple_stmts
+Rule 36    class_def -> class_def_raw
+Rule 37    function_def -> function_def_raw
+Rule 38    params -> parameters
+Rule 39    if_stmt -> IF named_expression COLON block elif_stmt
+Rule 40    if_stmt -> IF named_expression COLON block else_block
+Rule 41    elif_stmt -> ELIF named_expression COLON block elif_stmt
+Rule 42    elif_stmt -> ELIF named_expression COLON block else_block
+Rule 43    else_block -> ELSE COLON block
+Rule 44    while_stmt -> WHILE named_expression COLON block else_block
+Rule 45    expression -> disjunction IF disjunction ELSE expression
+Rule 46    expression -> disjunction
+Rule 47    star_named_expression -> STAR bitwise_or
+Rule 48    star_named_expression -> named_expression
+Rule 49    inversion -> NOT inversion
+Rule 50    inversion -> comparison
+Rule 51    empty -> <empty>
+
+Terminals, with rules where they appear
+
+AND                  : 
+AS                   : 
+ASSIGNMENT           : 
+AT                   : 
+BIN_NUMBER           : 
+BITWISE_AND          : 
+BITWISE_OR           : 
+BREAK                : 17
+CLASS                : 
+COLON                : 39 40 41 42 43 44
+COMMA                : 
+CONTINUE             : 18
+DEDENT               : 34
+DEF                  : 
+DEL                  : 
+DIVISION             : 
+DIVISION_ASSIGNMENT  : 29
+DOT                  : 
+ELIF                 : 41 42
+ELSE                 : 43 45
+ENDMARKER            : 1 9
+EQUALITY             : 
+EXPONENTIATION       : 
+EXPONENTIATION_ASSIGNMENT : 31
+FALSE                : 
+FOR                  : 
+F_NUMBER             : 
+GLOBAL               : 
+GREATER              : 
+GREATER_EQUAL        : 
+HEX_NUMBER           : 
+IDENTIFIER           : 
+IF                   : 39 40 45
+IN                   : 
+INDENT               : 34
+INEQUALITY           : 
+INTEGER_DIVISION     : 
+INTEGER_DIVISION_ASSIGNMENT : 32
+IS                   : 
+LESSER               : 
+LESSER_EQUAL         : 
+L_CB                 : 
+L_PARENTHESIS        : 
+L_SHIFT              : 
+L_SQB                : 
+MODULUS              : 
+MODULUS_ASSIGNMENT   : 
+NEWLINE              : 6 8 34
+NONE                 : 
+NOT                  : 49
+NUMBER               : 
+OCT_NUMBER           : 
+OR                   : 
+PASS                 : 14
+PRODUCT_ASSIGNMENT   : 28
+RETURN               : 33
+R_CB                 : 
+R_PARENTHESIS        : 
+R_SHIFT              : 
+R_SQB                : 
+SEMICOLON            : 
+STAR                 : 47
+STRING               : 
+SUBTRACTION          : 
+SUBTRACTION_ASSIGNMENT : 27
+SUM                  : 
+SUM_ASSIGNMENT       : 26
+TRIPLE_STRING        : 
+TRUE                 : 
+WHILE                : 44
+WHITESPACE           : 
+error                : 
+
+Nonterminals, with rules where they appear
+
+MODULO_ASSIGNMENT    : 30
+assert_stmt          : 16
+assignment           : 10
+augmentation_assignment : 
+bitwise_or           : 47
+block                : 39 40 41 42 43 44
+class_def            : 22
+class_def_raw        : 36
+comparison           : 50
+compound_stmt        : 4 6
+del_stmt             : 15
+disjunction          : 45 45 46
+elif_stmt            : 39 41
+else_block           : 40 42 44
+empty                : 
+expression           : 45
+file                 : 0
+for_stmt             : 24
+function_def         : 20
+function_def_raw     : 37
+global_stmt          : 19
+if_stmt              : 21
+inversion            : 49
+named_expression     : 39 40 41 42 44 48
+parameters           : 38
+params               : 
+return_stmt          : 13
+simple_stmt          : 
+simple_stmts         : 5 7 35
+star_expressions     : 12 33
+star_named_expression : 
+statement            : 2 3
+statement_newline    : 
+statements           : 1 2 34
+type_alias           : 11
+while_stmt           : 25
+with_stmt            : 23
+

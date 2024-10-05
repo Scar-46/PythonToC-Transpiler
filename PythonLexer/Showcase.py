@@ -1,6 +1,5 @@
 import os
-import Lexer
-from prettytable import PrettyTable
+from Parser import Parser
 
 def read_file(file_name):
     try:
@@ -10,21 +9,7 @@ def read_file(file_name):
         print(f"File {file_name} not found.")
         exit(1)
 
-test_lexer = Lexer.Lexer()
-test_lexer.input(read_file("test.txt"))
+test_parser = Parser()
+parsed_text = test_parser.parse(read_file("test.txt"))
 
-lexemes = PrettyTable(['Line #', 'Character #', 'Type', 'Lexeme'])
-
-try:
-    tok = test_lexer.token()
-    while tok:
-        lexemes.add_row([tok.lineno, tok.lexpos, tok.type, tok.value])
-        tok = test_lexer.token()
-except IndentationError:
-    #TODO: manages lex errors.
-    pass
-
-    
-   
-
-print(lexemes)
+print(parsed_text)

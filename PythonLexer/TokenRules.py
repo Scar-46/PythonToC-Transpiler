@@ -66,6 +66,7 @@ tokens = [
 
     # - Separators
     'COLON',
+    'SEMICOLON',
     'COMMA',
 
     # Operators
@@ -127,6 +128,7 @@ t_AT = r'@'
 
 # - Separators
 t_COLON = r':'
+t_SEMICOLON = r';'
 t_COMMA = r','
 
 # Operators
