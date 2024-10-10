@@ -66,7 +66,6 @@ import ply.yacc as yacc
 def p_file(p):
     """file : statements ENDMARKER
     """
-    print('file rule - verified!')
 
 # GENERAL STATEMENTS
 # ==================
@@ -76,24 +75,21 @@ def p_statements(p):
     """statements : statements statement
                   | statement
     """
-    print('statements rule  - verified!')
 
 # statement: simple_stmts | compound_stmt
 def p_statement(p):
     """statement : compound_stmt
                  | simple_stmts
     """
-    print('statement rule - verified!')
 
 # simple_stmts:
 #     | simple_stmt !';' NEWLINE  # Not needed, there for speedup
 #     | ';'.simple_stmt+ [';'] NEWLINE 
 # TODO: Check recursion
 def p_simple_stmts(p):
-    """simple_stmts : simple_stmt SEMICOLON simple_stmts
+    """simple_stmts : simple_stmts SEMICOLON simple_stmt
                     | simple_stmt NEWLINE
     """
-    print('simple_stmts rule - verified!')
 
 # REMOVED: Assert_stmt
 # SIMPLE STATEMENTS
@@ -106,7 +102,6 @@ def p_simple_stmt(p):
                    | CONTINUE 
                    | global_stmt
     """
-    print('simple_stmt rule - verified!')
 
 
 def p_compound_stmt(p):
@@ -116,7 +111,6 @@ def p_compound_stmt(p):
                      | for_stmt
                      | while_stmt
     """
-    print('compound_stmt rule - verified!')
 
 # SIMPLE STATEMENTS
 # =================
@@ -145,19 +139,19 @@ def p_augmentation_assignment(p):
 def p_return_stmt(p):
     """return_stmt : RETURN expressions
     """
-    print('return_stmt rule - verified!')
 
 def p_global_stmt(p):
-    """global_stmt : GLOBAL IDENTIFIER COMMA global_stmt
-                   | GLOBAL IDENTIFIER
+    """global_stmt : GLOBAL IDENTIFIER namelist
     """
-    print('return_stmt rule - verified!')
 
 def p_del_stmt(p):
-    """del_stmt : DEL IDENTIFIER COMMA del_stmt
-                | DEL IDENTIFIER
+    """del_stmt : DEL IDENTIFIER COMMA namelist
     """
-    print('return_stmt rule - verified!')
+
+def p_namelist(p):
+    """namelist : COMMA IDENTIFIER namelist
+                | empty
+    """
 
 # COMPOUND STATEMENTS
 # ===================
@@ -174,36 +168,15 @@ def p_block(p):
 # -----------------
 
 def p_class_def(p):
-    """class_def : class_def_raw
+    """class_def : CLASS IDENTIFIER COLON block
+                 | CLASS IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block
+                 | CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block   
     """
-    print('class_def rule - verified!')
-
-# class_def_raw:
-#     | 'class' NAME [type_params] ['(' [arguments] ')' ] ':' block 
-def p_class_def_raw(p):
-    """class_def_raw : CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block
-                     | CLASS IDENTIFIER COLON block
-    """
-    print('class_def_raw rule - verified!')
 
 def p_function_def(p):
-    """function_def : function_def_raw 
+    """function_def : DEF IDENTIFIER L_PARENTHESIS parameters R_PARENTHESIS COLON block
+                    | DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block
     """
-    print('function_def rule - verified!')
-
-# function_def_raw:
-#     | 'def' NAME [type_params] '(' [params] ')' ['->' expression ] ':' [func_type_comment] block 
-#     | ASYNC 'def' NAME [type_params] '(' [params] ')' ['->' expression ] ':' [func_type_comment] block 
-def p_function_def_raw(p):
-    """function_def_raw : DEF IDENTIFIER L_PARENTHESIS params R_PARENTHESIS COLON block
-                        | DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block
-    """
-    print('function_def_raw rule - verified!')
-
-def p_params(p):
-    """params : parameters
-    """
-    print('params rule - verified!')
 
 # parameters:
 #     | slash_no_default param_no_default* param_with_default* [star_etc] 
@@ -212,6 +185,7 @@ def p_params(p):
 #     | param_with_default+ [star_etc] 
 #     | star_etc 
 #TODO: Add default parameters and I don't know if slash is needed 
+#TODO: This need to be changed
 def p_parameters(p):
     """parameters : IDENTIFIER COMMA parameters
                   | IDENTIFIER
@@ -228,7 +202,6 @@ def p_if_stmt(p):
                | IF named_expression COLON block else_block
                | IF named_expression COLON block
     """
-    print('if_stmt rule - verified!')
 
 
 # elif_stmt:
@@ -239,12 +212,10 @@ def p_elif_stmt(p):
                  | ELIF named_expression COLON block else_block
                  | ELIF named_expression COLON block
     """
-    print('elif_stmt rule - verified!')
 
 def p_else_block(p):
     """else_block : ELSE COLON block
     """
-    print('else_block rule - verified!')
 
 
 # while_stmt:
@@ -260,31 +231,56 @@ def p_while_stmt(p):
 #     | ASYNC 'for' star_targets 'in' ~ star_expressions ':' [TYPE_COMMENT] block [else_block] 
 # TODO: Add Range() function.
 def p_for_stmt(p):
-    """for_stmt : FOR IDENTIFIER IN IDENTIFIER COLON else_block
-                | FOR IDENTIFIER IN IDENTIFIER COLON block
+    """for_stmt : FOR IDENTIFIER IN expressions COLON else_block
+                | FOR IDENTIFIER IN expressions COLON block
     """
     print('for_stmt rule - verified!')
 
-# expressions:
-#     | expression (',' expression )+ [','] 
-#     | expression ',' 
-#     | expression
-def p_expressions(p):
-    """expressions : expression COMMA expressions COMMA
-                   | expression COMMA expressions
-                   | expression COMMA
-                   | expression
-    """
-    print('expressions rule - verified!')
+# EXPRESSIONS
+# ===================
 
-#TODO: I'm not sure what this does
-def p_expression(p):
-    """expression : empty
+def p_expressions(p):
+    """expressions : expression 
+                   | expression COMMA
+                   | expression COMMA expressions
     """
+
+def p_expression(p):
+    """expression : disjunction
+                  | disjunction IF disjunction ELSE expression
+    """
+
+#TODO: Check if this works
+def p_disjunction(p):
+    """disjunction : conjunction 
+                   | conjunction OR disjunction
+    """
+
+#TODO: Check if this works
+def p_conjunction(p):
+    """conjunction : inversion 
+                   | inversion AND inversion
+    """
+
+def p_inversion(p):
+    """inversion : NOT inversion 
+                 | empty
+    """
+
 #TODO: Ask if we will use assignment expression ":="
 def p_named_expression(p):
     """named_expression : expression
     """
+
+# COMPARISON OPERATORS
+# =======================
+
+
+# BITWISE OPERATORS
+# =======================
+
+# ARITHMETIC OPERATORS
+# =======================
 
 # FUNCTION CALL ARGUMENTS
 # =======================

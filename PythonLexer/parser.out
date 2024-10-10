@@ -9,43 +9,33 @@ Unused terminals:
     BIN_NUMBER
     BITWISE_AND
     BITWISE_OR
-    CLASS
-    COMMA
-    DEF
-    DEL
     DIVISION
     DOT
     EQUALITY
     EXPONENTIATION
     FALSE
-    FOR
     F_NUMBER
-    GLOBAL
     GREATER
     GREATER_EQUAL
     HEX_NUMBER
-    IDENTIFIER
-    IN
     INEQUALITY
     INTEGER_DIVISION
     IS
     LESSER
     LESSER_EQUAL
     L_CB
-    L_PARENTHESIS
     L_SHIFT
     L_SQB
     MODULUS
-    MODULUS_ASSIGNMENT
     NONE
+    NOT
     NUMBER
     OCT_NUMBER
     OR
+    PRODUCT
     R_CB
-    R_PARENTHESIS
     R_SHIFT
     R_SQB
-    SEMICOLON
     STRING
     SUBTRACTION
     SUM
@@ -61,52 +51,64 @@ Rule 2     statements -> statements statement
 Rule 3     statements -> statement
 Rule 4     statement -> compound_stmt
 Rule 5     statement -> simple_stmts
-Rule 6     statement_newline -> compound_stmt NEWLINE
-Rule 7     statement_newline -> simple_stmts
-Rule 8     statement_newline -> NEWLINE
-Rule 9     statement_newline -> ENDMARKER
-Rule 10    simple_stmt -> assignment
-Rule 11    simple_stmt -> type_alias
-Rule 12    simple_stmt -> star_expressions
-Rule 13    simple_stmt -> return_stmt
-Rule 14    simple_stmt -> PASS
-Rule 15    simple_stmt -> del_stmt
-Rule 16    simple_stmt -> assert_stmt
-Rule 17    simple_stmt -> BREAK
-Rule 18    simple_stmt -> CONTINUE
-Rule 19    simple_stmt -> global_stmt
-Rule 20    compound_stmt -> function_def
-Rule 21    compound_stmt -> if_stmt
-Rule 22    compound_stmt -> class_def
-Rule 23    compound_stmt -> with_stmt
-Rule 24    compound_stmt -> for_stmt
-Rule 25    compound_stmt -> while_stmt
-Rule 26    augmentation_assignment -> SUM_ASSIGNMENT
-Rule 27    augmentation_assignment -> SUBTRACTION_ASSIGNMENT
-Rule 28    augmentation_assignment -> PRODUCT_ASSIGNMENT
-Rule 29    augmentation_assignment -> DIVISION_ASSIGNMENT
-Rule 30    augmentation_assignment -> MODULO_ASSIGNMENT
-Rule 31    augmentation_assignment -> EXPONENTIATION_ASSIGNMENT
-Rule 32    augmentation_assignment -> INTEGER_DIVISION_ASSIGNMENT
-Rule 33    return_stmt -> RETURN star_expressions
+Rule 6     simple_stmts -> simple_stmt SEMICOLON simple_stmts
+Rule 7     simple_stmts -> simple_stmt NEWLINE
+Rule 8     simple_stmt -> assignment
+Rule 9     simple_stmt -> return_stmt
+Rule 10    simple_stmt -> PASS
+Rule 11    simple_stmt -> del_stmt
+Rule 12    simple_stmt -> BREAK
+Rule 13    simple_stmt -> CONTINUE
+Rule 14    simple_stmt -> global_stmt
+Rule 15    compound_stmt -> function_def
+Rule 16    compound_stmt -> if_stmt
+Rule 17    compound_stmt -> class_def
+Rule 18    compound_stmt -> for_stmt
+Rule 19    compound_stmt -> while_stmt
+Rule 20    assignment -> IDENTIFIER augmentation_assignment expressions
+Rule 21    assignment -> IDENTIFIER augmentation_assignment IDENTIFIER
+Rule 22    augmentation_assignment -> SUM_ASSIGNMENT
+Rule 23    augmentation_assignment -> SUBTRACTION_ASSIGNMENT
+Rule 24    augmentation_assignment -> PRODUCT_ASSIGNMENT
+Rule 25    augmentation_assignment -> DIVISION_ASSIGNMENT
+Rule 26    augmentation_assignment -> MODULUS_ASSIGNMENT
+Rule 27    augmentation_assignment -> EXPONENTIATION_ASSIGNMENT
+Rule 28    augmentation_assignment -> INTEGER_DIVISION_ASSIGNMENT
+Rule 29    return_stmt -> RETURN expressions
+Rule 30    global_stmt -> GLOBAL IDENTIFIER COMMA global_stmt
+Rule 31    global_stmt -> GLOBAL IDENTIFIER
+Rule 32    del_stmt -> DEL IDENTIFIER COMMA del_stmt
+Rule 33    del_stmt -> DEL IDENTIFIER
 Rule 34    block -> NEWLINE INDENT statements DEDENT
 Rule 35    block -> simple_stmts
 Rule 36    class_def -> class_def_raw
-Rule 37    function_def -> function_def_raw
-Rule 38    params -> parameters
-Rule 39    if_stmt -> IF named_expression COLON block elif_stmt
-Rule 40    if_stmt -> IF named_expression COLON block else_block
-Rule 41    elif_stmt -> ELIF named_expression COLON block elif_stmt
-Rule 42    elif_stmt -> ELIF named_expression COLON block else_block
-Rule 43    else_block -> ELSE COLON block
-Rule 44    while_stmt -> WHILE named_expression COLON block else_block
-Rule 45    expression -> disjunction IF disjunction ELSE expression
-Rule 46    expression -> disjunction
-Rule 47    star_named_expression -> STAR bitwise_or
-Rule 48    star_named_expression -> named_expression
-Rule 49    inversion -> NOT inversion
-Rule 50    inversion -> comparison
-Rule 51    empty -> <empty>
+Rule 37    class_def_raw -> CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block
+Rule 38    class_def_raw -> CLASS IDENTIFIER COLON block
+Rule 39    function_def -> function_def_raw
+Rule 40    function_def_raw -> DEF IDENTIFIER L_PARENTHESIS params R_PARENTHESIS COLON block
+Rule 41    function_def_raw -> DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block
+Rule 42    params -> parameters
+Rule 43    parameters -> IDENTIFIER COMMA parameters
+Rule 44    parameters -> IDENTIFIER
+Rule 45    if_stmt -> IF named_expression COLON block elif_stmt
+Rule 46    if_stmt -> IF named_expression COLON block else_block
+Rule 47    if_stmt -> IF named_expression COLON block
+Rule 48    elif_stmt -> ELIF named_expression COLON block elif_stmt
+Rule 49    elif_stmt -> ELIF named_expression COLON block else_block
+Rule 50    elif_stmt -> ELIF named_expression COLON block
+Rule 51    else_block -> ELSE COLON block
+Rule 52    while_stmt -> WHILE named_expression COLON block else_block
+Rule 53    while_stmt -> WHILE named_expression COLON block
+Rule 54    for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON else_block
+Rule 55    for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON block
+Rule 56    expressions -> expression COMMA expressions COMMA
+Rule 57    expressions -> expression COMMA expressions
+Rule 58    expressions -> expression COMMA
+Rule 59    expressions -> expression
+Rule 60    expression -> empty
+Rule 61    named_expression -> expression
+Rule 62    arguments -> <empty>
+Rule 63    empty -> <empty>
 
 Terminals, with rules where they appear
 
@@ -117,109 +119,2048 @@ AT                   :
 BIN_NUMBER           : 
 BITWISE_AND          : 
 BITWISE_OR           : 
-BREAK                : 17
-CLASS                : 
-COLON                : 39 40 41 42 43 44
-COMMA                : 
-CONTINUE             : 18
+BREAK                : 12
+CLASS                : 37 38
+COLON                : 37 38 40 41 45 46 47 48 49 50 51 52 53 54 55
+COMMA                : 30 32 43 56 56 57 58
+CONTINUE             : 13
 DEDENT               : 34
-DEF                  : 
-DEL                  : 
+DEF                  : 40 41
+DEL                  : 32 33
 DIVISION             : 
-DIVISION_ASSIGNMENT  : 29
+DIVISION_ASSIGNMENT  : 25
 DOT                  : 
-ELIF                 : 41 42
-ELSE                 : 43 45
-ENDMARKER            : 1 9
+ELIF                 : 48 49 50
+ELSE                 : 51
+ENDMARKER            : 1
 EQUALITY             : 
 EXPONENTIATION       : 
-EXPONENTIATION_ASSIGNMENT : 31
+EXPONENTIATION_ASSIGNMENT : 27
 FALSE                : 
-FOR                  : 
+FOR                  : 54 55
 F_NUMBER             : 
-GLOBAL               : 
+GLOBAL               : 30 31
 GREATER              : 
 GREATER_EQUAL        : 
 HEX_NUMBER           : 
-IDENTIFIER           : 
-IF                   : 39 40 45
-IN                   : 
+IDENTIFIER           : 20 21 21 30 31 32 33 37 38 40 41 43 44 54 54 55 55
+IF                   : 45 46 47
+IN                   : 54 55
 INDENT               : 34
 INEQUALITY           : 
 INTEGER_DIVISION     : 
-INTEGER_DIVISION_ASSIGNMENT : 32
+INTEGER_DIVISION_ASSIGNMENT : 28
 IS                   : 
 LESSER               : 
 LESSER_EQUAL         : 
 L_CB                 : 
-L_PARENTHESIS        : 
+L_PARENTHESIS        : 37 40 41
 L_SHIFT              : 
 L_SQB                : 
 MODULUS              : 
-MODULUS_ASSIGNMENT   : 
-NEWLINE              : 6 8 34
+MODULUS_ASSIGNMENT   : 26
+NEWLINE              : 7 34
 NONE                 : 
-NOT                  : 49
+NOT                  : 
 NUMBER               : 
 OCT_NUMBER           : 
 OR                   : 
-PASS                 : 14
-PRODUCT_ASSIGNMENT   : 28
-RETURN               : 33
+PASS                 : 10
+PRODUCT              : 
+PRODUCT_ASSIGNMENT   : 24
+RETURN               : 29
 R_CB                 : 
-R_PARENTHESIS        : 
+R_PARENTHESIS        : 37 40 41
 R_SHIFT              : 
 R_SQB                : 
-SEMICOLON            : 
-STAR                 : 47
+SEMICOLON            : 6
 STRING               : 
 SUBTRACTION          : 
-SUBTRACTION_ASSIGNMENT : 27
+SUBTRACTION_ASSIGNMENT : 23
 SUM                  : 
-SUM_ASSIGNMENT       : 26
+SUM_ASSIGNMENT       : 22
 TRIPLE_STRING        : 
 TRUE                 : 
-WHILE                : 44
+WHILE                : 52 53
 WHITESPACE           : 
 error                : 
 
 Nonterminals, with rules where they appear
 
-MODULO_ASSIGNMENT    : 30
-assert_stmt          : 16
-assignment           : 10
-augmentation_assignment : 
-bitwise_or           : 47
-block                : 39 40 41 42 43 44
-class_def            : 22
+arguments            : 37
+assignment           : 8
+augmentation_assignment : 20 21
+block                : 37 38 40 41 45 46 47 48 49 50 51 52 53 55
+class_def            : 17
 class_def_raw        : 36
-comparison           : 50
-compound_stmt        : 4 6
-del_stmt             : 15
-disjunction          : 45 45 46
-elif_stmt            : 39 41
-else_block           : 40 42 44
-empty                : 
-expression           : 45
+compound_stmt        : 4
+del_stmt             : 11 32
+elif_stmt            : 45 48
+else_block           : 46 49 52 54
+empty                : 60
+expression           : 56 57 58 59 61
+expressions          : 20 29 56 57
 file                 : 0
-for_stmt             : 24
-function_def         : 20
-function_def_raw     : 37
-global_stmt          : 19
-if_stmt              : 21
-inversion            : 49
-named_expression     : 39 40 41 42 44 48
-parameters           : 38
-params               : 
-return_stmt          : 13
-simple_stmt          : 
-simple_stmts         : 5 7 35
-star_expressions     : 12 33
-star_named_expression : 
+for_stmt             : 18
+function_def         : 15
+function_def_raw     : 39
+global_stmt          : 14 30
+if_stmt              : 16
+named_expression     : 45 46 47 48 49 50 52 53
+parameters           : 42 43
+params               : 40
+return_stmt          : 9
+simple_stmt          : 6 7
+simple_stmts         : 5 6 35
 statement            : 2 3
-statement_newline    : 
 statements           : 1 2 34
-type_alias           : 11
-while_stmt           : 25
-with_stmt            : 23
+while_stmt           : 19
 
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . file
+    (1) file -> . statements ENDMARKER
+    (2) statements -> . statements statement
+    (3) statements -> . statement
+    (4) statement -> . compound_stmt
+    (5) statement -> . simple_stmts
+    (15) compound_stmt -> . function_def
+    (16) compound_stmt -> . if_stmt
+    (17) compound_stmt -> . class_def
+    (18) compound_stmt -> . for_stmt
+    (19) compound_stmt -> . while_stmt
+    (6) simple_stmts -> . simple_stmt SEMICOLON simple_stmts
+    (7) simple_stmts -> . simple_stmt NEWLINE
+    (39) function_def -> . function_def_raw
+    (45) if_stmt -> . IF named_expression COLON block elif_stmt
+    (46) if_stmt -> . IF named_expression COLON block else_block
+    (47) if_stmt -> . IF named_expression COLON block
+    (36) class_def -> . class_def_raw
+    (54) for_stmt -> . FOR IDENTIFIER IN IDENTIFIER COLON else_block
+    (55) for_stmt -> . FOR IDENTIFIER IN IDENTIFIER COLON block
+    (52) while_stmt -> . WHILE named_expression COLON block else_block
+    (53) while_stmt -> . WHILE named_expression COLON block
+    (8) simple_stmt -> . assignment
+    (9) simple_stmt -> . return_stmt
+    (10) simple_stmt -> . PASS
+    (11) simple_stmt -> . del_stmt
+    (12) simple_stmt -> . BREAK
+    (13) simple_stmt -> . CONTINUE
+    (14) simple_stmt -> . global_stmt
+    (40) function_def_raw -> . DEF IDENTIFIER L_PARENTHESIS params R_PARENTHESIS COLON block
+    (41) function_def_raw -> . DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block
+    (37) class_def_raw -> . CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block
+    (38) class_def_raw -> . CLASS IDENTIFIER COLON block
+    (20) assignment -> . IDENTIFIER augmentation_assignment expressions
+    (21) assignment -> . IDENTIFIER augmentation_assignment IDENTIFIER
+    (29) return_stmt -> . RETURN expressions
+    (32) del_stmt -> . DEL IDENTIFIER COMMA del_stmt
+    (33) del_stmt -> . DEL IDENTIFIER
+    (30) global_stmt -> . GLOBAL IDENTIFIER COMMA global_stmt
+    (31) global_stmt -> . GLOBAL IDENTIFIER
+
+    IF              shift and go to state 13
+    FOR             shift and go to state 15
+    WHILE           shift and go to state 17
+    PASS            shift and go to state 20
+    BREAK           shift and go to state 22
+    CONTINUE        shift and go to state 23
+    DEF             shift and go to state 25
+    CLASS           shift and go to state 26
+    IDENTIFIER      shift and go to state 16
+    RETURN          shift and go to state 27
+    DEL             shift and go to state 28
+    GLOBAL          shift and go to state 29
+
+    file                           shift and go to state 1
+    statements                     shift and go to state 2
+    statement                      shift and go to state 3
+    compound_stmt                  shift and go to state 4
+    simple_stmts                   shift and go to state 5
+    function_def                   shift and go to state 6
+    if_stmt                        shift and go to state 7
+    class_def                      shift and go to state 8
+    for_stmt                       shift and go to state 9
+    while_stmt                     shift and go to state 10
+    simple_stmt                    shift and go to state 11
+    function_def_raw               shift and go to state 12
+    class_def_raw                  shift and go to state 14
+    assignment                     shift and go to state 18
+    return_stmt                    shift and go to state 19
+    del_stmt                       shift and go to state 21
+    global_stmt                    shift and go to state 24
+
+state 1
+
+    (0) S' -> file .
+
+
+
+state 2
+
+    (1) file -> statements . ENDMARKER
+    (2) statements -> statements . statement
+    (4) statement -> . compound_stmt
+    (5) statement -> . simple_stmts
+    (15) compound_stmt -> . function_def
+    (16) compound_stmt -> . if_stmt
+    (17) compound_stmt -> . class_def
+    (18) compound_stmt -> . for_stmt
+    (19) compound_stmt -> . while_stmt
+    (6) simple_stmts -> . simple_stmt SEMICOLON simple_stmts
+    (7) simple_stmts -> . simple_stmt NEWLINE
+    (39) function_def -> . function_def_raw
+    (45) if_stmt -> . IF named_expression COLON block elif_stmt
+    (46) if_stmt -> . IF named_expression COLON block else_block
+    (47) if_stmt -> . IF named_expression COLON block
+    (36) class_def -> . class_def_raw
+    (54) for_stmt -> . FOR IDENTIFIER IN IDENTIFIER COLON else_block
+    (55) for_stmt -> . FOR IDENTIFIER IN IDENTIFIER COLON block
+    (52) while_stmt -> . WHILE named_expression COLON block else_block
+    (53) while_stmt -> . WHILE named_expression COLON block
+    (8) simple_stmt -> . assignment
+    (9) simple_stmt -> . return_stmt
+    (10) simple_stmt -> . PASS
+    (11) simple_stmt -> . del_stmt
+    (12) simple_stmt -> . BREAK
+    (13) simple_stmt -> . CONTINUE
+    (14) simple_stmt -> . global_stmt
+    (40) function_def_raw -> . DEF IDENTIFIER L_PARENTHESIS params R_PARENTHESIS COLON block
+    (41) function_def_raw -> . DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block
+    (37) class_def_raw -> . CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block
+    (38) class_def_raw -> . CLASS IDENTIFIER COLON block
+    (20) assignment -> . IDENTIFIER augmentation_assignment expressions
+    (21) assignment -> . IDENTIFIER augmentation_assignment IDENTIFIER
+    (29) return_stmt -> . RETURN expressions
+    (32) del_stmt -> . DEL IDENTIFIER COMMA del_stmt
+    (33) del_stmt -> . DEL IDENTIFIER
+    (30) global_stmt -> . GLOBAL IDENTIFIER COMMA global_stmt
+    (31) global_stmt -> . GLOBAL IDENTIFIER
+
+    ENDMARKER       shift and go to state 30
+    IF              shift and go to state 13
+    FOR             shift and go to state 15
+    WHILE           shift and go to state 17
+    PASS            shift and go to state 20
+    BREAK           shift and go to state 22
+    CONTINUE        shift and go to state 23
+    DEF             shift and go to state 25
+    CLASS           shift and go to state 26
+    IDENTIFIER      shift and go to state 16
+    RETURN          shift and go to state 27
+    DEL             shift and go to state 28
+    GLOBAL          shift and go to state 29
+
+    statement                      shift and go to state 31
+    compound_stmt                  shift and go to state 4
+    simple_stmts                   shift and go to state 5
+    function_def                   shift and go to state 6
+    if_stmt                        shift and go to state 7
+    class_def                      shift and go to state 8
+    for_stmt                       shift and go to state 9
+    while_stmt                     shift and go to state 10
+    simple_stmt                    shift and go to state 11
+    function_def_raw               shift and go to state 12
+    class_def_raw                  shift and go to state 14
+    assignment                     shift and go to state 18
+    return_stmt                    shift and go to state 19
+    del_stmt                       shift and go to state 21
+    global_stmt                    shift and go to state 24
+
+state 3
+
+    (3) statements -> statement .
+
+    ENDMARKER       reduce using rule 3 (statements -> statement .)
+    IF              reduce using rule 3 (statements -> statement .)
+    FOR             reduce using rule 3 (statements -> statement .)
+    WHILE           reduce using rule 3 (statements -> statement .)
+    PASS            reduce using rule 3 (statements -> statement .)
+    BREAK           reduce using rule 3 (statements -> statement .)
+    CONTINUE        reduce using rule 3 (statements -> statement .)
+    DEF             reduce using rule 3 (statements -> statement .)
+    CLASS           reduce using rule 3 (statements -> statement .)
+    IDENTIFIER      reduce using rule 3 (statements -> statement .)
+    RETURN          reduce using rule 3 (statements -> statement .)
+    DEL             reduce using rule 3 (statements -> statement .)
+    GLOBAL          reduce using rule 3 (statements -> statement .)
+    DEDENT          reduce using rule 3 (statements -> statement .)
+
+
+state 4
+
+    (4) statement -> compound_stmt .
+
+    ENDMARKER       reduce using rule 4 (statement -> compound_stmt .)
+    IF              reduce using rule 4 (statement -> compound_stmt .)
+    FOR             reduce using rule 4 (statement -> compound_stmt .)
+    WHILE           reduce using rule 4 (statement -> compound_stmt .)
+    PASS            reduce using rule 4 (statement -> compound_stmt .)
+    BREAK           reduce using rule 4 (statement -> compound_stmt .)
+    CONTINUE        reduce using rule 4 (statement -> compound_stmt .)
+    DEF             reduce using rule 4 (statement -> compound_stmt .)
+    CLASS           reduce using rule 4 (statement -> compound_stmt .)
+    IDENTIFIER      reduce using rule 4 (statement -> compound_stmt .)
+    RETURN          reduce using rule 4 (statement -> compound_stmt .)
+    DEL             reduce using rule 4 (statement -> compound_stmt .)
+    GLOBAL          reduce using rule 4 (statement -> compound_stmt .)
+    DEDENT          reduce using rule 4 (statement -> compound_stmt .)
+
+
+state 5
+
+    (5) statement -> simple_stmts .
+
+    ENDMARKER       reduce using rule 5 (statement -> simple_stmts .)
+    IF              reduce using rule 5 (statement -> simple_stmts .)
+    FOR             reduce using rule 5 (statement -> simple_stmts .)
+    WHILE           reduce using rule 5 (statement -> simple_stmts .)
+    PASS            reduce using rule 5 (statement -> simple_stmts .)
+    BREAK           reduce using rule 5 (statement -> simple_stmts .)
+    CONTINUE        reduce using rule 5 (statement -> simple_stmts .)
+    DEF             reduce using rule 5 (statement -> simple_stmts .)
+    CLASS           reduce using rule 5 (statement -> simple_stmts .)
+    IDENTIFIER      reduce using rule 5 (statement -> simple_stmts .)
+    RETURN          reduce using rule 5 (statement -> simple_stmts .)
+    DEL             reduce using rule 5 (statement -> simple_stmts .)
+    GLOBAL          reduce using rule 5 (statement -> simple_stmts .)
+    DEDENT          reduce using rule 5 (statement -> simple_stmts .)
+
+
+state 6
+
+    (15) compound_stmt -> function_def .
+
+    ENDMARKER       reduce using rule 15 (compound_stmt -> function_def .)
+    IF              reduce using rule 15 (compound_stmt -> function_def .)
+    FOR             reduce using rule 15 (compound_stmt -> function_def .)
+    WHILE           reduce using rule 15 (compound_stmt -> function_def .)
+    PASS            reduce using rule 15 (compound_stmt -> function_def .)
+    BREAK           reduce using rule 15 (compound_stmt -> function_def .)
+    CONTINUE        reduce using rule 15 (compound_stmt -> function_def .)
+    DEF             reduce using rule 15 (compound_stmt -> function_def .)
+    CLASS           reduce using rule 15 (compound_stmt -> function_def .)
+    IDENTIFIER      reduce using rule 15 (compound_stmt -> function_def .)
+    RETURN          reduce using rule 15 (compound_stmt -> function_def .)
+    DEL             reduce using rule 15 (compound_stmt -> function_def .)
+    GLOBAL          reduce using rule 15 (compound_stmt -> function_def .)
+    DEDENT          reduce using rule 15 (compound_stmt -> function_def .)
+
+
+state 7
+
+    (16) compound_stmt -> if_stmt .
+
+    ENDMARKER       reduce using rule 16 (compound_stmt -> if_stmt .)
+    IF              reduce using rule 16 (compound_stmt -> if_stmt .)
+    FOR             reduce using rule 16 (compound_stmt -> if_stmt .)
+    WHILE           reduce using rule 16 (compound_stmt -> if_stmt .)
+    PASS            reduce using rule 16 (compound_stmt -> if_stmt .)
+    BREAK           reduce using rule 16 (compound_stmt -> if_stmt .)
+    CONTINUE        reduce using rule 16 (compound_stmt -> if_stmt .)
+    DEF             reduce using rule 16 (compound_stmt -> if_stmt .)
+    CLASS           reduce using rule 16 (compound_stmt -> if_stmt .)
+    IDENTIFIER      reduce using rule 16 (compound_stmt -> if_stmt .)
+    RETURN          reduce using rule 16 (compound_stmt -> if_stmt .)
+    DEL             reduce using rule 16 (compound_stmt -> if_stmt .)
+    GLOBAL          reduce using rule 16 (compound_stmt -> if_stmt .)
+    DEDENT          reduce using rule 16 (compound_stmt -> if_stmt .)
+
+
+state 8
+
+    (17) compound_stmt -> class_def .
+
+    ENDMARKER       reduce using rule 17 (compound_stmt -> class_def .)
+    IF              reduce using rule 17 (compound_stmt -> class_def .)
+    FOR             reduce using rule 17 (compound_stmt -> class_def .)
+    WHILE           reduce using rule 17 (compound_stmt -> class_def .)
+    PASS            reduce using rule 17 (compound_stmt -> class_def .)
+    BREAK           reduce using rule 17 (compound_stmt -> class_def .)
+    CONTINUE        reduce using rule 17 (compound_stmt -> class_def .)
+    DEF             reduce using rule 17 (compound_stmt -> class_def .)
+    CLASS           reduce using rule 17 (compound_stmt -> class_def .)
+    IDENTIFIER      reduce using rule 17 (compound_stmt -> class_def .)
+    RETURN          reduce using rule 17 (compound_stmt -> class_def .)
+    DEL             reduce using rule 17 (compound_stmt -> class_def .)
+    GLOBAL          reduce using rule 17 (compound_stmt -> class_def .)
+    DEDENT          reduce using rule 17 (compound_stmt -> class_def .)
+
+
+state 9
+
+    (18) compound_stmt -> for_stmt .
+
+    ENDMARKER       reduce using rule 18 (compound_stmt -> for_stmt .)
+    IF              reduce using rule 18 (compound_stmt -> for_stmt .)
+    FOR             reduce using rule 18 (compound_stmt -> for_stmt .)
+    WHILE           reduce using rule 18 (compound_stmt -> for_stmt .)
+    PASS            reduce using rule 18 (compound_stmt -> for_stmt .)
+    BREAK           reduce using rule 18 (compound_stmt -> for_stmt .)
+    CONTINUE        reduce using rule 18 (compound_stmt -> for_stmt .)
+    DEF             reduce using rule 18 (compound_stmt -> for_stmt .)
+    CLASS           reduce using rule 18 (compound_stmt -> for_stmt .)
+    IDENTIFIER      reduce using rule 18 (compound_stmt -> for_stmt .)
+    RETURN          reduce using rule 18 (compound_stmt -> for_stmt .)
+    DEL             reduce using rule 18 (compound_stmt -> for_stmt .)
+    GLOBAL          reduce using rule 18 (compound_stmt -> for_stmt .)
+    DEDENT          reduce using rule 18 (compound_stmt -> for_stmt .)
+
+
+state 10
+
+    (19) compound_stmt -> while_stmt .
+
+    ENDMARKER       reduce using rule 19 (compound_stmt -> while_stmt .)
+    IF              reduce using rule 19 (compound_stmt -> while_stmt .)
+    FOR             reduce using rule 19 (compound_stmt -> while_stmt .)
+    WHILE           reduce using rule 19 (compound_stmt -> while_stmt .)
+    PASS            reduce using rule 19 (compound_stmt -> while_stmt .)
+    BREAK           reduce using rule 19 (compound_stmt -> while_stmt .)
+    CONTINUE        reduce using rule 19 (compound_stmt -> while_stmt .)
+    DEF             reduce using rule 19 (compound_stmt -> while_stmt .)
+    CLASS           reduce using rule 19 (compound_stmt -> while_stmt .)
+    IDENTIFIER      reduce using rule 19 (compound_stmt -> while_stmt .)
+    RETURN          reduce using rule 19 (compound_stmt -> while_stmt .)
+    DEL             reduce using rule 19 (compound_stmt -> while_stmt .)
+    GLOBAL          reduce using rule 19 (compound_stmt -> while_stmt .)
+    DEDENT          reduce using rule 19 (compound_stmt -> while_stmt .)
+
+
+state 11
+
+    (6) simple_stmts -> simple_stmt . SEMICOLON simple_stmts
+    (7) simple_stmts -> simple_stmt . NEWLINE
+
+    SEMICOLON       shift and go to state 32
+    NEWLINE         shift and go to state 33
+
+
+state 12
+
+    (39) function_def -> function_def_raw .
+
+    ENDMARKER       reduce using rule 39 (function_def -> function_def_raw .)
+    IF              reduce using rule 39 (function_def -> function_def_raw .)
+    FOR             reduce using rule 39 (function_def -> function_def_raw .)
+    WHILE           reduce using rule 39 (function_def -> function_def_raw .)
+    PASS            reduce using rule 39 (function_def -> function_def_raw .)
+    BREAK           reduce using rule 39 (function_def -> function_def_raw .)
+    CONTINUE        reduce using rule 39 (function_def -> function_def_raw .)
+    DEF             reduce using rule 39 (function_def -> function_def_raw .)
+    CLASS           reduce using rule 39 (function_def -> function_def_raw .)
+    IDENTIFIER      reduce using rule 39 (function_def -> function_def_raw .)
+    RETURN          reduce using rule 39 (function_def -> function_def_raw .)
+    DEL             reduce using rule 39 (function_def -> function_def_raw .)
+    GLOBAL          reduce using rule 39 (function_def -> function_def_raw .)
+    DEDENT          reduce using rule 39 (function_def -> function_def_raw .)
+
+
+state 13
+
+    (45) if_stmt -> IF . named_expression COLON block elif_stmt
+    (46) if_stmt -> IF . named_expression COLON block else_block
+    (47) if_stmt -> IF . named_expression COLON block
+    (61) named_expression -> . expression
+    (60) expression -> . empty
+    (63) empty -> .
+
+    COLON           reduce using rule 63 (empty -> .)
+
+    named_expression               shift and go to state 34
+    expression                     shift and go to state 35
+    empty                          shift and go to state 36
+
+state 14
+
+    (36) class_def -> class_def_raw .
+
+    ENDMARKER       reduce using rule 36 (class_def -> class_def_raw .)
+    IF              reduce using rule 36 (class_def -> class_def_raw .)
+    FOR             reduce using rule 36 (class_def -> class_def_raw .)
+    WHILE           reduce using rule 36 (class_def -> class_def_raw .)
+    PASS            reduce using rule 36 (class_def -> class_def_raw .)
+    BREAK           reduce using rule 36 (class_def -> class_def_raw .)
+    CONTINUE        reduce using rule 36 (class_def -> class_def_raw .)
+    DEF             reduce using rule 36 (class_def -> class_def_raw .)
+    CLASS           reduce using rule 36 (class_def -> class_def_raw .)
+    IDENTIFIER      reduce using rule 36 (class_def -> class_def_raw .)
+    RETURN          reduce using rule 36 (class_def -> class_def_raw .)
+    DEL             reduce using rule 36 (class_def -> class_def_raw .)
+    GLOBAL          reduce using rule 36 (class_def -> class_def_raw .)
+    DEDENT          reduce using rule 36 (class_def -> class_def_raw .)
+
+
+state 15
+
+    (54) for_stmt -> FOR . IDENTIFIER IN IDENTIFIER COLON else_block
+    (55) for_stmt -> FOR . IDENTIFIER IN IDENTIFIER COLON block
+
+    IDENTIFIER      shift and go to state 37
+
+
+state 16
+
+    (20) assignment -> IDENTIFIER . augmentation_assignment expressions
+    (21) assignment -> IDENTIFIER . augmentation_assignment IDENTIFIER
+    (22) augmentation_assignment -> . SUM_ASSIGNMENT
+    (23) augmentation_assignment -> . SUBTRACTION_ASSIGNMENT
+    (24) augmentation_assignment -> . PRODUCT_ASSIGNMENT
+    (25) augmentation_assignment -> . DIVISION_ASSIGNMENT
+    (26) augmentation_assignment -> . MODULUS_ASSIGNMENT
+    (27) augmentation_assignment -> . EXPONENTIATION_ASSIGNMENT
+    (28) augmentation_assignment -> . INTEGER_DIVISION_ASSIGNMENT
+
+    SUM_ASSIGNMENT  shift and go to state 39
+    SUBTRACTION_ASSIGNMENT shift and go to state 40
+    PRODUCT_ASSIGNMENT shift and go to state 41
+    DIVISION_ASSIGNMENT shift and go to state 42
+    MODULUS_ASSIGNMENT shift and go to state 43
+    EXPONENTIATION_ASSIGNMENT shift and go to state 44
+    INTEGER_DIVISION_ASSIGNMENT shift and go to state 45
+
+    augmentation_assignment        shift and go to state 38
+
+state 17
+
+    (52) while_stmt -> WHILE . named_expression COLON block else_block
+    (53) while_stmt -> WHILE . named_expression COLON block
+    (61) named_expression -> . expression
+    (60) expression -> . empty
+    (63) empty -> .
+
+    COLON           reduce using rule 63 (empty -> .)
+
+    named_expression               shift and go to state 46
+    expression                     shift and go to state 35
+    empty                          shift and go to state 36
+
+state 18
+
+    (8) simple_stmt -> assignment .
+
+    SEMICOLON       reduce using rule 8 (simple_stmt -> assignment .)
+    NEWLINE         reduce using rule 8 (simple_stmt -> assignment .)
+
+
+state 19
+
+    (9) simple_stmt -> return_stmt .
+
+    SEMICOLON       reduce using rule 9 (simple_stmt -> return_stmt .)
+    NEWLINE         reduce using rule 9 (simple_stmt -> return_stmt .)
+
+
+state 20
+
+    (10) simple_stmt -> PASS .
+
+    SEMICOLON       reduce using rule 10 (simple_stmt -> PASS .)
+    NEWLINE         reduce using rule 10 (simple_stmt -> PASS .)
+
+
+state 21
+
+    (11) simple_stmt -> del_stmt .
+
+    SEMICOLON       reduce using rule 11 (simple_stmt -> del_stmt .)
+    NEWLINE         reduce using rule 11 (simple_stmt -> del_stmt .)
+
+
+state 22
+
+    (12) simple_stmt -> BREAK .
+
+    SEMICOLON       reduce using rule 12 (simple_stmt -> BREAK .)
+    NEWLINE         reduce using rule 12 (simple_stmt -> BREAK .)
+
+
+state 23
+
+    (13) simple_stmt -> CONTINUE .
+
+    SEMICOLON       reduce using rule 13 (simple_stmt -> CONTINUE .)
+    NEWLINE         reduce using rule 13 (simple_stmt -> CONTINUE .)
+
+
+state 24
+
+    (14) simple_stmt -> global_stmt .
+
+    SEMICOLON       reduce using rule 14 (simple_stmt -> global_stmt .)
+    NEWLINE         reduce using rule 14 (simple_stmt -> global_stmt .)
+
+
+state 25
+
+    (40) function_def_raw -> DEF . IDENTIFIER L_PARENTHESIS params R_PARENTHESIS COLON block
+    (41) function_def_raw -> DEF . IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block
+
+    IDENTIFIER      shift and go to state 47
+
+
+state 26
+
+    (37) class_def_raw -> CLASS . IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block
+    (38) class_def_raw -> CLASS . IDENTIFIER COLON block
+
+    IDENTIFIER      shift and go to state 48
+
+
+state 27
+
+    (29) return_stmt -> RETURN . expressions
+    (56) expressions -> . expression COMMA expressions COMMA
+    (57) expressions -> . expression COMMA expressions
+    (58) expressions -> . expression COMMA
+    (59) expressions -> . expression
+    (60) expression -> . empty
+    (63) empty -> .
+
+    COMMA           reduce using rule 63 (empty -> .)
+    SEMICOLON       reduce using rule 63 (empty -> .)
+    NEWLINE         reduce using rule 63 (empty -> .)
+
+    expressions                    shift and go to state 49
+    expression                     shift and go to state 50
+    empty                          shift and go to state 36
+
+state 28
+
+    (32) del_stmt -> DEL . IDENTIFIER COMMA del_stmt
+    (33) del_stmt -> DEL . IDENTIFIER
+
+    IDENTIFIER      shift and go to state 51
+
+
+state 29
+
+    (30) global_stmt -> GLOBAL . IDENTIFIER COMMA global_stmt
+    (31) global_stmt -> GLOBAL . IDENTIFIER
+
+    IDENTIFIER      shift and go to state 52
+
+
+state 30
+
+    (1) file -> statements ENDMARKER .
+
+    $end            reduce using rule 1 (file -> statements ENDMARKER .)
+
+
+state 31
+
+    (2) statements -> statements statement .
+
+    ENDMARKER       reduce using rule 2 (statements -> statements statement .)
+    IF              reduce using rule 2 (statements -> statements statement .)
+    FOR             reduce using rule 2 (statements -> statements statement .)
+    WHILE           reduce using rule 2 (statements -> statements statement .)
+    PASS            reduce using rule 2 (statements -> statements statement .)
+    BREAK           reduce using rule 2 (statements -> statements statement .)
+    CONTINUE        reduce using rule 2 (statements -> statements statement .)
+    DEF             reduce using rule 2 (statements -> statements statement .)
+    CLASS           reduce using rule 2 (statements -> statements statement .)
+    IDENTIFIER      reduce using rule 2 (statements -> statements statement .)
+    RETURN          reduce using rule 2 (statements -> statements statement .)
+    DEL             reduce using rule 2 (statements -> statements statement .)
+    GLOBAL          reduce using rule 2 (statements -> statements statement .)
+    DEDENT          reduce using rule 2 (statements -> statements statement .)
+
+
+state 32
+
+    (6) simple_stmts -> simple_stmt SEMICOLON . simple_stmts
+    (6) simple_stmts -> . simple_stmt SEMICOLON simple_stmts
+    (7) simple_stmts -> . simple_stmt NEWLINE
+    (8) simple_stmt -> . assignment
+    (9) simple_stmt -> . return_stmt
+    (10) simple_stmt -> . PASS
+    (11) simple_stmt -> . del_stmt
+    (12) simple_stmt -> . BREAK
+    (13) simple_stmt -> . CONTINUE
+    (14) simple_stmt -> . global_stmt
+    (20) assignment -> . IDENTIFIER augmentation_assignment expressions
+    (21) assignment -> . IDENTIFIER augmentation_assignment IDENTIFIER
+    (29) return_stmt -> . RETURN expressions
+    (32) del_stmt -> . DEL IDENTIFIER COMMA del_stmt
+    (33) del_stmt -> . DEL IDENTIFIER
+    (30) global_stmt -> . GLOBAL IDENTIFIER COMMA global_stmt
+    (31) global_stmt -> . GLOBAL IDENTIFIER
+
+    PASS            shift and go to state 20
+    BREAK           shift and go to state 22
+    CONTINUE        shift and go to state 23
+    IDENTIFIER      shift and go to state 16
+    RETURN          shift and go to state 27
+    DEL             shift and go to state 28
+    GLOBAL          shift and go to state 29
+
+    simple_stmt                    shift and go to state 11
+    simple_stmts                   shift and go to state 53
+    assignment                     shift and go to state 18
+    return_stmt                    shift and go to state 19
+    del_stmt                       shift and go to state 21
+    global_stmt                    shift and go to state 24
+
+state 33
+
+    (7) simple_stmts -> simple_stmt NEWLINE .
+
+    ENDMARKER       reduce using rule 7 (simple_stmts -> simple_stmt NEWLINE .)
+    IF              reduce using rule 7 (simple_stmts -> simple_stmt NEWLINE .)
+    FOR             reduce using rule 7 (simple_stmts -> simple_stmt NEWLINE .)
+    WHILE           reduce using rule 7 (simple_stmts -> simple_stmt NEWLINE .)
+    PASS            reduce using rule 7 (simple_stmts -> simple_stmt NEWLINE .)
+    BREAK           reduce using rule 7 (simple_stmts -> simple_stmt NEWLINE .)
+    CONTINUE        reduce using rule 7 (simple_stmts -> simple_stmt NEWLINE .)
+    DEF             reduce using rule 7 (simple_stmts -> simple_stmt NEWLINE .)
+    CLASS           reduce using rule 7 (simple_stmts -> simple_stmt NEWLINE .)
+    IDENTIFIER      reduce using rule 7 (simple_stmts -> simple_stmt NEWLINE .)
+    RETURN          reduce using rule 7 (simple_stmts -> simple_stmt NEWLINE .)
+    DEL             reduce using rule 7 (simple_stmts -> simple_stmt NEWLINE .)
+    GLOBAL          reduce using rule 7 (simple_stmts -> simple_stmt NEWLINE .)
+    ELIF            reduce using rule 7 (simple_stmts -> simple_stmt NEWLINE .)
+    ELSE            reduce using rule 7 (simple_stmts -> simple_stmt NEWLINE .)
+    DEDENT          reduce using rule 7 (simple_stmts -> simple_stmt NEWLINE .)
+
+
+state 34
+
+    (45) if_stmt -> IF named_expression . COLON block elif_stmt
+    (46) if_stmt -> IF named_expression . COLON block else_block
+    (47) if_stmt -> IF named_expression . COLON block
+
+    COLON           shift and go to state 54
+
+
+state 35
+
+    (61) named_expression -> expression .
+
+    COLON           reduce using rule 61 (named_expression -> expression .)
+
+
+state 36
+
+    (60) expression -> empty .
+
+    COLON           reduce using rule 60 (expression -> empty .)
+    COMMA           reduce using rule 60 (expression -> empty .)
+    SEMICOLON       reduce using rule 60 (expression -> empty .)
+    NEWLINE         reduce using rule 60 (expression -> empty .)
+
+
+state 37
+
+    (54) for_stmt -> FOR IDENTIFIER . IN IDENTIFIER COLON else_block
+    (55) for_stmt -> FOR IDENTIFIER . IN IDENTIFIER COLON block
+
+    IN              shift and go to state 55
+
+
+state 38
+
+    (20) assignment -> IDENTIFIER augmentation_assignment . expressions
+    (21) assignment -> IDENTIFIER augmentation_assignment . IDENTIFIER
+    (56) expressions -> . expression COMMA expressions COMMA
+    (57) expressions -> . expression COMMA expressions
+    (58) expressions -> . expression COMMA
+    (59) expressions -> . expression
+    (60) expression -> . empty
+    (63) empty -> .
+
+    IDENTIFIER      shift and go to state 56
+    COMMA           reduce using rule 63 (empty -> .)
+    SEMICOLON       reduce using rule 63 (empty -> .)
+    NEWLINE         reduce using rule 63 (empty -> .)
+
+    expressions                    shift and go to state 57
+    expression                     shift and go to state 50
+    empty                          shift and go to state 36
+
+state 39
+
+    (22) augmentation_assignment -> SUM_ASSIGNMENT .
+
+    IDENTIFIER      reduce using rule 22 (augmentation_assignment -> SUM_ASSIGNMENT .)
+    COMMA           reduce using rule 22 (augmentation_assignment -> SUM_ASSIGNMENT .)
+    SEMICOLON       reduce using rule 22 (augmentation_assignment -> SUM_ASSIGNMENT .)
+    NEWLINE         reduce using rule 22 (augmentation_assignment -> SUM_ASSIGNMENT .)
+
+
+state 40
+
+    (23) augmentation_assignment -> SUBTRACTION_ASSIGNMENT .
+
+    IDENTIFIER      reduce using rule 23 (augmentation_assignment -> SUBTRACTION_ASSIGNMENT .)
+    COMMA           reduce using rule 23 (augmentation_assignment -> SUBTRACTION_ASSIGNMENT .)
+    SEMICOLON       reduce using rule 23 (augmentation_assignment -> SUBTRACTION_ASSIGNMENT .)
+    NEWLINE         reduce using rule 23 (augmentation_assignment -> SUBTRACTION_ASSIGNMENT .)
+
+
+state 41
+
+    (24) augmentation_assignment -> PRODUCT_ASSIGNMENT .
+
+    IDENTIFIER      reduce using rule 24 (augmentation_assignment -> PRODUCT_ASSIGNMENT .)
+    COMMA           reduce using rule 24 (augmentation_assignment -> PRODUCT_ASSIGNMENT .)
+    SEMICOLON       reduce using rule 24 (augmentation_assignment -> PRODUCT_ASSIGNMENT .)
+    NEWLINE         reduce using rule 24 (augmentation_assignment -> PRODUCT_ASSIGNMENT .)
+
+
+state 42
+
+    (25) augmentation_assignment -> DIVISION_ASSIGNMENT .
+
+    IDENTIFIER      reduce using rule 25 (augmentation_assignment -> DIVISION_ASSIGNMENT .)
+    COMMA           reduce using rule 25 (augmentation_assignment -> DIVISION_ASSIGNMENT .)
+    SEMICOLON       reduce using rule 25 (augmentation_assignment -> DIVISION_ASSIGNMENT .)
+    NEWLINE         reduce using rule 25 (augmentation_assignment -> DIVISION_ASSIGNMENT .)
+
+
+state 43
+
+    (26) augmentation_assignment -> MODULUS_ASSIGNMENT .
+
+    IDENTIFIER      reduce using rule 26 (augmentation_assignment -> MODULUS_ASSIGNMENT .)
+    COMMA           reduce using rule 26 (augmentation_assignment -> MODULUS_ASSIGNMENT .)
+    SEMICOLON       reduce using rule 26 (augmentation_assignment -> MODULUS_ASSIGNMENT .)
+    NEWLINE         reduce using rule 26 (augmentation_assignment -> MODULUS_ASSIGNMENT .)
+
+
+state 44
+
+    (27) augmentation_assignment -> EXPONENTIATION_ASSIGNMENT .
+
+    IDENTIFIER      reduce using rule 27 (augmentation_assignment -> EXPONENTIATION_ASSIGNMENT .)
+    COMMA           reduce using rule 27 (augmentation_assignment -> EXPONENTIATION_ASSIGNMENT .)
+    SEMICOLON       reduce using rule 27 (augmentation_assignment -> EXPONENTIATION_ASSIGNMENT .)
+    NEWLINE         reduce using rule 27 (augmentation_assignment -> EXPONENTIATION_ASSIGNMENT .)
+
+
+state 45
+
+    (28) augmentation_assignment -> INTEGER_DIVISION_ASSIGNMENT .
+
+    IDENTIFIER      reduce using rule 28 (augmentation_assignment -> INTEGER_DIVISION_ASSIGNMENT .)
+    COMMA           reduce using rule 28 (augmentation_assignment -> INTEGER_DIVISION_ASSIGNMENT .)
+    SEMICOLON       reduce using rule 28 (augmentation_assignment -> INTEGER_DIVISION_ASSIGNMENT .)
+    NEWLINE         reduce using rule 28 (augmentation_assignment -> INTEGER_DIVISION_ASSIGNMENT .)
+
+
+state 46
+
+    (52) while_stmt -> WHILE named_expression . COLON block else_block
+    (53) while_stmt -> WHILE named_expression . COLON block
+
+    COLON           shift and go to state 58
+
+
+state 47
+
+    (40) function_def_raw -> DEF IDENTIFIER . L_PARENTHESIS params R_PARENTHESIS COLON block
+    (41) function_def_raw -> DEF IDENTIFIER . L_PARENTHESIS R_PARENTHESIS COLON block
+
+    L_PARENTHESIS   shift and go to state 59
+
+
+state 48
+
+    (37) class_def_raw -> CLASS IDENTIFIER . L_PARENTHESIS arguments R_PARENTHESIS COLON block
+    (38) class_def_raw -> CLASS IDENTIFIER . COLON block
+
+    L_PARENTHESIS   shift and go to state 60
+    COLON           shift and go to state 61
+
+
+state 49
+
+    (29) return_stmt -> RETURN expressions .
+
+    SEMICOLON       reduce using rule 29 (return_stmt -> RETURN expressions .)
+    NEWLINE         reduce using rule 29 (return_stmt -> RETURN expressions .)
+
+
+state 50
+
+    (56) expressions -> expression . COMMA expressions COMMA
+    (57) expressions -> expression . COMMA expressions
+    (58) expressions -> expression . COMMA
+    (59) expressions -> expression .
+
+  ! shift/reduce conflict for COMMA resolved as shift
+    COMMA           shift and go to state 62
+    SEMICOLON       reduce using rule 59 (expressions -> expression .)
+    NEWLINE         reduce using rule 59 (expressions -> expression .)
+
+  ! COMMA           [ reduce using rule 59 (expressions -> expression .) ]
+
+
+state 51
+
+    (32) del_stmt -> DEL IDENTIFIER . COMMA del_stmt
+    (33) del_stmt -> DEL IDENTIFIER .
+
+    COMMA           shift and go to state 63
+    SEMICOLON       reduce using rule 33 (del_stmt -> DEL IDENTIFIER .)
+    NEWLINE         reduce using rule 33 (del_stmt -> DEL IDENTIFIER .)
+
+
+state 52
+
+    (30) global_stmt -> GLOBAL IDENTIFIER . COMMA global_stmt
+    (31) global_stmt -> GLOBAL IDENTIFIER .
+
+    COMMA           shift and go to state 64
+    SEMICOLON       reduce using rule 31 (global_stmt -> GLOBAL IDENTIFIER .)
+    NEWLINE         reduce using rule 31 (global_stmt -> GLOBAL IDENTIFIER .)
+
+
+state 53
+
+    (6) simple_stmts -> simple_stmt SEMICOLON simple_stmts .
+
+    ENDMARKER       reduce using rule 6 (simple_stmts -> simple_stmt SEMICOLON simple_stmts .)
+    IF              reduce using rule 6 (simple_stmts -> simple_stmt SEMICOLON simple_stmts .)
+    FOR             reduce using rule 6 (simple_stmts -> simple_stmt SEMICOLON simple_stmts .)
+    WHILE           reduce using rule 6 (simple_stmts -> simple_stmt SEMICOLON simple_stmts .)
+    PASS            reduce using rule 6 (simple_stmts -> simple_stmt SEMICOLON simple_stmts .)
+    BREAK           reduce using rule 6 (simple_stmts -> simple_stmt SEMICOLON simple_stmts .)
+    CONTINUE        reduce using rule 6 (simple_stmts -> simple_stmt SEMICOLON simple_stmts .)
+    DEF             reduce using rule 6 (simple_stmts -> simple_stmt SEMICOLON simple_stmts .)
+    CLASS           reduce using rule 6 (simple_stmts -> simple_stmt SEMICOLON simple_stmts .)
+    IDENTIFIER      reduce using rule 6 (simple_stmts -> simple_stmt SEMICOLON simple_stmts .)
+    RETURN          reduce using rule 6 (simple_stmts -> simple_stmt SEMICOLON simple_stmts .)
+    DEL             reduce using rule 6 (simple_stmts -> simple_stmt SEMICOLON simple_stmts .)
+    GLOBAL          reduce using rule 6 (simple_stmts -> simple_stmt SEMICOLON simple_stmts .)
+    ELIF            reduce using rule 6 (simple_stmts -> simple_stmt SEMICOLON simple_stmts .)
+    ELSE            reduce using rule 6 (simple_stmts -> simple_stmt SEMICOLON simple_stmts .)
+    DEDENT          reduce using rule 6 (simple_stmts -> simple_stmt SEMICOLON simple_stmts .)
+
+
+state 54
+
+    (45) if_stmt -> IF named_expression COLON . block elif_stmt
+    (46) if_stmt -> IF named_expression COLON . block else_block
+    (47) if_stmt -> IF named_expression COLON . block
+    (34) block -> . NEWLINE INDENT statements DEDENT
+    (35) block -> . simple_stmts
+    (6) simple_stmts -> . simple_stmt SEMICOLON simple_stmts
+    (7) simple_stmts -> . simple_stmt NEWLINE
+    (8) simple_stmt -> . assignment
+    (9) simple_stmt -> . return_stmt
+    (10) simple_stmt -> . PASS
+    (11) simple_stmt -> . del_stmt
+    (12) simple_stmt -> . BREAK
+    (13) simple_stmt -> . CONTINUE
+    (14) simple_stmt -> . global_stmt
+    (20) assignment -> . IDENTIFIER augmentation_assignment expressions
+    (21) assignment -> . IDENTIFIER augmentation_assignment IDENTIFIER
+    (29) return_stmt -> . RETURN expressions
+    (32) del_stmt -> . DEL IDENTIFIER COMMA del_stmt
+    (33) del_stmt -> . DEL IDENTIFIER
+    (30) global_stmt -> . GLOBAL IDENTIFIER COMMA global_stmt
+    (31) global_stmt -> . GLOBAL IDENTIFIER
+
+    NEWLINE         shift and go to state 66
+    PASS            shift and go to state 20
+    BREAK           shift and go to state 22
+    CONTINUE        shift and go to state 23
+    IDENTIFIER      shift and go to state 16
+    RETURN          shift and go to state 27
+    DEL             shift and go to state 28
+    GLOBAL          shift and go to state 29
+
+    block                          shift and go to state 65
+    simple_stmts                   shift and go to state 67
+    simple_stmt                    shift and go to state 11
+    assignment                     shift and go to state 18
+    return_stmt                    shift and go to state 19
+    del_stmt                       shift and go to state 21
+    global_stmt                    shift and go to state 24
+
+state 55
+
+    (54) for_stmt -> FOR IDENTIFIER IN . IDENTIFIER COLON else_block
+    (55) for_stmt -> FOR IDENTIFIER IN . IDENTIFIER COLON block
+
+    IDENTIFIER      shift and go to state 68
+
+
+state 56
+
+    (21) assignment -> IDENTIFIER augmentation_assignment IDENTIFIER .
+
+    SEMICOLON       reduce using rule 21 (assignment -> IDENTIFIER augmentation_assignment IDENTIFIER .)
+    NEWLINE         reduce using rule 21 (assignment -> IDENTIFIER augmentation_assignment IDENTIFIER .)
+
+
+state 57
+
+    (20) assignment -> IDENTIFIER augmentation_assignment expressions .
+
+    SEMICOLON       reduce using rule 20 (assignment -> IDENTIFIER augmentation_assignment expressions .)
+    NEWLINE         reduce using rule 20 (assignment -> IDENTIFIER augmentation_assignment expressions .)
+
+
+state 58
+
+    (52) while_stmt -> WHILE named_expression COLON . block else_block
+    (53) while_stmt -> WHILE named_expression COLON . block
+    (34) block -> . NEWLINE INDENT statements DEDENT
+    (35) block -> . simple_stmts
+    (6) simple_stmts -> . simple_stmt SEMICOLON simple_stmts
+    (7) simple_stmts -> . simple_stmt NEWLINE
+    (8) simple_stmt -> . assignment
+    (9) simple_stmt -> . return_stmt
+    (10) simple_stmt -> . PASS
+    (11) simple_stmt -> . del_stmt
+    (12) simple_stmt -> . BREAK
+    (13) simple_stmt -> . CONTINUE
+    (14) simple_stmt -> . global_stmt
+    (20) assignment -> . IDENTIFIER augmentation_assignment expressions
+    (21) assignment -> . IDENTIFIER augmentation_assignment IDENTIFIER
+    (29) return_stmt -> . RETURN expressions
+    (32) del_stmt -> . DEL IDENTIFIER COMMA del_stmt
+    (33) del_stmt -> . DEL IDENTIFIER
+    (30) global_stmt -> . GLOBAL IDENTIFIER COMMA global_stmt
+    (31) global_stmt -> . GLOBAL IDENTIFIER
+
+    NEWLINE         shift and go to state 66
+    PASS            shift and go to state 20
+    BREAK           shift and go to state 22
+    CONTINUE        shift and go to state 23
+    IDENTIFIER      shift and go to state 16
+    RETURN          shift and go to state 27
+    DEL             shift and go to state 28
+    GLOBAL          shift and go to state 29
+
+    block                          shift and go to state 69
+    simple_stmts                   shift and go to state 67
+    simple_stmt                    shift and go to state 11
+    assignment                     shift and go to state 18
+    return_stmt                    shift and go to state 19
+    del_stmt                       shift and go to state 21
+    global_stmt                    shift and go to state 24
+
+state 59
+
+    (40) function_def_raw -> DEF IDENTIFIER L_PARENTHESIS . params R_PARENTHESIS COLON block
+    (41) function_def_raw -> DEF IDENTIFIER L_PARENTHESIS . R_PARENTHESIS COLON block
+    (42) params -> . parameters
+    (43) parameters -> . IDENTIFIER COMMA parameters
+    (44) parameters -> . IDENTIFIER
+
+    R_PARENTHESIS   shift and go to state 72
+    IDENTIFIER      shift and go to state 70
+
+    params                         shift and go to state 71
+    parameters                     shift and go to state 73
+
+state 60
+
+    (37) class_def_raw -> CLASS IDENTIFIER L_PARENTHESIS . arguments R_PARENTHESIS COLON block
+    (62) arguments -> .
+
+    R_PARENTHESIS   reduce using rule 62 (arguments -> .)
+
+    arguments                      shift and go to state 74
+
+state 61
+
+    (38) class_def_raw -> CLASS IDENTIFIER COLON . block
+    (34) block -> . NEWLINE INDENT statements DEDENT
+    (35) block -> . simple_stmts
+    (6) simple_stmts -> . simple_stmt SEMICOLON simple_stmts
+    (7) simple_stmts -> . simple_stmt NEWLINE
+    (8) simple_stmt -> . assignment
+    (9) simple_stmt -> . return_stmt
+    (10) simple_stmt -> . PASS
+    (11) simple_stmt -> . del_stmt
+    (12) simple_stmt -> . BREAK
+    (13) simple_stmt -> . CONTINUE
+    (14) simple_stmt -> . global_stmt
+    (20) assignment -> . IDENTIFIER augmentation_assignment expressions
+    (21) assignment -> . IDENTIFIER augmentation_assignment IDENTIFIER
+    (29) return_stmt -> . RETURN expressions
+    (32) del_stmt -> . DEL IDENTIFIER COMMA del_stmt
+    (33) del_stmt -> . DEL IDENTIFIER
+    (30) global_stmt -> . GLOBAL IDENTIFIER COMMA global_stmt
+    (31) global_stmt -> . GLOBAL IDENTIFIER
+
+    NEWLINE         shift and go to state 66
+    PASS            shift and go to state 20
+    BREAK           shift and go to state 22
+    CONTINUE        shift and go to state 23
+    IDENTIFIER      shift and go to state 16
+    RETURN          shift and go to state 27
+    DEL             shift and go to state 28
+    GLOBAL          shift and go to state 29
+
+    block                          shift and go to state 75
+    simple_stmts                   shift and go to state 67
+    simple_stmt                    shift and go to state 11
+    assignment                     shift and go to state 18
+    return_stmt                    shift and go to state 19
+    del_stmt                       shift and go to state 21
+    global_stmt                    shift and go to state 24
+
+state 62
+
+    (56) expressions -> expression COMMA . expressions COMMA
+    (57) expressions -> expression COMMA . expressions
+    (58) expressions -> expression COMMA .
+    (56) expressions -> . expression COMMA expressions COMMA
+    (57) expressions -> . expression COMMA expressions
+    (58) expressions -> . expression COMMA
+    (59) expressions -> . expression
+    (60) expression -> . empty
+    (63) empty -> .
+
+  ! reduce/reduce conflict for COMMA resolved using rule 58 (expressions -> expression COMMA .)
+  ! reduce/reduce conflict for SEMICOLON resolved using rule 58 (expressions -> expression COMMA .)
+  ! reduce/reduce conflict for NEWLINE resolved using rule 58 (expressions -> expression COMMA .)
+    SEMICOLON       reduce using rule 58 (expressions -> expression COMMA .)
+    NEWLINE         reduce using rule 58 (expressions -> expression COMMA .)
+    COMMA           reduce using rule 58 (expressions -> expression COMMA .)
+
+  ! COMMA           [ reduce using rule 63 (empty -> .) ]
+  ! SEMICOLON       [ reduce using rule 63 (empty -> .) ]
+  ! NEWLINE         [ reduce using rule 63 (empty -> .) ]
+
+    expression                     shift and go to state 50
+    expressions                    shift and go to state 76
+    empty                          shift and go to state 36
+
+state 63
+
+    (32) del_stmt -> DEL IDENTIFIER COMMA . del_stmt
+    (32) del_stmt -> . DEL IDENTIFIER COMMA del_stmt
+    (33) del_stmt -> . DEL IDENTIFIER
+
+    DEL             shift and go to state 28
+
+    del_stmt                       shift and go to state 77
+
+state 64
+
+    (30) global_stmt -> GLOBAL IDENTIFIER COMMA . global_stmt
+    (30) global_stmt -> . GLOBAL IDENTIFIER COMMA global_stmt
+    (31) global_stmt -> . GLOBAL IDENTIFIER
+
+    GLOBAL          shift and go to state 29
+
+    global_stmt                    shift and go to state 78
+
+state 65
+
+    (45) if_stmt -> IF named_expression COLON block . elif_stmt
+    (46) if_stmt -> IF named_expression COLON block . else_block
+    (47) if_stmt -> IF named_expression COLON block .
+    (48) elif_stmt -> . ELIF named_expression COLON block elif_stmt
+    (49) elif_stmt -> . ELIF named_expression COLON block else_block
+    (50) elif_stmt -> . ELIF named_expression COLON block
+    (51) else_block -> . ELSE COLON block
+
+    ENDMARKER       reduce using rule 47 (if_stmt -> IF named_expression COLON block .)
+    IF              reduce using rule 47 (if_stmt -> IF named_expression COLON block .)
+    FOR             reduce using rule 47 (if_stmt -> IF named_expression COLON block .)
+    WHILE           reduce using rule 47 (if_stmt -> IF named_expression COLON block .)
+    PASS            reduce using rule 47 (if_stmt -> IF named_expression COLON block .)
+    BREAK           reduce using rule 47 (if_stmt -> IF named_expression COLON block .)
+    CONTINUE        reduce using rule 47 (if_stmt -> IF named_expression COLON block .)
+    DEF             reduce using rule 47 (if_stmt -> IF named_expression COLON block .)
+    CLASS           reduce using rule 47 (if_stmt -> IF named_expression COLON block .)
+    IDENTIFIER      reduce using rule 47 (if_stmt -> IF named_expression COLON block .)
+    RETURN          reduce using rule 47 (if_stmt -> IF named_expression COLON block .)
+    DEL             reduce using rule 47 (if_stmt -> IF named_expression COLON block .)
+    GLOBAL          reduce using rule 47 (if_stmt -> IF named_expression COLON block .)
+    DEDENT          reduce using rule 47 (if_stmt -> IF named_expression COLON block .)
+    ELIF            shift and go to state 81
+    ELSE            shift and go to state 82
+
+    elif_stmt                      shift and go to state 79
+    else_block                     shift and go to state 80
+
+state 66
+
+    (34) block -> NEWLINE . INDENT statements DEDENT
+
+    INDENT          shift and go to state 83
+
+
+state 67
+
+    (35) block -> simple_stmts .
+
+    ELIF            reduce using rule 35 (block -> simple_stmts .)
+    ELSE            reduce using rule 35 (block -> simple_stmts .)
+    ENDMARKER       reduce using rule 35 (block -> simple_stmts .)
+    IF              reduce using rule 35 (block -> simple_stmts .)
+    FOR             reduce using rule 35 (block -> simple_stmts .)
+    WHILE           reduce using rule 35 (block -> simple_stmts .)
+    PASS            reduce using rule 35 (block -> simple_stmts .)
+    BREAK           reduce using rule 35 (block -> simple_stmts .)
+    CONTINUE        reduce using rule 35 (block -> simple_stmts .)
+    DEF             reduce using rule 35 (block -> simple_stmts .)
+    CLASS           reduce using rule 35 (block -> simple_stmts .)
+    IDENTIFIER      reduce using rule 35 (block -> simple_stmts .)
+    RETURN          reduce using rule 35 (block -> simple_stmts .)
+    DEL             reduce using rule 35 (block -> simple_stmts .)
+    GLOBAL          reduce using rule 35 (block -> simple_stmts .)
+    DEDENT          reduce using rule 35 (block -> simple_stmts .)
+
+
+state 68
+
+    (54) for_stmt -> FOR IDENTIFIER IN IDENTIFIER . COLON else_block
+    (55) for_stmt -> FOR IDENTIFIER IN IDENTIFIER . COLON block
+
+    COLON           shift and go to state 84
+
+
+state 69
+
+    (52) while_stmt -> WHILE named_expression COLON block . else_block
+    (53) while_stmt -> WHILE named_expression COLON block .
+    (51) else_block -> . ELSE COLON block
+
+    ENDMARKER       reduce using rule 53 (while_stmt -> WHILE named_expression COLON block .)
+    IF              reduce using rule 53 (while_stmt -> WHILE named_expression COLON block .)
+    FOR             reduce using rule 53 (while_stmt -> WHILE named_expression COLON block .)
+    WHILE           reduce using rule 53 (while_stmt -> WHILE named_expression COLON block .)
+    PASS            reduce using rule 53 (while_stmt -> WHILE named_expression COLON block .)
+    BREAK           reduce using rule 53 (while_stmt -> WHILE named_expression COLON block .)
+    CONTINUE        reduce using rule 53 (while_stmt -> WHILE named_expression COLON block .)
+    DEF             reduce using rule 53 (while_stmt -> WHILE named_expression COLON block .)
+    CLASS           reduce using rule 53 (while_stmt -> WHILE named_expression COLON block .)
+    IDENTIFIER      reduce using rule 53 (while_stmt -> WHILE named_expression COLON block .)
+    RETURN          reduce using rule 53 (while_stmt -> WHILE named_expression COLON block .)
+    DEL             reduce using rule 53 (while_stmt -> WHILE named_expression COLON block .)
+    GLOBAL          reduce using rule 53 (while_stmt -> WHILE named_expression COLON block .)
+    DEDENT          reduce using rule 53 (while_stmt -> WHILE named_expression COLON block .)
+    ELSE            shift and go to state 82
+
+    else_block                     shift and go to state 85
+
+state 70
+
+    (43) parameters -> IDENTIFIER . COMMA parameters
+    (44) parameters -> IDENTIFIER .
+
+    COMMA           shift and go to state 86
+    R_PARENTHESIS   reduce using rule 44 (parameters -> IDENTIFIER .)
+
+
+state 71
+
+    (40) function_def_raw -> DEF IDENTIFIER L_PARENTHESIS params . R_PARENTHESIS COLON block
+
+    R_PARENTHESIS   shift and go to state 87
+
+
+state 72
+
+    (41) function_def_raw -> DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS . COLON block
+
+    COLON           shift and go to state 88
+
+
+state 73
+
+    (42) params -> parameters .
+
+    R_PARENTHESIS   reduce using rule 42 (params -> parameters .)
+
+
+state 74
+
+    (37) class_def_raw -> CLASS IDENTIFIER L_PARENTHESIS arguments . R_PARENTHESIS COLON block
+
+    R_PARENTHESIS   shift and go to state 89
+
+
+state 75
+
+    (38) class_def_raw -> CLASS IDENTIFIER COLON block .
+
+    ENDMARKER       reduce using rule 38 (class_def_raw -> CLASS IDENTIFIER COLON block .)
+    IF              reduce using rule 38 (class_def_raw -> CLASS IDENTIFIER COLON block .)
+    FOR             reduce using rule 38 (class_def_raw -> CLASS IDENTIFIER COLON block .)
+    WHILE           reduce using rule 38 (class_def_raw -> CLASS IDENTIFIER COLON block .)
+    PASS            reduce using rule 38 (class_def_raw -> CLASS IDENTIFIER COLON block .)
+    BREAK           reduce using rule 38 (class_def_raw -> CLASS IDENTIFIER COLON block .)
+    CONTINUE        reduce using rule 38 (class_def_raw -> CLASS IDENTIFIER COLON block .)
+    DEF             reduce using rule 38 (class_def_raw -> CLASS IDENTIFIER COLON block .)
+    CLASS           reduce using rule 38 (class_def_raw -> CLASS IDENTIFIER COLON block .)
+    IDENTIFIER      reduce using rule 38 (class_def_raw -> CLASS IDENTIFIER COLON block .)
+    RETURN          reduce using rule 38 (class_def_raw -> CLASS IDENTIFIER COLON block .)
+    DEL             reduce using rule 38 (class_def_raw -> CLASS IDENTIFIER COLON block .)
+    GLOBAL          reduce using rule 38 (class_def_raw -> CLASS IDENTIFIER COLON block .)
+    DEDENT          reduce using rule 38 (class_def_raw -> CLASS IDENTIFIER COLON block .)
+
+
+state 76
+
+    (56) expressions -> expression COMMA expressions . COMMA
+    (57) expressions -> expression COMMA expressions .
+
+  ! shift/reduce conflict for COMMA resolved as shift
+    COMMA           shift and go to state 90
+    SEMICOLON       reduce using rule 57 (expressions -> expression COMMA expressions .)
+    NEWLINE         reduce using rule 57 (expressions -> expression COMMA expressions .)
+
+  ! COMMA           [ reduce using rule 57 (expressions -> expression COMMA expressions .) ]
+
+
+state 77
+
+    (32) del_stmt -> DEL IDENTIFIER COMMA del_stmt .
+
+    SEMICOLON       reduce using rule 32 (del_stmt -> DEL IDENTIFIER COMMA del_stmt .)
+    NEWLINE         reduce using rule 32 (del_stmt -> DEL IDENTIFIER COMMA del_stmt .)
+
+
+state 78
+
+    (30) global_stmt -> GLOBAL IDENTIFIER COMMA global_stmt .
+
+    SEMICOLON       reduce using rule 30 (global_stmt -> GLOBAL IDENTIFIER COMMA global_stmt .)
+    NEWLINE         reduce using rule 30 (global_stmt -> GLOBAL IDENTIFIER COMMA global_stmt .)
+
+
+state 79
+
+    (45) if_stmt -> IF named_expression COLON block elif_stmt .
+
+    ENDMARKER       reduce using rule 45 (if_stmt -> IF named_expression COLON block elif_stmt .)
+    IF              reduce using rule 45 (if_stmt -> IF named_expression COLON block elif_stmt .)
+    FOR             reduce using rule 45 (if_stmt -> IF named_expression COLON block elif_stmt .)
+    WHILE           reduce using rule 45 (if_stmt -> IF named_expression COLON block elif_stmt .)
+    PASS            reduce using rule 45 (if_stmt -> IF named_expression COLON block elif_stmt .)
+    BREAK           reduce using rule 45 (if_stmt -> IF named_expression COLON block elif_stmt .)
+    CONTINUE        reduce using rule 45 (if_stmt -> IF named_expression COLON block elif_stmt .)
+    DEF             reduce using rule 45 (if_stmt -> IF named_expression COLON block elif_stmt .)
+    CLASS           reduce using rule 45 (if_stmt -> IF named_expression COLON block elif_stmt .)
+    IDENTIFIER      reduce using rule 45 (if_stmt -> IF named_expression COLON block elif_stmt .)
+    RETURN          reduce using rule 45 (if_stmt -> IF named_expression COLON block elif_stmt .)
+    DEL             reduce using rule 45 (if_stmt -> IF named_expression COLON block elif_stmt .)
+    GLOBAL          reduce using rule 45 (if_stmt -> IF named_expression COLON block elif_stmt .)
+    DEDENT          reduce using rule 45 (if_stmt -> IF named_expression COLON block elif_stmt .)
+
+
+state 80
+
+    (46) if_stmt -> IF named_expression COLON block else_block .
+
+    ENDMARKER       reduce using rule 46 (if_stmt -> IF named_expression COLON block else_block .)
+    IF              reduce using rule 46 (if_stmt -> IF named_expression COLON block else_block .)
+    FOR             reduce using rule 46 (if_stmt -> IF named_expression COLON block else_block .)
+    WHILE           reduce using rule 46 (if_stmt -> IF named_expression COLON block else_block .)
+    PASS            reduce using rule 46 (if_stmt -> IF named_expression COLON block else_block .)
+    BREAK           reduce using rule 46 (if_stmt -> IF named_expression COLON block else_block .)
+    CONTINUE        reduce using rule 46 (if_stmt -> IF named_expression COLON block else_block .)
+    DEF             reduce using rule 46 (if_stmt -> IF named_expression COLON block else_block .)
+    CLASS           reduce using rule 46 (if_stmt -> IF named_expression COLON block else_block .)
+    IDENTIFIER      reduce using rule 46 (if_stmt -> IF named_expression COLON block else_block .)
+    RETURN          reduce using rule 46 (if_stmt -> IF named_expression COLON block else_block .)
+    DEL             reduce using rule 46 (if_stmt -> IF named_expression COLON block else_block .)
+    GLOBAL          reduce using rule 46 (if_stmt -> IF named_expression COLON block else_block .)
+    DEDENT          reduce using rule 46 (if_stmt -> IF named_expression COLON block else_block .)
+
+
+state 81
+
+    (48) elif_stmt -> ELIF . named_expression COLON block elif_stmt
+    (49) elif_stmt -> ELIF . named_expression COLON block else_block
+    (50) elif_stmt -> ELIF . named_expression COLON block
+    (61) named_expression -> . expression
+    (60) expression -> . empty
+    (63) empty -> .
+
+    COLON           reduce using rule 63 (empty -> .)
+
+    named_expression               shift and go to state 91
+    expression                     shift and go to state 35
+    empty                          shift and go to state 36
+
+state 82
+
+    (51) else_block -> ELSE . COLON block
+
+    COLON           shift and go to state 92
+
+
+state 83
+
+    (34) block -> NEWLINE INDENT . statements DEDENT
+    (2) statements -> . statements statement
+    (3) statements -> . statement
+    (4) statement -> . compound_stmt
+    (5) statement -> . simple_stmts
+    (15) compound_stmt -> . function_def
+    (16) compound_stmt -> . if_stmt
+    (17) compound_stmt -> . class_def
+    (18) compound_stmt -> . for_stmt
+    (19) compound_stmt -> . while_stmt
+    (6) simple_stmts -> . simple_stmt SEMICOLON simple_stmts
+    (7) simple_stmts -> . simple_stmt NEWLINE
+    (39) function_def -> . function_def_raw
+    (45) if_stmt -> . IF named_expression COLON block elif_stmt
+    (46) if_stmt -> . IF named_expression COLON block else_block
+    (47) if_stmt -> . IF named_expression COLON block
+    (36) class_def -> . class_def_raw
+    (54) for_stmt -> . FOR IDENTIFIER IN IDENTIFIER COLON else_block
+    (55) for_stmt -> . FOR IDENTIFIER IN IDENTIFIER COLON block
+    (52) while_stmt -> . WHILE named_expression COLON block else_block
+    (53) while_stmt -> . WHILE named_expression COLON block
+    (8) simple_stmt -> . assignment
+    (9) simple_stmt -> . return_stmt
+    (10) simple_stmt -> . PASS
+    (11) simple_stmt -> . del_stmt
+    (12) simple_stmt -> . BREAK
+    (13) simple_stmt -> . CONTINUE
+    (14) simple_stmt -> . global_stmt
+    (40) function_def_raw -> . DEF IDENTIFIER L_PARENTHESIS params R_PARENTHESIS COLON block
+    (41) function_def_raw -> . DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block
+    (37) class_def_raw -> . CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block
+    (38) class_def_raw -> . CLASS IDENTIFIER COLON block
+    (20) assignment -> . IDENTIFIER augmentation_assignment expressions
+    (21) assignment -> . IDENTIFIER augmentation_assignment IDENTIFIER
+    (29) return_stmt -> . RETURN expressions
+    (32) del_stmt -> . DEL IDENTIFIER COMMA del_stmt
+    (33) del_stmt -> . DEL IDENTIFIER
+    (30) global_stmt -> . GLOBAL IDENTIFIER COMMA global_stmt
+    (31) global_stmt -> . GLOBAL IDENTIFIER
+
+    IF              shift and go to state 13
+    FOR             shift and go to state 15
+    WHILE           shift and go to state 17
+    PASS            shift and go to state 20
+    BREAK           shift and go to state 22
+    CONTINUE        shift and go to state 23
+    DEF             shift and go to state 25
+    CLASS           shift and go to state 26
+    IDENTIFIER      shift and go to state 16
+    RETURN          shift and go to state 27
+    DEL             shift and go to state 28
+    GLOBAL          shift and go to state 29
+
+    statements                     shift and go to state 93
+    statement                      shift and go to state 3
+    compound_stmt                  shift and go to state 4
+    simple_stmts                   shift and go to state 5
+    function_def                   shift and go to state 6
+    if_stmt                        shift and go to state 7
+    class_def                      shift and go to state 8
+    for_stmt                       shift and go to state 9
+    while_stmt                     shift and go to state 10
+    simple_stmt                    shift and go to state 11
+    function_def_raw               shift and go to state 12
+    class_def_raw                  shift and go to state 14
+    assignment                     shift and go to state 18
+    return_stmt                    shift and go to state 19
+    del_stmt                       shift and go to state 21
+    global_stmt                    shift and go to state 24
+
+state 84
+
+    (54) for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON . else_block
+    (55) for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON . block
+    (51) else_block -> . ELSE COLON block
+    (34) block -> . NEWLINE INDENT statements DEDENT
+    (35) block -> . simple_stmts
+    (6) simple_stmts -> . simple_stmt SEMICOLON simple_stmts
+    (7) simple_stmts -> . simple_stmt NEWLINE
+    (8) simple_stmt -> . assignment
+    (9) simple_stmt -> . return_stmt
+    (10) simple_stmt -> . PASS
+    (11) simple_stmt -> . del_stmt
+    (12) simple_stmt -> . BREAK
+    (13) simple_stmt -> . CONTINUE
+    (14) simple_stmt -> . global_stmt
+    (20) assignment -> . IDENTIFIER augmentation_assignment expressions
+    (21) assignment -> . IDENTIFIER augmentation_assignment IDENTIFIER
+    (29) return_stmt -> . RETURN expressions
+    (32) del_stmt -> . DEL IDENTIFIER COMMA del_stmt
+    (33) del_stmt -> . DEL IDENTIFIER
+    (30) global_stmt -> . GLOBAL IDENTIFIER COMMA global_stmt
+    (31) global_stmt -> . GLOBAL IDENTIFIER
+
+    ELSE            shift and go to state 82
+    NEWLINE         shift and go to state 66
+    PASS            shift and go to state 20
+    BREAK           shift and go to state 22
+    CONTINUE        shift and go to state 23
+    IDENTIFIER      shift and go to state 16
+    RETURN          shift and go to state 27
+    DEL             shift and go to state 28
+    GLOBAL          shift and go to state 29
+
+    else_block                     shift and go to state 94
+    block                          shift and go to state 95
+    simple_stmts                   shift and go to state 67
+    simple_stmt                    shift and go to state 11
+    assignment                     shift and go to state 18
+    return_stmt                    shift and go to state 19
+    del_stmt                       shift and go to state 21
+    global_stmt                    shift and go to state 24
+
+state 85
+
+    (52) while_stmt -> WHILE named_expression COLON block else_block .
+
+    ENDMARKER       reduce using rule 52 (while_stmt -> WHILE named_expression COLON block else_block .)
+    IF              reduce using rule 52 (while_stmt -> WHILE named_expression COLON block else_block .)
+    FOR             reduce using rule 52 (while_stmt -> WHILE named_expression COLON block else_block .)
+    WHILE           reduce using rule 52 (while_stmt -> WHILE named_expression COLON block else_block .)
+    PASS            reduce using rule 52 (while_stmt -> WHILE named_expression COLON block else_block .)
+    BREAK           reduce using rule 52 (while_stmt -> WHILE named_expression COLON block else_block .)
+    CONTINUE        reduce using rule 52 (while_stmt -> WHILE named_expression COLON block else_block .)
+    DEF             reduce using rule 52 (while_stmt -> WHILE named_expression COLON block else_block .)
+    CLASS           reduce using rule 52 (while_stmt -> WHILE named_expression COLON block else_block .)
+    IDENTIFIER      reduce using rule 52 (while_stmt -> WHILE named_expression COLON block else_block .)
+    RETURN          reduce using rule 52 (while_stmt -> WHILE named_expression COLON block else_block .)
+    DEL             reduce using rule 52 (while_stmt -> WHILE named_expression COLON block else_block .)
+    GLOBAL          reduce using rule 52 (while_stmt -> WHILE named_expression COLON block else_block .)
+    DEDENT          reduce using rule 52 (while_stmt -> WHILE named_expression COLON block else_block .)
+
+
+state 86
+
+    (43) parameters -> IDENTIFIER COMMA . parameters
+    (43) parameters -> . IDENTIFIER COMMA parameters
+    (44) parameters -> . IDENTIFIER
+
+    IDENTIFIER      shift and go to state 70
+
+    parameters                     shift and go to state 96
+
+state 87
+
+    (40) function_def_raw -> DEF IDENTIFIER L_PARENTHESIS params R_PARENTHESIS . COLON block
+
+    COLON           shift and go to state 97
+
+
+state 88
+
+    (41) function_def_raw -> DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON . block
+    (34) block -> . NEWLINE INDENT statements DEDENT
+    (35) block -> . simple_stmts
+    (6) simple_stmts -> . simple_stmt SEMICOLON simple_stmts
+    (7) simple_stmts -> . simple_stmt NEWLINE
+    (8) simple_stmt -> . assignment
+    (9) simple_stmt -> . return_stmt
+    (10) simple_stmt -> . PASS
+    (11) simple_stmt -> . del_stmt
+    (12) simple_stmt -> . BREAK
+    (13) simple_stmt -> . CONTINUE
+    (14) simple_stmt -> . global_stmt
+    (20) assignment -> . IDENTIFIER augmentation_assignment expressions
+    (21) assignment -> . IDENTIFIER augmentation_assignment IDENTIFIER
+    (29) return_stmt -> . RETURN expressions
+    (32) del_stmt -> . DEL IDENTIFIER COMMA del_stmt
+    (33) del_stmt -> . DEL IDENTIFIER
+    (30) global_stmt -> . GLOBAL IDENTIFIER COMMA global_stmt
+    (31) global_stmt -> . GLOBAL IDENTIFIER
+
+    NEWLINE         shift and go to state 66
+    PASS            shift and go to state 20
+    BREAK           shift and go to state 22
+    CONTINUE        shift and go to state 23
+    IDENTIFIER      shift and go to state 16
+    RETURN          shift and go to state 27
+    DEL             shift and go to state 28
+    GLOBAL          shift and go to state 29
+
+    block                          shift and go to state 98
+    simple_stmts                   shift and go to state 67
+    simple_stmt                    shift and go to state 11
+    assignment                     shift and go to state 18
+    return_stmt                    shift and go to state 19
+    del_stmt                       shift and go to state 21
+    global_stmt                    shift and go to state 24
+
+state 89
+
+    (37) class_def_raw -> CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS . COLON block
+
+    COLON           shift and go to state 99
+
+
+state 90
+
+    (56) expressions -> expression COMMA expressions COMMA .
+
+    SEMICOLON       reduce using rule 56 (expressions -> expression COMMA expressions COMMA .)
+    NEWLINE         reduce using rule 56 (expressions -> expression COMMA expressions COMMA .)
+    COMMA           reduce using rule 56 (expressions -> expression COMMA expressions COMMA .)
+
+
+state 91
+
+    (48) elif_stmt -> ELIF named_expression . COLON block elif_stmt
+    (49) elif_stmt -> ELIF named_expression . COLON block else_block
+    (50) elif_stmt -> ELIF named_expression . COLON block
+
+    COLON           shift and go to state 100
+
+
+state 92
+
+    (51) else_block -> ELSE COLON . block
+    (34) block -> . NEWLINE INDENT statements DEDENT
+    (35) block -> . simple_stmts
+    (6) simple_stmts -> . simple_stmt SEMICOLON simple_stmts
+    (7) simple_stmts -> . simple_stmt NEWLINE
+    (8) simple_stmt -> . assignment
+    (9) simple_stmt -> . return_stmt
+    (10) simple_stmt -> . PASS
+    (11) simple_stmt -> . del_stmt
+    (12) simple_stmt -> . BREAK
+    (13) simple_stmt -> . CONTINUE
+    (14) simple_stmt -> . global_stmt
+    (20) assignment -> . IDENTIFIER augmentation_assignment expressions
+    (21) assignment -> . IDENTIFIER augmentation_assignment IDENTIFIER
+    (29) return_stmt -> . RETURN expressions
+    (32) del_stmt -> . DEL IDENTIFIER COMMA del_stmt
+    (33) del_stmt -> . DEL IDENTIFIER
+    (30) global_stmt -> . GLOBAL IDENTIFIER COMMA global_stmt
+    (31) global_stmt -> . GLOBAL IDENTIFIER
+
+    NEWLINE         shift and go to state 66
+    PASS            shift and go to state 20
+    BREAK           shift and go to state 22
+    CONTINUE        shift and go to state 23
+    IDENTIFIER      shift and go to state 16
+    RETURN          shift and go to state 27
+    DEL             shift and go to state 28
+    GLOBAL          shift and go to state 29
+
+    block                          shift and go to state 101
+    simple_stmts                   shift and go to state 67
+    simple_stmt                    shift and go to state 11
+    assignment                     shift and go to state 18
+    return_stmt                    shift and go to state 19
+    del_stmt                       shift and go to state 21
+    global_stmt                    shift and go to state 24
+
+state 93
+
+    (34) block -> NEWLINE INDENT statements . DEDENT
+    (2) statements -> statements . statement
+    (4) statement -> . compound_stmt
+    (5) statement -> . simple_stmts
+    (15) compound_stmt -> . function_def
+    (16) compound_stmt -> . if_stmt
+    (17) compound_stmt -> . class_def
+    (18) compound_stmt -> . for_stmt
+    (19) compound_stmt -> . while_stmt
+    (6) simple_stmts -> . simple_stmt SEMICOLON simple_stmts
+    (7) simple_stmts -> . simple_stmt NEWLINE
+    (39) function_def -> . function_def_raw
+    (45) if_stmt -> . IF named_expression COLON block elif_stmt
+    (46) if_stmt -> . IF named_expression COLON block else_block
+    (47) if_stmt -> . IF named_expression COLON block
+    (36) class_def -> . class_def_raw
+    (54) for_stmt -> . FOR IDENTIFIER IN IDENTIFIER COLON else_block
+    (55) for_stmt -> . FOR IDENTIFIER IN IDENTIFIER COLON block
+    (52) while_stmt -> . WHILE named_expression COLON block else_block
+    (53) while_stmt -> . WHILE named_expression COLON block
+    (8) simple_stmt -> . assignment
+    (9) simple_stmt -> . return_stmt
+    (10) simple_stmt -> . PASS
+    (11) simple_stmt -> . del_stmt
+    (12) simple_stmt -> . BREAK
+    (13) simple_stmt -> . CONTINUE
+    (14) simple_stmt -> . global_stmt
+    (40) function_def_raw -> . DEF IDENTIFIER L_PARENTHESIS params R_PARENTHESIS COLON block
+    (41) function_def_raw -> . DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block
+    (37) class_def_raw -> . CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block
+    (38) class_def_raw -> . CLASS IDENTIFIER COLON block
+    (20) assignment -> . IDENTIFIER augmentation_assignment expressions
+    (21) assignment -> . IDENTIFIER augmentation_assignment IDENTIFIER
+    (29) return_stmt -> . RETURN expressions
+    (32) del_stmt -> . DEL IDENTIFIER COMMA del_stmt
+    (33) del_stmt -> . DEL IDENTIFIER
+    (30) global_stmt -> . GLOBAL IDENTIFIER COMMA global_stmt
+    (31) global_stmt -> . GLOBAL IDENTIFIER
+
+    DEDENT          shift and go to state 102
+    IF              shift and go to state 13
+    FOR             shift and go to state 15
+    WHILE           shift and go to state 17
+    PASS            shift and go to state 20
+    BREAK           shift and go to state 22
+    CONTINUE        shift and go to state 23
+    DEF             shift and go to state 25
+    CLASS           shift and go to state 26
+    IDENTIFIER      shift and go to state 16
+    RETURN          shift and go to state 27
+    DEL             shift and go to state 28
+    GLOBAL          shift and go to state 29
+
+    statement                      shift and go to state 31
+    compound_stmt                  shift and go to state 4
+    simple_stmts                   shift and go to state 5
+    function_def                   shift and go to state 6
+    if_stmt                        shift and go to state 7
+    class_def                      shift and go to state 8
+    for_stmt                       shift and go to state 9
+    while_stmt                     shift and go to state 10
+    simple_stmt                    shift and go to state 11
+    function_def_raw               shift and go to state 12
+    class_def_raw                  shift and go to state 14
+    assignment                     shift and go to state 18
+    return_stmt                    shift and go to state 19
+    del_stmt                       shift and go to state 21
+    global_stmt                    shift and go to state 24
+
+state 94
+
+    (54) for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON else_block .
+
+    ENDMARKER       reduce using rule 54 (for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON else_block .)
+    IF              reduce using rule 54 (for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON else_block .)
+    FOR             reduce using rule 54 (for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON else_block .)
+    WHILE           reduce using rule 54 (for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON else_block .)
+    PASS            reduce using rule 54 (for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON else_block .)
+    BREAK           reduce using rule 54 (for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON else_block .)
+    CONTINUE        reduce using rule 54 (for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON else_block .)
+    DEF             reduce using rule 54 (for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON else_block .)
+    CLASS           reduce using rule 54 (for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON else_block .)
+    IDENTIFIER      reduce using rule 54 (for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON else_block .)
+    RETURN          reduce using rule 54 (for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON else_block .)
+    DEL             reduce using rule 54 (for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON else_block .)
+    GLOBAL          reduce using rule 54 (for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON else_block .)
+    DEDENT          reduce using rule 54 (for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON else_block .)
+
+
+state 95
+
+    (55) for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON block .
+
+    ENDMARKER       reduce using rule 55 (for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON block .)
+    IF              reduce using rule 55 (for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON block .)
+    FOR             reduce using rule 55 (for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON block .)
+    WHILE           reduce using rule 55 (for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON block .)
+    PASS            reduce using rule 55 (for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON block .)
+    BREAK           reduce using rule 55 (for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON block .)
+    CONTINUE        reduce using rule 55 (for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON block .)
+    DEF             reduce using rule 55 (for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON block .)
+    CLASS           reduce using rule 55 (for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON block .)
+    IDENTIFIER      reduce using rule 55 (for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON block .)
+    RETURN          reduce using rule 55 (for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON block .)
+    DEL             reduce using rule 55 (for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON block .)
+    GLOBAL          reduce using rule 55 (for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON block .)
+    DEDENT          reduce using rule 55 (for_stmt -> FOR IDENTIFIER IN IDENTIFIER COLON block .)
+
+
+state 96
+
+    (43) parameters -> IDENTIFIER COMMA parameters .
+
+    R_PARENTHESIS   reduce using rule 43 (parameters -> IDENTIFIER COMMA parameters .)
+
+
+state 97
+
+    (40) function_def_raw -> DEF IDENTIFIER L_PARENTHESIS params R_PARENTHESIS COLON . block
+    (34) block -> . NEWLINE INDENT statements DEDENT
+    (35) block -> . simple_stmts
+    (6) simple_stmts -> . simple_stmt SEMICOLON simple_stmts
+    (7) simple_stmts -> . simple_stmt NEWLINE
+    (8) simple_stmt -> . assignment
+    (9) simple_stmt -> . return_stmt
+    (10) simple_stmt -> . PASS
+    (11) simple_stmt -> . del_stmt
+    (12) simple_stmt -> . BREAK
+    (13) simple_stmt -> . CONTINUE
+    (14) simple_stmt -> . global_stmt
+    (20) assignment -> . IDENTIFIER augmentation_assignment expressions
+    (21) assignment -> . IDENTIFIER augmentation_assignment IDENTIFIER
+    (29) return_stmt -> . RETURN expressions
+    (32) del_stmt -> . DEL IDENTIFIER COMMA del_stmt
+    (33) del_stmt -> . DEL IDENTIFIER
+    (30) global_stmt -> . GLOBAL IDENTIFIER COMMA global_stmt
+    (31) global_stmt -> . GLOBAL IDENTIFIER
+
+    NEWLINE         shift and go to state 66
+    PASS            shift and go to state 20
+    BREAK           shift and go to state 22
+    CONTINUE        shift and go to state 23
+    IDENTIFIER      shift and go to state 16
+    RETURN          shift and go to state 27
+    DEL             shift and go to state 28
+    GLOBAL          shift and go to state 29
+
+    block                          shift and go to state 103
+    simple_stmts                   shift and go to state 67
+    simple_stmt                    shift and go to state 11
+    assignment                     shift and go to state 18
+    return_stmt                    shift and go to state 19
+    del_stmt                       shift and go to state 21
+    global_stmt                    shift and go to state 24
+
+state 98
+
+    (41) function_def_raw -> DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block .
+
+    ENDMARKER       reduce using rule 41 (function_def_raw -> DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block .)
+    IF              reduce using rule 41 (function_def_raw -> DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block .)
+    FOR             reduce using rule 41 (function_def_raw -> DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block .)
+    WHILE           reduce using rule 41 (function_def_raw -> DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block .)
+    PASS            reduce using rule 41 (function_def_raw -> DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block .)
+    BREAK           reduce using rule 41 (function_def_raw -> DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block .)
+    CONTINUE        reduce using rule 41 (function_def_raw -> DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block .)
+    DEF             reduce using rule 41 (function_def_raw -> DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block .)
+    CLASS           reduce using rule 41 (function_def_raw -> DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block .)
+    IDENTIFIER      reduce using rule 41 (function_def_raw -> DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block .)
+    RETURN          reduce using rule 41 (function_def_raw -> DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block .)
+    DEL             reduce using rule 41 (function_def_raw -> DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block .)
+    GLOBAL          reduce using rule 41 (function_def_raw -> DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block .)
+    DEDENT          reduce using rule 41 (function_def_raw -> DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block .)
+
+
+state 99
+
+    (37) class_def_raw -> CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON . block
+    (34) block -> . NEWLINE INDENT statements DEDENT
+    (35) block -> . simple_stmts
+    (6) simple_stmts -> . simple_stmt SEMICOLON simple_stmts
+    (7) simple_stmts -> . simple_stmt NEWLINE
+    (8) simple_stmt -> . assignment
+    (9) simple_stmt -> . return_stmt
+    (10) simple_stmt -> . PASS
+    (11) simple_stmt -> . del_stmt
+    (12) simple_stmt -> . BREAK
+    (13) simple_stmt -> . CONTINUE
+    (14) simple_stmt -> . global_stmt
+    (20) assignment -> . IDENTIFIER augmentation_assignment expressions
+    (21) assignment -> . IDENTIFIER augmentation_assignment IDENTIFIER
+    (29) return_stmt -> . RETURN expressions
+    (32) del_stmt -> . DEL IDENTIFIER COMMA del_stmt
+    (33) del_stmt -> . DEL IDENTIFIER
+    (30) global_stmt -> . GLOBAL IDENTIFIER COMMA global_stmt
+    (31) global_stmt -> . GLOBAL IDENTIFIER
+
+    NEWLINE         shift and go to state 66
+    PASS            shift and go to state 20
+    BREAK           shift and go to state 22
+    CONTINUE        shift and go to state 23
+    IDENTIFIER      shift and go to state 16
+    RETURN          shift and go to state 27
+    DEL             shift and go to state 28
+    GLOBAL          shift and go to state 29
+
+    block                          shift and go to state 104
+    simple_stmts                   shift and go to state 67
+    simple_stmt                    shift and go to state 11
+    assignment                     shift and go to state 18
+    return_stmt                    shift and go to state 19
+    del_stmt                       shift and go to state 21
+    global_stmt                    shift and go to state 24
+
+state 100
+
+    (48) elif_stmt -> ELIF named_expression COLON . block elif_stmt
+    (49) elif_stmt -> ELIF named_expression COLON . block else_block
+    (50) elif_stmt -> ELIF named_expression COLON . block
+    (34) block -> . NEWLINE INDENT statements DEDENT
+    (35) block -> . simple_stmts
+    (6) simple_stmts -> . simple_stmt SEMICOLON simple_stmts
+    (7) simple_stmts -> . simple_stmt NEWLINE
+    (8) simple_stmt -> . assignment
+    (9) simple_stmt -> . return_stmt
+    (10) simple_stmt -> . PASS
+    (11) simple_stmt -> . del_stmt
+    (12) simple_stmt -> . BREAK
+    (13) simple_stmt -> . CONTINUE
+    (14) simple_stmt -> . global_stmt
+    (20) assignment -> . IDENTIFIER augmentation_assignment expressions
+    (21) assignment -> . IDENTIFIER augmentation_assignment IDENTIFIER
+    (29) return_stmt -> . RETURN expressions
+    (32) del_stmt -> . DEL IDENTIFIER COMMA del_stmt
+    (33) del_stmt -> . DEL IDENTIFIER
+    (30) global_stmt -> . GLOBAL IDENTIFIER COMMA global_stmt
+    (31) global_stmt -> . GLOBAL IDENTIFIER
+
+    NEWLINE         shift and go to state 66
+    PASS            shift and go to state 20
+    BREAK           shift and go to state 22
+    CONTINUE        shift and go to state 23
+    IDENTIFIER      shift and go to state 16
+    RETURN          shift and go to state 27
+    DEL             shift and go to state 28
+    GLOBAL          shift and go to state 29
+
+    block                          shift and go to state 105
+    simple_stmts                   shift and go to state 67
+    simple_stmt                    shift and go to state 11
+    assignment                     shift and go to state 18
+    return_stmt                    shift and go to state 19
+    del_stmt                       shift and go to state 21
+    global_stmt                    shift and go to state 24
+
+state 101
+
+    (51) else_block -> ELSE COLON block .
+
+    ENDMARKER       reduce using rule 51 (else_block -> ELSE COLON block .)
+    IF              reduce using rule 51 (else_block -> ELSE COLON block .)
+    FOR             reduce using rule 51 (else_block -> ELSE COLON block .)
+    WHILE           reduce using rule 51 (else_block -> ELSE COLON block .)
+    PASS            reduce using rule 51 (else_block -> ELSE COLON block .)
+    BREAK           reduce using rule 51 (else_block -> ELSE COLON block .)
+    CONTINUE        reduce using rule 51 (else_block -> ELSE COLON block .)
+    DEF             reduce using rule 51 (else_block -> ELSE COLON block .)
+    CLASS           reduce using rule 51 (else_block -> ELSE COLON block .)
+    IDENTIFIER      reduce using rule 51 (else_block -> ELSE COLON block .)
+    RETURN          reduce using rule 51 (else_block -> ELSE COLON block .)
+    DEL             reduce using rule 51 (else_block -> ELSE COLON block .)
+    GLOBAL          reduce using rule 51 (else_block -> ELSE COLON block .)
+    DEDENT          reduce using rule 51 (else_block -> ELSE COLON block .)
+
+
+state 102
+
+    (34) block -> NEWLINE INDENT statements DEDENT .
+
+    ELIF            reduce using rule 34 (block -> NEWLINE INDENT statements DEDENT .)
+    ELSE            reduce using rule 34 (block -> NEWLINE INDENT statements DEDENT .)
+    ENDMARKER       reduce using rule 34 (block -> NEWLINE INDENT statements DEDENT .)
+    IF              reduce using rule 34 (block -> NEWLINE INDENT statements DEDENT .)
+    FOR             reduce using rule 34 (block -> NEWLINE INDENT statements DEDENT .)
+    WHILE           reduce using rule 34 (block -> NEWLINE INDENT statements DEDENT .)
+    PASS            reduce using rule 34 (block -> NEWLINE INDENT statements DEDENT .)
+    BREAK           reduce using rule 34 (block -> NEWLINE INDENT statements DEDENT .)
+    CONTINUE        reduce using rule 34 (block -> NEWLINE INDENT statements DEDENT .)
+    DEF             reduce using rule 34 (block -> NEWLINE INDENT statements DEDENT .)
+    CLASS           reduce using rule 34 (block -> NEWLINE INDENT statements DEDENT .)
+    IDENTIFIER      reduce using rule 34 (block -> NEWLINE INDENT statements DEDENT .)
+    RETURN          reduce using rule 34 (block -> NEWLINE INDENT statements DEDENT .)
+    DEL             reduce using rule 34 (block -> NEWLINE INDENT statements DEDENT .)
+    GLOBAL          reduce using rule 34 (block -> NEWLINE INDENT statements DEDENT .)
+    DEDENT          reduce using rule 34 (block -> NEWLINE INDENT statements DEDENT .)
+
+
+state 103
+
+    (40) function_def_raw -> DEF IDENTIFIER L_PARENTHESIS params R_PARENTHESIS COLON block .
+
+    ENDMARKER       reduce using rule 40 (function_def_raw -> DEF IDENTIFIER L_PARENTHESIS params R_PARENTHESIS COLON block .)
+    IF              reduce using rule 40 (function_def_raw -> DEF IDENTIFIER L_PARENTHESIS params R_PARENTHESIS COLON block .)
+    FOR             reduce using rule 40 (function_def_raw -> DEF IDENTIFIER L_PARENTHESIS params R_PARENTHESIS COLON block .)
+    WHILE           reduce using rule 40 (function_def_raw -> DEF IDENTIFIER L_PARENTHESIS params R_PARENTHESIS COLON block .)
+    PASS            reduce using rule 40 (function_def_raw -> DEF IDENTIFIER L_PARENTHESIS params R_PARENTHESIS COLON block .)
+    BREAK           reduce using rule 40 (function_def_raw -> DEF IDENTIFIER L_PARENTHESIS params R_PARENTHESIS COLON block .)
+    CONTINUE        reduce using rule 40 (function_def_raw -> DEF IDENTIFIER L_PARENTHESIS params R_PARENTHESIS COLON block .)
+    DEF             reduce using rule 40 (function_def_raw -> DEF IDENTIFIER L_PARENTHESIS params R_PARENTHESIS COLON block .)
+    CLASS           reduce using rule 40 (function_def_raw -> DEF IDENTIFIER L_PARENTHESIS params R_PARENTHESIS COLON block .)
+    IDENTIFIER      reduce using rule 40 (function_def_raw -> DEF IDENTIFIER L_PARENTHESIS params R_PARENTHESIS COLON block .)
+    RETURN          reduce using rule 40 (function_def_raw -> DEF IDENTIFIER L_PARENTHESIS params R_PARENTHESIS COLON block .)
+    DEL             reduce using rule 40 (function_def_raw -> DEF IDENTIFIER L_PARENTHESIS params R_PARENTHESIS COLON block .)
+    GLOBAL          reduce using rule 40 (function_def_raw -> DEF IDENTIFIER L_PARENTHESIS params R_PARENTHESIS COLON block .)
+    DEDENT          reduce using rule 40 (function_def_raw -> DEF IDENTIFIER L_PARENTHESIS params R_PARENTHESIS COLON block .)
+
+
+state 104
+
+    (37) class_def_raw -> CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block .
+
+    ENDMARKER       reduce using rule 37 (class_def_raw -> CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block .)
+    IF              reduce using rule 37 (class_def_raw -> CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block .)
+    FOR             reduce using rule 37 (class_def_raw -> CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block .)
+    WHILE           reduce using rule 37 (class_def_raw -> CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block .)
+    PASS            reduce using rule 37 (class_def_raw -> CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block .)
+    BREAK           reduce using rule 37 (class_def_raw -> CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block .)
+    CONTINUE        reduce using rule 37 (class_def_raw -> CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block .)
+    DEF             reduce using rule 37 (class_def_raw -> CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block .)
+    CLASS           reduce using rule 37 (class_def_raw -> CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block .)
+    IDENTIFIER      reduce using rule 37 (class_def_raw -> CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block .)
+    RETURN          reduce using rule 37 (class_def_raw -> CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block .)
+    DEL             reduce using rule 37 (class_def_raw -> CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block .)
+    GLOBAL          reduce using rule 37 (class_def_raw -> CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block .)
+    DEDENT          reduce using rule 37 (class_def_raw -> CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block .)
+
+
+state 105
+
+    (48) elif_stmt -> ELIF named_expression COLON block . elif_stmt
+    (49) elif_stmt -> ELIF named_expression COLON block . else_block
+    (50) elif_stmt -> ELIF named_expression COLON block .
+    (48) elif_stmt -> . ELIF named_expression COLON block elif_stmt
+    (49) elif_stmt -> . ELIF named_expression COLON block else_block
+    (50) elif_stmt -> . ELIF named_expression COLON block
+    (51) else_block -> . ELSE COLON block
+
+    ENDMARKER       reduce using rule 50 (elif_stmt -> ELIF named_expression COLON block .)
+    IF              reduce using rule 50 (elif_stmt -> ELIF named_expression COLON block .)
+    FOR             reduce using rule 50 (elif_stmt -> ELIF named_expression COLON block .)
+    WHILE           reduce using rule 50 (elif_stmt -> ELIF named_expression COLON block .)
+    PASS            reduce using rule 50 (elif_stmt -> ELIF named_expression COLON block .)
+    BREAK           reduce using rule 50 (elif_stmt -> ELIF named_expression COLON block .)
+    CONTINUE        reduce using rule 50 (elif_stmt -> ELIF named_expression COLON block .)
+    DEF             reduce using rule 50 (elif_stmt -> ELIF named_expression COLON block .)
+    CLASS           reduce using rule 50 (elif_stmt -> ELIF named_expression COLON block .)
+    IDENTIFIER      reduce using rule 50 (elif_stmt -> ELIF named_expression COLON block .)
+    RETURN          reduce using rule 50 (elif_stmt -> ELIF named_expression COLON block .)
+    DEL             reduce using rule 50 (elif_stmt -> ELIF named_expression COLON block .)
+    GLOBAL          reduce using rule 50 (elif_stmt -> ELIF named_expression COLON block .)
+    DEDENT          reduce using rule 50 (elif_stmt -> ELIF named_expression COLON block .)
+    ELIF            shift and go to state 81
+    ELSE            shift and go to state 82
+
+    elif_stmt                      shift and go to state 106
+    else_block                     shift and go to state 107
+
+state 106
+
+    (48) elif_stmt -> ELIF named_expression COLON block elif_stmt .
+
+    ENDMARKER       reduce using rule 48 (elif_stmt -> ELIF named_expression COLON block elif_stmt .)
+    IF              reduce using rule 48 (elif_stmt -> ELIF named_expression COLON block elif_stmt .)
+    FOR             reduce using rule 48 (elif_stmt -> ELIF named_expression COLON block elif_stmt .)
+    WHILE           reduce using rule 48 (elif_stmt -> ELIF named_expression COLON block elif_stmt .)
+    PASS            reduce using rule 48 (elif_stmt -> ELIF named_expression COLON block elif_stmt .)
+    BREAK           reduce using rule 48 (elif_stmt -> ELIF named_expression COLON block elif_stmt .)
+    CONTINUE        reduce using rule 48 (elif_stmt -> ELIF named_expression COLON block elif_stmt .)
+    DEF             reduce using rule 48 (elif_stmt -> ELIF named_expression COLON block elif_stmt .)
+    CLASS           reduce using rule 48 (elif_stmt -> ELIF named_expression COLON block elif_stmt .)
+    IDENTIFIER      reduce using rule 48 (elif_stmt -> ELIF named_expression COLON block elif_stmt .)
+    RETURN          reduce using rule 48 (elif_stmt -> ELIF named_expression COLON block elif_stmt .)
+    DEL             reduce using rule 48 (elif_stmt -> ELIF named_expression COLON block elif_stmt .)
+    GLOBAL          reduce using rule 48 (elif_stmt -> ELIF named_expression COLON block elif_stmt .)
+    DEDENT          reduce using rule 48 (elif_stmt -> ELIF named_expression COLON block elif_stmt .)
+
+
+state 107
+
+    (49) elif_stmt -> ELIF named_expression COLON block else_block .
+
+    ENDMARKER       reduce using rule 49 (elif_stmt -> ELIF named_expression COLON block else_block .)
+    IF              reduce using rule 49 (elif_stmt -> ELIF named_expression COLON block else_block .)
+    FOR             reduce using rule 49 (elif_stmt -> ELIF named_expression COLON block else_block .)
+    WHILE           reduce using rule 49 (elif_stmt -> ELIF named_expression COLON block else_block .)
+    PASS            reduce using rule 49 (elif_stmt -> ELIF named_expression COLON block else_block .)
+    BREAK           reduce using rule 49 (elif_stmt -> ELIF named_expression COLON block else_block .)
+    CONTINUE        reduce using rule 49 (elif_stmt -> ELIF named_expression COLON block else_block .)
+    DEF             reduce using rule 49 (elif_stmt -> ELIF named_expression COLON block else_block .)
+    CLASS           reduce using rule 49 (elif_stmt -> ELIF named_expression COLON block else_block .)
+    IDENTIFIER      reduce using rule 49 (elif_stmt -> ELIF named_expression COLON block else_block .)
+    RETURN          reduce using rule 49 (elif_stmt -> ELIF named_expression COLON block else_block .)
+    DEL             reduce using rule 49 (elif_stmt -> ELIF named_expression COLON block else_block .)
+    GLOBAL          reduce using rule 49 (elif_stmt -> ELIF named_expression COLON block else_block .)
+    DEDENT          reduce using rule 49 (elif_stmt -> ELIF named_expression COLON block else_block .)
+
+WARNING: 
+WARNING: Conflicts:
+WARNING: 
+WARNING: shift/reduce conflict for COMMA in state 50 resolved as shift
+WARNING: shift/reduce conflict for COMMA in state 76 resolved as shift
+WARNING: reduce/reduce conflict in state 62 resolved using rule (expressions -> expression COMMA)
+WARNING: rejected rule (empty -> <empty>) in state 62
