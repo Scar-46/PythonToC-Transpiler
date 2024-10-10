@@ -264,7 +264,7 @@ def p_conjunction(p):
 
 def p_inversion(p):
     """inversion : NOT inversion 
-                 | empty
+                 | comparison
     """
 
 #TODO: Ask if we will use assignment expression ":="
@@ -275,6 +275,23 @@ def p_named_expression(p):
 # COMPARISON OPERATORS
 # =======================
 
+def p_comparison(p):
+    """comparison : bitwise_or 
+                  | bitwise_or compare_op
+    """
+
+def p_compare_op(p):
+    """compare_op : EQUALITY
+                  | INEQUALITY
+                  | GREATER_EQUAL
+                  | LESSER_EQUAL
+                  | GREATER
+                  | LESSER
+                  | NOT IN
+                  | IS NOT
+                  | IN
+                  | IS
+    """
 
 # BITWISE OPERATORS
 # =======================
@@ -282,6 +299,32 @@ def p_named_expression(p):
 # ARITHMETIC OPERATORS
 # =======================
 
+def p_sum(p):
+    """sum : sum SUM term
+           | sum SUBTRACTION term
+           | term
+    """
+
+
+def p_term(p):
+    """term : term PRODUCT factor 
+            | term DIVISION factor 
+            | term INTEGER_DIVISION factor 
+            | term MODULUS factor 
+            | term '@' factor 
+            | factor
+    """
+
+#TODO: Check if '~' is nedded.
+def p_factor(p):
+    """factor : SUM factor 
+              | SUBTRACTION factor 
+              | power
+    """
+
+def p_power(p):
+    """power : empty
+    """
 # FUNCTION CALL ARGUMENTS
 # =======================
 
