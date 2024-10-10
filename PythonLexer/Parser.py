@@ -277,20 +277,26 @@ def p_named_expression(p):
 
 def p_comparison(p):
     """comparison : bitwise_or 
-                  | bitwise_or compare_op
+                  | bitwise_or compare_op_list
     """
 
+def p_compare_op_list(p):
+    """compare_op_list : compare_op 
+                       | compare_op compare_op_list
+    """
+
+#NOTE: This can be changed
 def p_compare_op(p):
-    """compare_op : EQUALITY
-                  | INEQUALITY
-                  | GREATER_EQUAL
-                  | LESSER_EQUAL
-                  | GREATER
-                  | LESSER
-                  | NOT IN
-                  | IS NOT
-                  | IN
-                  | IS
+    """compare_op : EQUALITY bitwise_or 
+                  | INEQUALITY bitwise_or 
+                  | GREATER_EQUAL bitwise_or 
+                  | LESSER_EQUAL bitwise_or 
+                  | GREATER bitwise_or 
+                  | LESSER bitwise_or 
+                  | NOT IN bitwise_or 
+                  | IS NOT bitwise_or 
+                  | IN bitwise_or 
+                  | IS bitwise_or 
     """
 
 # BITWISE OPERATORS
