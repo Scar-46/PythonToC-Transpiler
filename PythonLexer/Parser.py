@@ -296,6 +296,28 @@ def p_compare_op(p):
 # BITWISE OPERATORS
 # =======================
 
+def p_bitwise_or(p):
+    """bitwise_or : bitwise_or BITWISE_OR bitwise_xor 
+                  | bitwise_xor 
+    """
+
+#TODO: XOR is not available in the tokens, should be added
+def p_bitwise_xor(p):
+    """bitwise_xor : bitwise_xor empty bitwise_and 
+                   | bitwise_and
+    """
+
+def p_bitwise_and(p):
+    """bitwise_and : bitwise_and t_BITWISE_AND shift_expr 
+                   | shift_expr
+    """
+
+def p_shift_expr(p):
+    """shift_expr : shift_expr L_SHIFT sum
+                  | shift_expr R_SHIFT sum
+                  | sum
+    """
+
 # ARITHMETIC OPERATORS
 # =======================
 
@@ -322,6 +344,7 @@ def p_factor(p):
               | power
     """
 
+#TODO: Implement this
 def p_power(p):
     """power : empty
     """
