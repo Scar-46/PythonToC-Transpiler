@@ -61,8 +61,6 @@ tokens = [
 
     # - Accesors
     'DOT',
-    # Since decorators are not allowed could be remove, but apparently this is a matrix multiplication operator.
-    'AT',
 
     # - Separators
     'COLON',
@@ -125,7 +123,6 @@ t_R_CB = r'\}'
 
 # - Accesors
 t_DOT = r'\.'
-t_AT = r'@'
 
 # - Separators
 t_COLON = r':'

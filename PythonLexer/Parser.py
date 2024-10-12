@@ -117,7 +117,6 @@ def p_compound_stmt(p):
 # TODO: Check this later
 def p_assignment(p):
     """assignment : IDENTIFIER augmentation_assignment expressions
-                  | IDENTIFIER augmentation_assignment IDENTIFIER
     """
 
 # augassign
@@ -161,7 +160,6 @@ def p_block(p):
     """block : NEWLINE INDENT statements DEDENT
              | simple_stmts
     """
-    print('block rule - verified!')
 
 # Class definitions
 # -----------------
@@ -189,7 +187,6 @@ def p_parameters(p):
     """parameters : parameters COMMA IDENTIFIER
                   | IDENTIFIER
     """
-    print('parameters rule - verified!')
 
 # If statement
 def p_if_stmt(p):
@@ -216,7 +213,6 @@ def p_while_stmt(p):
     """while_stmt : WHILE expression COLON block else_block
                   | WHILE expression COLON block
     """
-    print('while_stmt rule - verified!')
 
 # for_stmt:
 #     | 'for' star_targets 'in' ~ star_expressions
@@ -333,16 +329,71 @@ def p_factor(p):
               | power
     """
 
-#TODO: Implement this
 def p_power(p):
-    """power : empty
+    """power : primary EXPONENTIATION target
+             | primary
     """
+
+# PRIMARY ELEMENTS
+# =======================
+
+# primary:
+#     | primary '.' NAME 
+#     | primary genexp 
+#     | primary '(' [arguments] ')' 
+#     | primary '[' slices ']' 
+#     | atom
+def p_primary(p):
+    """primary : primary DOT IDENTIFIER
+               | primary L_PARENTHESIS arguments R_PARENTHESIS
+               | primary L_SQB slices R_SQB
+               | atomic
+    """
+
+# slices:
+#     | slice !',' 
+#     | ','.(slice | starred_expression)+ [',']
+
+#TODO: This should be change
+def p_slices(p):
+    """slices : slice
+              | COMMA L_PARENTHESIS slice R_PARENTHESIS slices
+    """
+
+# slice:
+#     | [expression] ':' [expression] [':' [expression] ] 
+#     | named_expression 
+#TODO: This should be change
+def p_slice(p):
+    """slice : expression
+    """
+
+
+
+def p_atomic(p):
+    """atomic : IDENTIFIER
+              | TRUE
+              | FALSE
+              | NONE
+              | strings
+              | NUMBER
+              | F_NUMBER
+    """
+
 # FUNCTION CALL ARGUMENTS
 # =======================
 
 #TODO: Check how this should work
 def p_arguments(p):
     """arguments :
+    """
+
+# LITERALS
+# ========
+
+def p_strings(p):
+    """strings : STRING
+               | TRIPLE_STRING
     """
 
 # ASSIGNMENT TARGETS
@@ -354,8 +405,7 @@ def p_targets(p):
     """
 
 def p_target(p):
-    """target : target
-               | empty
+    """target : empty
     """
     
 
