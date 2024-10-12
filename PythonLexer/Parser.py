@@ -66,7 +66,6 @@ import ply.yacc as yacc
 def p_file(p):
     """file : statements ENDMARKER
     """
-    print('file rule - verified!')
 
 # GENERAL STATEMENTS
 # ==================
@@ -76,24 +75,21 @@ def p_statements(p):
     """statements : statements statement
                   | statement
     """
-    print('statements rule  - verified!')
 
 # statement: simple_stmts | compound_stmt
 def p_statement(p):
     """statement : compound_stmt
                  | simple_stmts
     """
-    print('statement rule - verified!')
 
 # simple_stmts:
 #     | simple_stmt !';' NEWLINE  # Not needed, there for speedup
 #     | ';'.simple_stmt+ [';'] NEWLINE 
 # TODO: Check recursion
 def p_simple_stmts(p):
-    """simple_stmts : simple_stmt SEMICOLON simple_stmts
+    """simple_stmts : simple_stmts SEMICOLON simple_stmt
                     | simple_stmt NEWLINE
     """
-    print('simple_stmts rule - verified!')
 
 # REMOVED: Assert_stmt
 # SIMPLE STATEMENTS
@@ -106,7 +102,6 @@ def p_simple_stmt(p):
                    | CONTINUE 
                    | global_stmt
     """
-    print('simple_stmt rule - verified!')
 
 
 def p_compound_stmt(p):
@@ -116,7 +111,6 @@ def p_compound_stmt(p):
                      | for_stmt
                      | while_stmt
     """
-    print('compound_stmt rule - verified!')
 
 # SIMPLE STATEMENTS
 # =================
@@ -145,25 +139,26 @@ def p_augmentation_assignment(p):
 def p_return_stmt(p):
     """return_stmt : RETURN expressions
     """
-    print('return_stmt rule - verified!')
 
 def p_global_stmt(p):
-    """global_stmt : GLOBAL IDENTIFIER COMMA global_stmt
-                   | GLOBAL IDENTIFIER
+    """global_stmt : GLOBAL namelist
     """
-    print('return_stmt rule - verified!')
 
 def p_del_stmt(p):
-    """del_stmt : DEL IDENTIFIER COMMA del_stmt
-                | DEL IDENTIFIER
+    """del_stmt : DEL namelist
     """
-    print('return_stmt rule - verified!')
+
+def p_namelist(p):
+    """namelist : namelist COMMA IDENTIFIER
+                | IDENTIFIER
+    """
 
 # COMPOUND STATEMENTS
 # ===================
 
 # Common elements
 # ---------------
+# TODO: check if the NEWLINE goes here
 def p_block(p):
     """block : NEWLINE INDENT statements DEDENT
              | simple_stmts
@@ -174,36 +169,15 @@ def p_block(p):
 # -----------------
 
 def p_class_def(p):
-    """class_def : class_def_raw
+    """class_def : CLASS IDENTIFIER COLON block
+                 | CLASS IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block
+                 | CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block   
     """
-    print('class_def rule - verified!')
-
-# class_def_raw:
-#     | 'class' NAME [type_params] ['(' [arguments] ')' ] ':' block 
-def p_class_def_raw(p):
-    """class_def_raw : CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block
-                     | CLASS IDENTIFIER COLON block
-    """
-    print('class_def_raw rule - verified!')
 
 def p_function_def(p):
-    """function_def : function_def_raw 
+    """function_def : DEF IDENTIFIER L_PARENTHESIS parameters R_PARENTHESIS COLON block
+                    | DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block
     """
-    print('function_def rule - verified!')
-
-# function_def_raw:
-#     | 'def' NAME [type_params] '(' [params] ')' ['->' expression ] ':' [func_type_comment] block 
-#     | ASYNC 'def' NAME [type_params] '(' [params] ')' ['->' expression ] ':' [func_type_comment] block 
-def p_function_def_raw(p):
-    """function_def_raw : DEF IDENTIFIER L_PARENTHESIS params R_PARENTHESIS COLON block
-                        | DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block
-    """
-    print('function_def_raw rule - verified!')
-
-def p_params(p):
-    """params : parameters
-    """
-    print('params rule - verified!')
 
 # parameters:
 #     | slash_no_default param_no_default* param_with_default* [star_etc] 
@@ -212,80 +186,164 @@ def p_params(p):
 #     | param_with_default+ [star_etc] 
 #     | star_etc 
 #TODO: Add default parameters and I don't know if slash is needed 
+#TODO: This need to be changed
 def p_parameters(p):
-    """parameters : IDENTIFIER COMMA parameters
+    """parameters : parameters COMMA IDENTIFIER
                   | IDENTIFIER
     """
     print('parameters rule - verified!')
 
 # If statement
-# ------------
-# if_stmt:
-#     | 'if' named_expression ':' block elif_stmt 
-#     | 'if' named_expression ':' block [else_block] 
 def p_if_stmt(p):
     """if_stmt : IF named_expression COLON block elif_stmt
                | IF named_expression COLON block else_block
                | IF named_expression COLON block
     """
-    print('if_stmt rule - verified!')
 
 
 # elif_stmt:
-#     | 'elif' named_expression ':' block elif_stmt 
-#     | 'elif' named_expression ':' block [else_block]  
 def p_elif_stmt(p):
     """elif_stmt : ELIF named_expression COLON block elif_stmt
                  | ELIF named_expression COLON block else_block
                  | ELIF named_expression COLON block
     """
-    print('elif_stmt rule - verified!')
 
 def p_else_block(p):
     """else_block : ELSE COLON block
     """
-    print('else_block rule - verified!')
 
 
 # while_stmt:
-#     | 'while' named_expression ':' block [else_block]
 def p_while_stmt(p):
-    """while_stmt : WHILE named_expression COLON block else_block
-                  | WHILE named_expression COLON block
+    """while_stmt : WHILE named_expression COLON block
     """
     print('while_stmt rule - verified!')
 
 # for_stmt:
-#     | 'for' star_targets 'in' ~ star_expressions ':' [TYPE_COMMENT] block [else_block] 
-#     | ASYNC 'for' star_targets 'in' ~ star_expressions ':' [TYPE_COMMENT] block [else_block] 
-# TODO: Add Range() function.
+#     | 'for' star_targets 'in' ~ star_expressions
+# TODO: Add Range() function, and fix the IDENTIFIER, and expresions.
 def p_for_stmt(p):
-    """for_stmt : FOR IDENTIFIER IN IDENTIFIER COLON else_block
-                | FOR IDENTIFIER IN IDENTIFIER COLON block
+    """for_stmt : FOR IDENTIFIER IN expressions COLON else_block
+                | FOR IDENTIFIER IN expressions COLON block
     """
     print('for_stmt rule - verified!')
 
-# expressions:
-#     | expression (',' expression )+ [','] 
-#     | expression ',' 
-#     | expression
+# EXPRESSIONS
+# ===================
+# TODO: What are expressions? are they always boolean? 
 def p_expressions(p):
-    """expressions : expression COMMA expressions COMMA
-                   | expression COMMA expressions
-                   | expression COMMA
+    """expressions : expressions COMMA expression
                    | expression
     """
-    print('expressions rule - verified!')
 
-#TODO: I'm not sure what this does
 def p_expression(p):
-    """expression : empty
+    """expression : disjunction
+                  | disjunction IF disjunction ELSE expression
     """
+
+#TODO: Check if this works
+def p_disjunction(p):
+    """disjunction : conjunction 
+                   | conjunction OR disjunction
+    """
+
+#TODO: Check if this works
+def p_conjunction(p):
+    """conjunction : inversion 
+                   | inversion AND inversion
+    """
+
+def p_inversion(p):
+    """inversion : NOT inversion 
+                 | comparison
+    """
+
 #TODO: Ask if we will use assignment expression ":="
 def p_named_expression(p):
     """named_expression : expression
     """
 
+# COMPARISON OPERATORS
+# =======================
+
+def p_comparison(p):
+    """comparison : bitwise_or 
+                  | bitwise_or compare_op_list
+    """
+
+def p_compare_op_list(p):
+    """compare_op_list : compare_op 
+                       | compare_op_list compare_op
+    """
+
+#NOTE: This can be changed
+def p_compare_op(p):
+    """compare_op : EQUALITY bitwise_or 
+                  | INEQUALITY bitwise_or 
+                  | GREATER_EQUAL bitwise_or 
+                  | LESSER_EQUAL bitwise_or 
+                  | GREATER bitwise_or 
+                  | LESSER bitwise_or 
+                  | NOT IN bitwise_or 
+                  | IS NOT bitwise_or 
+                  | IN bitwise_or 
+                  | IS bitwise_or 
+    """
+
+# BITWISE OPERATORS
+# =======================
+
+def p_bitwise_or(p):
+    """bitwise_or : bitwise_or BITWISE_OR bitwise_xor 
+                  | bitwise_xor 
+    """
+
+#TODO: XOR is not available in the tokens, should be added
+def p_bitwise_xor(p):
+    """bitwise_xor : bitwise_xor empty bitwise_and 
+                   | bitwise_and
+    """
+
+def p_bitwise_and(p):
+    """bitwise_and : bitwise_and BITWISE_AND shift_expr 
+                   | shift_expr
+    """
+
+def p_shift_expr(p):
+    """shift_expr : shift_expr L_SHIFT sum
+                  | shift_expr R_SHIFT sum
+                  | sum
+    """
+
+# ARITHMETIC OPERATORS
+# =======================
+# TODO: SUBTRACTION token should be renamed as minus, opeartors should be named after the symbols
+def p_sum(p):
+    """sum : sum SUM term
+           | sum SUBTRACTION term
+           | term
+    """
+
+
+def p_term(p):
+    """term : term PRODUCT factor 
+            | term DIVISION factor 
+            | term INTEGER_DIVISION factor 
+            | term MODULUS factor
+            | factor
+    """
+
+#TODO: Check if '~' is nedded.
+def p_factor(p):
+    """factor : SUM factor 
+              | SUBTRACTION factor 
+              | power
+    """
+
+#TODO: Implement this
+def p_power(p):
+    """power : empty
+    """
 # FUNCTION CALL ARGUMENTS
 # =======================
 
