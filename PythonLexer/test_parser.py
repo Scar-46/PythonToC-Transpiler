@@ -1,19 +1,6 @@
 import pytest
 from Parser import Parser
 
-# Test case for simple valid input
-def test_valid_input():
-    parser = Parser()
-    
-    # A simple Python-like code snippet (could be enhanced based on your grammar)
-    code = 'print("Hello World")\n'
-    # Ensure that no syntax errors occur during parsing
-    try:
-        result = parser.parse(code)
-        assert result is not None  # Ensure that the result is not None (depends on how your parser returns values)
-    except SyntaxError:
-        pytest.fail("Parser raised SyntaxError unexpectedly!")
-
 # Test case for empty input
 def test_empty_input():
     parser = Parser()

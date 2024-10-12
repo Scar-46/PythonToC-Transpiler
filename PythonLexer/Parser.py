@@ -141,16 +141,16 @@ def p_return_stmt(p):
     """
 
 def p_global_stmt(p):
-    """global_stmt : GLOBAL IDENTIFIER namelist
+    """global_stmt : GLOBAL namelist
     """
 
 def p_del_stmt(p):
-    """del_stmt : DEL IDENTIFIER COMMA namelist
+    """del_stmt : DEL namelist
     """
 
 def p_namelist(p):
-    """namelist : COMMA IDENTIFIER namelist
-                | empty
+    """namelist : namelist COMMA IDENTIFIER
+                | IDENTIFIER
     """
 
 # COMPOUND STATEMENTS
@@ -158,6 +158,7 @@ def p_namelist(p):
 
 # Common elements
 # ---------------
+# TODO: check if the NEWLINE goes here
 def p_block(p):
     """block : NEWLINE INDENT statements DEDENT
              | simple_stmts
@@ -187,16 +188,12 @@ def p_function_def(p):
 #TODO: Add default parameters and I don't know if slash is needed 
 #TODO: This need to be changed
 def p_parameters(p):
-    """parameters : IDENTIFIER COMMA parameters
+    """parameters : parameters COMMA IDENTIFIER
                   | IDENTIFIER
     """
     print('parameters rule - verified!')
 
 # If statement
-# ------------
-# if_stmt:
-#     | 'if' named_expression ':' block elif_stmt 
-#     | 'if' named_expression ':' block [else_block] 
 def p_if_stmt(p):
     """if_stmt : IF named_expression COLON block elif_stmt
                | IF named_expression COLON block else_block
@@ -205,8 +202,6 @@ def p_if_stmt(p):
 
 
 # elif_stmt:
-#     | 'elif' named_expression ':' block elif_stmt 
-#     | 'elif' named_expression ':' block [else_block]  
 def p_elif_stmt(p):
     """elif_stmt : ELIF named_expression COLON block elif_stmt
                  | ELIF named_expression COLON block else_block
@@ -219,17 +214,14 @@ def p_else_block(p):
 
 
 # while_stmt:
-#     | 'while' named_expression ':' block [else_block]
 def p_while_stmt(p):
-    """while_stmt : WHILE named_expression COLON block else_block
-                  | WHILE named_expression COLON block
+    """while_stmt : WHILE named_expression COLON block
     """
     print('while_stmt rule - verified!')
 
 # for_stmt:
-#     | 'for' star_targets 'in' ~ star_expressions ':' [TYPE_COMMENT] block [else_block] 
-#     | ASYNC 'for' star_targets 'in' ~ star_expressions ':' [TYPE_COMMENT] block [else_block] 
-# TODO: Add Range() function.
+#     | 'for' star_targets 'in' ~ star_expressions
+# TODO: Add Range() function, and fix the IDENTIFIER, and expresions.
 def p_for_stmt(p):
     """for_stmt : FOR IDENTIFIER IN expressions COLON else_block
                 | FOR IDENTIFIER IN expressions COLON block
@@ -238,11 +230,10 @@ def p_for_stmt(p):
 
 # EXPRESSIONS
 # ===================
-
+# TODO: What are expressions? are they always boolean? 
 def p_expressions(p):
-    """expressions : expression 
-                   | expression COMMA
-                   | expression COMMA expressions
+    """expressions : expressions COMMA expression
+                   | expression
     """
 
 def p_expression(p):
@@ -282,7 +273,7 @@ def p_comparison(p):
 
 def p_compare_op_list(p):
     """compare_op_list : compare_op 
-                       | compare_op compare_op_list
+                       | compare_op_list compare_op
     """
 
 #NOTE: This can be changed
@@ -314,7 +305,7 @@ def p_bitwise_xor(p):
     """
 
 def p_bitwise_and(p):
-    """bitwise_and : bitwise_and t_BITWISE_AND shift_expr 
+    """bitwise_and : bitwise_and BITWISE_AND shift_expr 
                    | shift_expr
     """
 
@@ -326,7 +317,7 @@ def p_shift_expr(p):
 
 # ARITHMETIC OPERATORS
 # =======================
-
+# TODO: SUBTRACTION token should be renamed as minus, opeartors should be named after the symbols
 def p_sum(p):
     """sum : sum SUM term
            | sum SUBTRACTION term
@@ -338,8 +329,7 @@ def p_term(p):
     """term : term PRODUCT factor 
             | term DIVISION factor 
             | term INTEGER_DIVISION factor 
-            | term MODULUS factor 
-            | term '@' factor 
+            | term MODULUS factor
             | factor
     """
 
