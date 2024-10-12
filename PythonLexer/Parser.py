@@ -95,6 +95,7 @@ def p_simple_stmts(p):
 # SIMPLE STATEMENTS
 def p_simple_stmt(p):
     """simple_stmt : assignment
+                   | expressions
                    | return_stmt
                    | PASS
                    | del_stmt
@@ -385,7 +386,7 @@ def p_atomic(p):
 
 #TODO: Check how this should work
 def p_arguments(p):
-    """arguments :
+    """arguments : empty
     """
 
 # LITERALS
