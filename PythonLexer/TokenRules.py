@@ -100,6 +100,7 @@ tokens = [
     'MODULUS',
     'BITWISE_OR',
     'BITWISE_AND',
+    'BITWISE_XOR',
 
     'NEWLINE',
     'WHITESPACE',
@@ -160,6 +161,7 @@ t_SUBTRACTION = r'-'
 t_MODULUS = r'%'
 t_BITWISE_OR = r'\|'
 t_BITWISE_AND = r'&'
+t_BITWISE_XOR = r'\^'
 
 # Literals
 # Rule for matching single and double-quoted strings

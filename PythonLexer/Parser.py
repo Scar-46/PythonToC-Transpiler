@@ -103,7 +103,6 @@ def p_simple_stmt(p):
                    | global_stmt
     """
 
-
 def p_compound_stmt(p):
     """compound_stmt : function_def
                      | if_stmt
@@ -120,11 +119,11 @@ def p_assignment(p):
     """assignment : IDENTIFIER augmentation_assignment expressions
                   | IDENTIFIER augmentation_assignment IDENTIFIER
     """
-    print('assignment rule - verified!')
 
 # augassign
 def p_augmentation_assignment(p):
-    """augmentation_assignment : SUM_ASSIGNMENT
+    """augmentation_assignment : ASSIGNMENT
+                               | SUM_ASSIGNMENT
                                | SUBTRACTION_ASSIGNMENT
                                | PRODUCT_ASSIGNMENT
                                | DIVISION_ASSIGNMENT
@@ -132,7 +131,6 @@ def p_augmentation_assignment(p):
                                | EXPONENTIATION_ASSIGNMENT
                                | INTEGER_DIVISION_ASSIGNMENT
     """
-    print('augmentation_assignment rule - verified!')
 
 # return_stmt:
 #     | 'return' [star_expressions] 
@@ -195,17 +193,17 @@ def p_parameters(p):
 
 # If statement
 def p_if_stmt(p):
-    """if_stmt : IF named_expression COLON block elif_stmt
-               | IF named_expression COLON block else_block
-               | IF named_expression COLON block
+    """if_stmt : IF expression COLON block elif_stmt
+               | IF expression COLON block else_block
+               | IF expression COLON block
     """
 
 
 # elif_stmt:
 def p_elif_stmt(p):
-    """elif_stmt : ELIF named_expression COLON block elif_stmt
-                 | ELIF named_expression COLON block else_block
-                 | ELIF named_expression COLON block
+    """elif_stmt : ELIF expression COLON block elif_stmt
+                 | ELIF expression COLON block else_block
+                 | ELIF expression COLON block
     """
 
 def p_else_block(p):
@@ -215,7 +213,8 @@ def p_else_block(p):
 
 # while_stmt:
 def p_while_stmt(p):
-    """while_stmt : WHILE named_expression COLON block
+    """while_stmt : WHILE expression COLON block else_block
+                  | WHILE expression COLON block
     """
     print('while_stmt rule - verified!')
 
@@ -223,10 +222,9 @@ def p_while_stmt(p):
 #     | 'for' star_targets 'in' ~ star_expressions
 # TODO: Add Range() function, and fix the IDENTIFIER, and expresions.
 def p_for_stmt(p):
-    """for_stmt : FOR IDENTIFIER IN expressions COLON else_block
-                | FOR IDENTIFIER IN expressions COLON block
+    """for_stmt : FOR targets IN expressions COLON else_block
+                | FOR targets IN expressions COLON block
     """
-    print('for_stmt rule - verified!')
 
 # EXPRESSIONS
 # ===================
@@ -256,11 +254,6 @@ def p_conjunction(p):
 def p_inversion(p):
     """inversion : NOT inversion 
                  | comparison
-    """
-
-#TODO: Ask if we will use assignment expression ":="
-def p_named_expression(p):
-    """named_expression : expression
     """
 
 # COMPARISON OPERATORS
@@ -300,7 +293,7 @@ def p_bitwise_or(p):
 
 #TODO: XOR is not available in the tokens, should be added
 def p_bitwise_xor(p):
-    """bitwise_xor : bitwise_xor empty bitwise_and 
+    """bitwise_xor : bitwise_xor BITWISE_XOR bitwise_and 
                    | bitwise_and
     """
 
@@ -351,6 +344,20 @@ def p_power(p):
 def p_arguments(p):
     """arguments :
     """
+
+# ASSIGNMENT TARGETS
+# ==================
+
+def p_targets(p):
+    """targets : target
+               | target COMMA targets
+    """
+
+def p_target(p):
+    """target : target
+               | empty
+    """
+    
 
 
 def p_empty(p):
