@@ -90,11 +90,11 @@ tokens = [
 
     # - Arithmetic
     'EXPONENTIATION',
-    'PRODUCT',
+    'STAR',
     'INTEGER_DIVISION',
     'DIVISION',
-    'SUM',
-    'SUBTRACTION',
+    'PLUS',
+    'MINUS',
     'MODULUS',
     'BITWISE_OR',
     'BITWISE_AND',
@@ -150,11 +150,11 @@ t_ASSIGNMENT = r'='
 
 # - Arithmetic
 t_EXPONENTIATION = r'\*\*'
-t_PRODUCT = r'\*'
+t_STAR = r'\*'
 t_INTEGER_DIVISION = r'\/\/'
 t_DIVISION = r'\/'
-t_SUM = r'\+'
-t_SUBTRACTION = r'-'
+t_PLUS = r'\+'
+t_MINUS = r'-'
 t_MODULUS = r'%'
 t_BITWISE_OR = r'\|'
 t_BITWISE_AND = r'&'
@@ -217,7 +217,8 @@ def t_escaped_newline(t):
 
 def t_NEWLINE(t):
     r'(\n\r|\n|\r)+'
-    t.lexer.lineno += len(t.value)
+    if t.lexer.lineno is not None:
+        t.lexer.lineno += len(t.value)
     return t
 
 def t_WHITESPACE(t):

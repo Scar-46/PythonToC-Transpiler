@@ -166,9 +166,9 @@ def p_block(p):
 # -----------------
 
 def p_class_def(p):
-    """class_def : CLASS IDENTIFIER COLON block
+    """class_def : CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block  
                  | CLASS IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block
-                 | CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block   
+                 | CLASS IDENTIFIER COLON block
     """
 
 def p_function_def(p):
@@ -232,20 +232,20 @@ def p_expressions(p):
     """
 
 def p_expression(p):
-    """expression : disjunction
-                  | disjunction IF disjunction ELSE expression
+    """expression : disjunction IF disjunction ELSE expression
+                  | disjunction
     """
 
 #TODO: Check if this works
 def p_disjunction(p):
-    """disjunction : conjunction 
-                   | conjunction OR disjunction
+    """disjunction : conjunction OR disjunction
+                   | conjunction 
     """
 
 #TODO: Check if this works
 def p_conjunction(p):
-    """conjunction : inversion 
-                   | inversion AND inversion
+    """conjunction : inversion AND inversion
+                   | inversion
     """
 
 def p_inversion(p):
@@ -257,13 +257,13 @@ def p_inversion(p):
 # =======================
 
 def p_comparison(p):
-    """comparison : bitwise_or 
-                  | bitwise_or compare_op_list
+    """comparison : bitwise_or compare_op_list
+                  | bitwise_or
     """
 
 def p_compare_op_list(p):
-    """compare_op_list : compare_op 
-                       | compare_op_list compare_op
+    """compare_op_list : compare_op_list compare_op
+                       | compare_op 
     """
 
 #NOTE: This can be changed
@@ -309,14 +309,14 @@ def p_shift_expr(p):
 # =======================
 # TODO: SUBTRACTION token should be renamed as minus, opeartors should be named after the symbols
 def p_sum(p):
-    """sum : sum SUM term
-           | sum SUBTRACTION term
+    """sum : sum PLUS term
+           | sum MINUS term
            | term
     """
 
 
 def p_term(p):
-    """term : term PRODUCT factor 
+    """term : term STAR factor 
             | term DIVISION factor 
             | term INTEGER_DIVISION factor 
             | term MODULUS factor
@@ -325,8 +325,8 @@ def p_term(p):
 
 #TODO: Check if '~' is nedded.
 def p_factor(p):
-    """factor : SUM factor 
-              | SUBTRACTION factor 
+    """factor : PLUS factor 
+              | MINUS factor 
               | power
     """
 
@@ -345,9 +345,9 @@ def p_power(p):
 #     | primary '[' slices ']' 
 #     | atom
 def p_primary(p):
-    """primary : primary DOT IDENTIFIER
-               | primary L_PARENTHESIS arguments R_PARENTHESIS
+    """primary : primary L_PARENTHESIS arguments R_PARENTHESIS
                | primary L_SQB slices R_SQB
+               | primary DOT IDENTIFIER
                | atomic
     """
 
@@ -357,8 +357,8 @@ def p_primary(p):
 
 #TODO: This should be change
 def p_slices(p):
-    """slices : slice
-              | COMMA L_PARENTHESIS slice R_PARENTHESIS slices
+    """slices : slices COMMA L_PARENTHESIS slice R_PARENTHESIS
+              | slice
     """
 
 # slice:
@@ -401,8 +401,8 @@ def p_strings(p):
 # ==================
 
 def p_targets(p):
-    """targets : target
-               | target COMMA targets
+    """targets : targets COMMA target 
+               | target
     """
 
 def p_target(p):
@@ -420,10 +420,8 @@ def p_empty(p):
 def p_error(p):
     if p:
         error_msg = f"Syntax Error near '{p.value}' in line {p.lineno}"
-        print(error_msg)
         raise SyntaxError(error_msg)
     else:
-        print("Syntax error at EOF")
         raise SyntaxError("Syntax error at EOF")
     
 class Parser(object):

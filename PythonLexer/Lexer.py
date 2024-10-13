@@ -114,8 +114,11 @@ def filter(lexer, addEndMarker=True):
     for tok in token_stream:
         yield tok
 
-    if addEndMarker:    
+    if addEndMarker:
         yield NEW_TOKEN("ENDMARKER", 1 if tok is None else tok.lineno)
+
+def empty_input():
+    raise NotImplementedError("empty_input")
 
 # Lexer wrapper for Fangless Python 
 class Lexer(object):
@@ -128,9 +131,12 @@ class Lexer(object):
     def input(self, data: str, addEndMarker=True):
         self.lexer.lineno = 0
         self.lexer.input(data)
+        self.input_is_empty = not data
         self.token_stream = filter(self.lexer, addEndMarker)
 
     def token(self):
+        if self.input_is_empty:
+            return None
         try:
             return next(self.token_stream)
         except StopIteration:
