@@ -59,6 +59,11 @@ import ply.yacc as yacc
 #   Commit to the current alternative, even if it fails to parse.
 #
 
+# precedence = (
+#     ('left', 'PLUS', 'MINUS'),
+#     ('left', 'TIMES', 'DIVIDE'),
+# )
+
 # STARTING RULES
 # ==============
 # They define 3 starting rules, but i do not know if it applies to our case
@@ -124,13 +129,13 @@ def p_assignment(p):
 # augassign
 def p_augmentation_assignment(p):
     """augmentation_assignment : ASSIGNMENT
-                               | SUM_ASSIGNMENT
+                               | ADDITION_ASSIGNMENT
                                | SUBTRACTION_ASSIGNMENT
-                               | PRODUCT_ASSIGNMENT
+                               | MULTIPLICATION_ASSIGNMENT
                                | DIVISION_ASSIGNMENT
-                               | MODULUS_ASSIGNMENT
+                               | MODULO_ASSIGNMENT
                                | EXPONENTIATION_ASSIGNMENT
-                               | INTEGER_DIVISION_ASSIGNMENT
+                               | FLOOR_DIVISION_ASSIGNMENT
     """
 
 # return_stmt:
@@ -165,7 +170,6 @@ def p_block(p):
 
 # Class definitions
 # -----------------
-
 def p_class_def(p):
     """class_def : CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block  
                  | CLASS IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block
@@ -184,7 +188,7 @@ def p_function_def(p):
 #     | param_with_default+ [star_etc] 
 #     | star_etc 
 #TODO: Add default parameters and I don't know if slash is needed 
-#TODO: This need to be changed
+#TODO: This needs to be changed
 def p_parameters(p):
     """parameters : parameters COMMA IDENTIFIER
                   | IDENTIFIER
@@ -236,13 +240,11 @@ def p_expression(p):
                   | disjunction
     """
 
-#TODO: Check if this works
 def p_disjunction(p):
     """disjunction : conjunction OR disjunction
                    | conjunction 
     """
 
-#TODO: Check if this works
 def p_conjunction(p):
     """conjunction : inversion AND inversion
                    | inversion
@@ -307,23 +309,20 @@ def p_shift_expr(p):
 
 # ARITHMETIC OPERATORS
 # =======================
-# TODO: SUBTRACTION token should be renamed as minus, opeartors should be named after the symbols
 def p_sum(p):
     """sum : sum PLUS term
            | sum MINUS term
            | term
     """
 
-
 def p_term(p):
-    """term : term ASTERISK factor 
+    """term : term STAR factor 
             | term SLASH factor 
             | term DOUBLE_SLASH factor 
-            | term MODULO factor
+            | term PERCENT factor
             | factor
     """
 
-#TODO: Check if '~' is nedded.
 def p_factor(p):
     """factor : PLUS factor 
               | MINUS factor 
@@ -331,7 +330,7 @@ def p_factor(p):
     """
 
 def p_power(p):
-    """power : primary DOUBLE_ASTERISK factor
+    """power : primary DOUBLE_STAR factor
              | primary
     """
 
@@ -355,10 +354,8 @@ def p_primary(p):
 # slices:
 #     | slice !',' 
 #     | ','.(slice | starred_expression)+ [',']
-
-#TODO: This should be change
 def p_slices(p):
-    """slices : slices COMMA L_PARENTHESIS slice R_PARENTHESIS
+    """slices : slices COMMA slice
               | slice
     """
 
@@ -367,24 +364,40 @@ def p_slices(p):
 #     | named_expression 
 #TODO: This should be change
 def p_slice(p):
-    """slice : expression
+    """slice : expression COLON expression COLON expression
+             | expression COLON expression
+             | expression COLON
+             | COLON expression
+             | COLON COLON
+             | COLON
+             | expression
     """
 
-
-
+#NOTE: MAY HAVE SOME ISSUES OF PRECEDENCE SINCE DICT AND SET ARE SIMILAR
+#NOTE: ERROR: Infinite recursion detected for symbol 'dict'
+#      ERROR: Infinite recursion detected for symbol 'set'
 def p_atomic(p):
     """atomic : IDENTIFIER
               | TRUE
               | FALSE
               | NONE
               | strings
-              | NUMBER
-              | F_NUMBER
+              | number
+              | tuple
+              | list
+              | dict
+              | set
     """
 
+def p_number(p):
+    """number : NUMBER
+              | F_NUMBER
+              | BIN_NUMBER
+              | HEX_NUMBER
+              | OCT_NUMBER
+    """
 # FUNCTION CALL ARGUMENTS
 # =======================
-
 #TODO: Check how this should work
 def p_arguments(p):
     """arguments : expressions
@@ -392,39 +405,37 @@ def p_arguments(p):
 
 # LITERALS
 # ========
-def p_expression_list(p):
-    """expression_list : expression_list COMMA expression
-                       | expression    
-    """
 def p_strings(p):
     """strings : STRING
                | TRIPLE_STRING
     """
 
+# LIST, TUPLE, SET, AND DICTIONARY
+# =======================
 # '[' [star_named_expressions] ']' 
 def p_list(p):
-    """list : L_SQB expression_list R_SQB
+    """list : L_SQB expressions R_SQB
             | L_SQB R_SQB
     """
 
 # | '(' [star_named_expression ',' [star_named_expressions]  ] ')' 
 def p_tuple(p):
-    """tuple : L_PARENTHESIS expression_list R_PARENTHESIS
+    """tuple : L_PARENTHESIS expressions R_PARENTHESIS
              | L_PARENTHESIS R_PARENTHESIS
     """
 
 def p_set(p):
-    """set : L_CURLY expression_list R_CURLY
+    """set : L_CB expressions R_CB
     """
 
 # DICTIONARY
 def p_dict(p):
-    """dict : L_CURLY kvpairs R_CURLY
-            | L_CURLY R_CURLY
+    """dict : L_CB kvpairs R_CB
+            | L_CB R_CB
     """
 
 def p_kvpairs(p):
-    """kvpairs : kvpairs COMMA p_kvpair
+    """kvpairs : kvpairs COMMA kvpair
                | kvpair
     """
 
@@ -434,7 +445,6 @@ def p_kvpair(p):
 
 # ASSIGNMENT TARGETS
 # ==================
-
 def p_targets(p):
     """targets : targets COMMA target 
                | target
