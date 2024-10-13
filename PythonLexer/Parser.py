@@ -59,12 +59,18 @@ import ply.yacc as yacc
 #   Commit to the current alternative, even if it fails to parse.
 #
 
+# precedence = (
+#     ('left', 'PLUS', 'MINUS'),
+#     ('left', 'TIMES', 'DIVIDE'),
+# )
+
 # STARTING RULES
 # ==============
 # They define 3 starting rules, but i do not know if it applies to our case
 
 def p_file(p):
     """file : statements ENDMARKER
+            | ENDMARKER
     """
 
 # GENERAL STATEMENTS
@@ -87,7 +93,7 @@ def p_statement(p):
 #     | ';'.simple_stmt+ [';'] NEWLINE 
 # TODO: Check recursion
 def p_simple_stmts(p):
-    """simple_stmts : simple_stmts SEMICOLON simple_stmt
+    """simple_stmts : simple_stmts SEMICOLON simple_stmt NEWLINE
                     | simple_stmt NEWLINE
     """
 
@@ -123,13 +129,13 @@ def p_assignment(p):
 # augassign
 def p_augmentation_assignment(p):
     """augmentation_assignment : ASSIGNMENT
-                               | SUM_ASSIGNMENT
+                               | ADDITION_ASSIGNMENT
                                | SUBTRACTION_ASSIGNMENT
-                               | PRODUCT_ASSIGNMENT
+                               | MULTIPLICATION_ASSIGNMENT
                                | DIVISION_ASSIGNMENT
-                               | MODULUS_ASSIGNMENT
+                               | MODULO_ASSIGNMENT
                                | EXPONENTIATION_ASSIGNMENT
-                               | INTEGER_DIVISION_ASSIGNMENT
+                               | FLOOR_DIVISION_ASSIGNMENT
     """
 
 # return_stmt:
@@ -156,7 +162,6 @@ def p_namelist(p):
 
 # Common elements
 # ---------------
-# TODO: check if the NEWLINE goes here
 def p_block(p):
     """block : NEWLINE INDENT statements DEDENT
              | simple_stmts
@@ -164,7 +169,6 @@ def p_block(p):
 
 # Class definitions
 # -----------------
-
 def p_class_def(p):
     """class_def : CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block  
                  | CLASS IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block
@@ -183,7 +187,7 @@ def p_function_def(p):
 #     | param_with_default+ [star_etc] 
 #     | star_etc 
 #TODO: Add default parameters and I don't know if slash is needed 
-#TODO: This need to be changed
+#TODO: This needs to be changed
 def p_parameters(p):
     """parameters : parameters COMMA IDENTIFIER
                   | IDENTIFIER
@@ -225,7 +229,6 @@ def p_for_stmt(p):
 
 # EXPRESSIONS
 # ===================
-# TODO: What are expressions? are they always boolean? 
 def p_expressions(p):
     """expressions : expressions COMMA expression
                    | expression
@@ -236,13 +239,11 @@ def p_expression(p):
                   | disjunction
     """
 
-#TODO: Check if this works
 def p_disjunction(p):
     """disjunction : conjunction OR disjunction
                    | conjunction 
     """
 
-#TODO: Check if this works
 def p_conjunction(p):
     """conjunction : inversion AND inversion
                    | inversion
@@ -284,18 +285,18 @@ def p_compare_op(p):
 # =======================
 
 def p_bitwise_or(p):
-    """bitwise_or : bitwise_or BITWISE_OR bitwise_xor 
+    """bitwise_or : bitwise_or PIPE bitwise_xor 
                   | bitwise_xor 
     """
 
 #TODO: XOR is not available in the tokens, should be added
 def p_bitwise_xor(p):
-    """bitwise_xor : bitwise_xor BITWISE_XOR bitwise_and 
+    """bitwise_xor : bitwise_xor CARET bitwise_and 
                    | bitwise_and
     """
 
 def p_bitwise_and(p):
-    """bitwise_and : bitwise_and BITWISE_AND shift_expr 
+    """bitwise_and : bitwise_and AMPERSAND shift_expr 
                    | shift_expr
     """
 
@@ -307,23 +308,20 @@ def p_shift_expr(p):
 
 # ARITHMETIC OPERATORS
 # =======================
-# TODO: SUBTRACTION token should be renamed as minus, opeartors should be named after the symbols
 def p_sum(p):
     """sum : sum PLUS term
            | sum MINUS term
            | term
     """
 
-
 def p_term(p):
     """term : term STAR factor 
-            | term DIVISION factor 
-            | term INTEGER_DIVISION factor 
-            | term MODULUS factor
+            | term SLASH factor 
+            | term DOUBLE_SLASH factor 
+            | term PERCENT factor
             | factor
     """
 
-#TODO: Check if '~' is nedded.
 def p_factor(p):
     """factor : PLUS factor 
               | MINUS factor 
@@ -331,7 +329,7 @@ def p_factor(p):
     """
 
 def p_power(p):
-    """power : primary EXPONENTIATION target
+    """power : primary DOUBLE_STAR factor
              | primary
     """
 
@@ -346,6 +344,8 @@ def p_power(p):
 #     | atom
 def p_primary(p):
     """primary : primary L_PARENTHESIS arguments R_PARENTHESIS
+               | L_PARENTHESIS expression R_PARENTHESIS
+               | primary L_PARENTHESIS R_PARENTHESIS
                | primary L_SQB slices R_SQB
                | primary DOT IDENTIFIER
                | atomic
@@ -354,10 +354,8 @@ def p_primary(p):
 # slices:
 #     | slice !',' 
 #     | ','.(slice | starred_expression)+ [',']
-
-#TODO: This should be change
 def p_slices(p):
-    """slices : slices COMMA L_PARENTHESIS slice R_PARENTHESIS
+    """slices : slices COMMA slice
               | slice
     """
 
@@ -366,40 +364,88 @@ def p_slices(p):
 #     | named_expression 
 #TODO: This should be change
 def p_slice(p):
-    """slice : expression
+    """slice : expression COLON expression COLON expression
+             | expression COLON expression
+             | expression COLON
+             | COLON expression
+             | COLON COLON
+             | COLON
+             | expression
     """
 
-
-
+#NOTE: MAY HAVE SOME ISSUES OF PRECEDENCE SINCE DICT AND SET ARE SIMILAR
+#NOTE: ERROR: Infinite recursion detected for symbol 'dict'
+#      ERROR: Infinite recursion detected for symbol 'set'
 def p_atomic(p):
     """atomic : IDENTIFIER
               | TRUE
               | FALSE
               | NONE
               | strings
-              | NUMBER
-              | F_NUMBER
+              | number
+              | tuple
+              | list
+              | dict
+              | set
     """
 
+def p_number(p):
+    """number : NUMBER
+              | F_NUMBER
+              | BIN_NUMBER
+              | HEX_NUMBER
+              | OCT_NUMBER
+    """
 # FUNCTION CALL ARGUMENTS
 # =======================
-
 #TODO: Check how this should work
 def p_arguments(p):
-    """arguments : empty
+    """arguments : expressions
     """
 
 # LITERALS
 # ========
-
 def p_strings(p):
     """strings : STRING
                | TRIPLE_STRING
     """
 
+# LIST, TUPLE, SET, AND DICTIONARY
+# =======================
+# '[' [star_named_expressions] ']' 
+def p_list(p):
+    """list : L_SQB expressions R_SQB
+            | L_SQB R_SQB
+    """
+
+# | '(' [star_named_expression ',' [star_named_expressions]  ] ')' 
+def p_tuple(p):
+    """tuple : L_PARENTHESIS expression COMMA expressions R_PARENTHESIS
+             | L_PARENTHESIS expression COMMA R_PARENTHESIS
+             | L_PARENTHESIS R_PARENTHESIS
+    """
+
+def p_set(p):
+    """set : L_CB expressions R_CB
+    """
+
+# DICTIONARY
+def p_dict(p):
+    """dict : L_CB kvpairs R_CB
+            | L_CB R_CB
+    """
+
+def p_kvpairs(p):
+    """kvpairs : kvpairs COMMA kvpair
+               | kvpair
+    """
+
+def p_kvpair(p):
+    """kvpair : expression COLON expression
+    """
+
 # ASSIGNMENT TARGETS
 # ==================
-
 def p_targets(p):
     """targets : targets COMMA target 
                | target
@@ -409,8 +455,6 @@ def p_target(p):
     """target : empty
     """
     
-
-
 def p_empty(p):
     'empty :'
     pass
@@ -419,7 +463,7 @@ def p_empty(p):
 
 def p_error(p):
     if p:
-        error_msg = f"Syntax Error near '{p.value}' in line {p.lineno}"
+        error_msg = f"Syntax Error near '{p.value if p.value else p.type}' in line {p.lineno}"
         raise SyntaxError(error_msg)
     else:
         raise SyntaxError("Syntax error at EOF")

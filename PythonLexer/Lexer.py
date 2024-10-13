@@ -11,7 +11,7 @@ def NEW_TOKEN(newType: str, lineno: int):
     token.type = newType
     token.value = None
     token.lineno = lineno
-    token.lexpos = None
+    token.lexpos = 0
     return token
 
 def INDENT(lineno: int):
@@ -92,6 +92,7 @@ def assignIndentations(token_stream):
                 if (expression_depth <= 0):
                     scope_depth = 0
                     previous_line_start = True
+                    yield NEW_TOKEN("NEWLINE", token.lineno)
 
             case "WHITESPACE":
                 if (previous_line_start):
@@ -102,7 +103,9 @@ def assignIndentations(token_stream):
     if len(previous_scope_depths) > 1:
         assert token is not None
         for z in range(1, len(previous_scope_depths)):
+            yield NEW_TOKEN("NEWLINE", token.lineno)
             yield DEDENT(token.lineno)
+            
 
 # Construct a tab-filtered (INDENT and DEDENT) lexeme stream for a given lexer
 def filter(lexer, addEndMarker=True):
@@ -111,14 +114,26 @@ def filter(lexer, addEndMarker=True):
     token_stream = assignIndentations(token_stream)
 
     tok = None
+    last_token = None
     for tok in token_stream:
+        last_token = tok
         yield tok
+    
+    if last_token and last_token.type != "NEWLINE":
+        yield NEW_TOKEN("NEWLINE", 1 if tok is None else tok.lineno)
 
     if addEndMarker:
         yield NEW_TOKEN("ENDMARKER", 1 if tok is None else tok.lineno)
 
 def empty_input():
     raise NotImplementedError("empty_input")
+
+# Compute column.
+#     input is the input text string
+#     token is a token instance
+def find_column(input, token):
+    line_start = input.rfind('\n', 0, token.lexpos) + 1
+    return (token.lexpos - line_start) + 1
 
 # Lexer wrapper for Fangless Python 
 class Lexer(object):
