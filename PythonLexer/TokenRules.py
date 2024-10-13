@@ -61,8 +61,6 @@ tokens = [
 
     # - Accesors
     'DOT',
-    # Since decorators are not allowed could be remove, but apparently this is a matrix multiplication operator.
-    'AT',
 
     # - Separators
     'COLON',
@@ -100,6 +98,7 @@ tokens = [
     'MODULUS',
     'BITWISE_OR',
     'BITWISE_AND',
+    'BITWISE_XOR',
 
     'NEWLINE',
     'WHITESPACE',
@@ -124,7 +123,6 @@ t_R_CB = r'\}'
 
 # - Accesors
 t_DOT = r'\.'
-t_AT = r'@'
 
 # - Separators
 t_COLON = r':'
@@ -160,6 +158,7 @@ t_SUBTRACTION = r'-'
 t_MODULUS = r'%'
 t_BITWISE_OR = r'\|'
 t_BITWISE_AND = r'&'
+t_BITWISE_XOR = r'\^'
 
 # Literals
 # Rule for matching single and double-quoted strings

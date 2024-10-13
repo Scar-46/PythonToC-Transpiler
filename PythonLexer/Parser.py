@@ -95,6 +95,7 @@ def p_simple_stmts(p):
 # SIMPLE STATEMENTS
 def p_simple_stmt(p):
     """simple_stmt : assignment
+                   | expressions
                    | return_stmt
                    | PASS
                    | del_stmt
@@ -102,7 +103,6 @@ def p_simple_stmt(p):
                    | CONTINUE 
                    | global_stmt
     """
-
 
 def p_compound_stmt(p):
     """compound_stmt : function_def
@@ -118,13 +118,12 @@ def p_compound_stmt(p):
 # TODO: Check this later
 def p_assignment(p):
     """assignment : IDENTIFIER augmentation_assignment expressions
-                  | IDENTIFIER augmentation_assignment IDENTIFIER
     """
-    print('assignment rule - verified!')
 
 # augassign
 def p_augmentation_assignment(p):
-    """augmentation_assignment : SUM_ASSIGNMENT
+    """augmentation_assignment : ASSIGNMENT
+                               | SUM_ASSIGNMENT
                                | SUBTRACTION_ASSIGNMENT
                                | PRODUCT_ASSIGNMENT
                                | DIVISION_ASSIGNMENT
@@ -132,7 +131,6 @@ def p_augmentation_assignment(p):
                                | EXPONENTIATION_ASSIGNMENT
                                | INTEGER_DIVISION_ASSIGNMENT
     """
-    print('augmentation_assignment rule - verified!')
 
 # return_stmt:
 #     | 'return' [star_expressions] 
@@ -163,7 +161,6 @@ def p_block(p):
     """block : NEWLINE INDENT statements DEDENT
              | simple_stmts
     """
-    print('block rule - verified!')
 
 # Class definitions
 # -----------------
@@ -191,21 +188,20 @@ def p_parameters(p):
     """parameters : parameters COMMA IDENTIFIER
                   | IDENTIFIER
     """
-    print('parameters rule - verified!')
 
 # If statement
 def p_if_stmt(p):
-    """if_stmt : IF named_expression COLON block elif_stmt
-               | IF named_expression COLON block else_block
-               | IF named_expression COLON block
+    """if_stmt : IF expression COLON block elif_stmt
+               | IF expression COLON block else_block
+               | IF expression COLON block
     """
 
 
 # elif_stmt:
 def p_elif_stmt(p):
-    """elif_stmt : ELIF named_expression COLON block elif_stmt
-                 | ELIF named_expression COLON block else_block
-                 | ELIF named_expression COLON block
+    """elif_stmt : ELIF expression COLON block elif_stmt
+                 | ELIF expression COLON block else_block
+                 | ELIF expression COLON block
     """
 
 def p_else_block(p):
@@ -215,18 +211,17 @@ def p_else_block(p):
 
 # while_stmt:
 def p_while_stmt(p):
-    """while_stmt : WHILE named_expression COLON block
+    """while_stmt : WHILE expression COLON block else_block
+                  | WHILE expression COLON block
     """
-    print('while_stmt rule - verified!')
 
 # for_stmt:
 #     | 'for' star_targets 'in' ~ star_expressions
 # TODO: Add Range() function, and fix the IDENTIFIER, and expresions.
 def p_for_stmt(p):
-    """for_stmt : FOR IDENTIFIER IN expressions COLON else_block
-                | FOR IDENTIFIER IN expressions COLON block
+    """for_stmt : FOR targets IN expressions COLON else_block
+                | FOR targets IN expressions COLON block
     """
-    print('for_stmt rule - verified!')
 
 # EXPRESSIONS
 # ===================
@@ -256,11 +251,6 @@ def p_conjunction(p):
 def p_inversion(p):
     """inversion : NOT inversion 
                  | comparison
-    """
-
-#TODO: Ask if we will use assignment expression ":="
-def p_named_expression(p):
-    """named_expression : expression
     """
 
 # COMPARISON OPERATORS
@@ -300,7 +290,7 @@ def p_bitwise_or(p):
 
 #TODO: XOR is not available in the tokens, should be added
 def p_bitwise_xor(p):
-    """bitwise_xor : bitwise_xor empty bitwise_and 
+    """bitwise_xor : bitwise_xor BITWISE_XOR bitwise_and 
                    | bitwise_and
     """
 
@@ -340,17 +330,85 @@ def p_factor(p):
               | power
     """
 
-#TODO: Implement this
 def p_power(p):
-    """power : empty
+    """power : primary EXPONENTIATION target
+             | primary
     """
+
+# PRIMARY ELEMENTS
+# =======================
+
+# primary:
+#     | primary '.' NAME 
+#     | primary genexp 
+#     | primary '(' [arguments] ')' 
+#     | primary '[' slices ']' 
+#     | atom
+def p_primary(p):
+    """primary : primary DOT IDENTIFIER
+               | primary L_PARENTHESIS arguments R_PARENTHESIS
+               | primary L_SQB slices R_SQB
+               | atomic
+    """
+
+# slices:
+#     | slice !',' 
+#     | ','.(slice | starred_expression)+ [',']
+
+#TODO: This should be change
+def p_slices(p):
+    """slices : slice
+              | COMMA L_PARENTHESIS slice R_PARENTHESIS slices
+    """
+
+# slice:
+#     | [expression] ':' [expression] [':' [expression] ] 
+#     | named_expression 
+#TODO: This should be change
+def p_slice(p):
+    """slice : expression
+    """
+
+
+
+def p_atomic(p):
+    """atomic : IDENTIFIER
+              | TRUE
+              | FALSE
+              | NONE
+              | strings
+              | NUMBER
+              | F_NUMBER
+    """
+
 # FUNCTION CALL ARGUMENTS
 # =======================
 
 #TODO: Check how this should work
 def p_arguments(p):
-    """arguments :
+    """arguments : empty
     """
+
+# LITERALS
+# ========
+
+def p_strings(p):
+    """strings : STRING
+               | TRIPLE_STRING
+    """
+
+# ASSIGNMENT TARGETS
+# ==================
+
+def p_targets(p):
+    """targets : target
+               | target COMMA targets
+    """
+
+def p_target(p):
+    """target : empty
+    """
+    
 
 
 def p_empty(p):
