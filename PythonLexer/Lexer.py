@@ -103,7 +103,9 @@ def assignIndentations(token_stream):
     if len(previous_scope_depths) > 1:
         assert token is not None
         for z in range(1, len(previous_scope_depths)):
+            yield NEW_TOKEN("NEWLINE", token.lineno)
             yield DEDENT(token.lineno)
+            
 
 # Construct a tab-filtered (INDENT and DEDENT) lexeme stream for a given lexer
 def filter(lexer, addEndMarker=True):

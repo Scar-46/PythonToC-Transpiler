@@ -162,7 +162,6 @@ def p_namelist(p):
 
 # Common elements
 # ---------------
-# TODO: check if the NEWLINE goes here
 def p_block(p):
     """block : NEWLINE INDENT statements DEDENT
              | simple_stmts
@@ -345,6 +344,7 @@ def p_power(p):
 #     | atom
 def p_primary(p):
     """primary : primary L_PARENTHESIS arguments R_PARENTHESIS
+               | L_PARENTHESIS expression R_PARENTHESIS
                | primary L_PARENTHESIS R_PARENTHESIS
                | primary L_SQB slices R_SQB
                | primary DOT IDENTIFIER
@@ -420,7 +420,8 @@ def p_list(p):
 
 # | '(' [star_named_expression ',' [star_named_expressions]  ] ')' 
 def p_tuple(p):
-    """tuple : L_PARENTHESIS expressions R_PARENTHESIS
+    """tuple : L_PARENTHESIS expression COMMA expressions R_PARENTHESIS
+             | L_PARENTHESIS expression COMMA R_PARENTHESIS
              | L_PARENTHESIS R_PARENTHESIS
     """
 
