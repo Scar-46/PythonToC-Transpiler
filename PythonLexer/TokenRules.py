@@ -80,25 +80,25 @@ tokens = [
 
     # - Assignment
     'EXPONENTIATION_ASSIGNMENT',
-    'PRODUCT_ASSIGNMENT',
-    'INTEGER_DIVISION_ASSIGNMENT',
+    'MULTIPLICATION_ASSIGNMENT',
+    'FLOOR_DIVISION_ASSIGNMENT',
     'DIVISION_ASSIGNMENT',
-    'SUM_ASSIGNMENT',
+    'ADDITION_ASSIGNMENT',
     'SUBTRACTION_ASSIGNMENT',
-    'MODULUS_ASSIGNMENT',
+    'MODULO_ASSIGNMENT',
     'ASSIGNMENT',
 
-    # - Arithmetic
-    'EXPONENTIATION',
+    # - Arithmetic\
     'STAR',
-    'INTEGER_DIVISION',
-    'DIVISION',
+    'DOUBLE_STAR',
+    'SLASH',
+    'DOUBLE_SLASH',
     'PLUS',
     'MINUS',
-    'MODULUS',
-    'BITWISE_OR',
-    'BITWISE_AND',
-    'BITWISE_XOR',
+    'PERCENT',
+    'PIPE',
+    'AMPERSAND',
+    'CARET',
 
     'NEWLINE',
     'WHITESPACE',
@@ -140,25 +140,25 @@ t_LESSER = r'<'
 
 # - Assignment
 t_EXPONENTIATION_ASSIGNMENT = r'\*\*='
-t_PRODUCT_ASSIGNMENT = r'\*='
-t_INTEGER_DIVISION_ASSIGNMENT = r'\/\/='
+t_MULTIPLICATION_ASSIGNMENT = r'\*='
+t_FLOOR_DIVISION_ASSIGNMENT = r'\/\/='
 t_DIVISION_ASSIGNMENT = r'\/='
-t_SUM_ASSIGNMENT = r'\+='
+t_ADDITION_ASSIGNMENT = r'\+='
 t_SUBTRACTION_ASSIGNMENT = r'-='
-t_MODULUS_ASSIGNMENT = r'%='
+t_MODULO_ASSIGNMENT = r'%='
 t_ASSIGNMENT = r'='
 
 # - Arithmetic
-t_EXPONENTIATION = r'\*\*'
+t_DOUBLE_STAR = r'\*\*'
 t_STAR = r'\*'
-t_INTEGER_DIVISION = r'\/\/'
-t_DIVISION = r'\/'
+t_DOUBLE_SLASH = r'\/\/'
+t_SLASH = r'\/'
 t_PLUS = r'\+'
 t_MINUS = r'-'
-t_MODULUS = r'%'
-t_BITWISE_OR = r'\|'
-t_BITWISE_AND = r'&'
-t_BITWISE_XOR = r'\^'
+t_PERCENT = r'%'
+t_PIPE = r'\|'
+t_AMPERSAND = r'&'
+t_CARET = r'\^'
 
 # Literals
 # Rule for matching single and double-quoted strings

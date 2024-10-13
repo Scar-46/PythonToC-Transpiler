@@ -65,6 +65,7 @@ import ply.yacc as yacc
 
 def p_file(p):
     """file : statements ENDMARKER
+            | ENDMARKER
     """
 
 # GENERAL STATEMENTS
@@ -225,7 +226,6 @@ def p_for_stmt(p):
 
 # EXPRESSIONS
 # ===================
-# TODO: What are expressions? are they always boolean? 
 def p_expressions(p):
     """expressions : expressions COMMA expression
                    | expression
@@ -284,18 +284,18 @@ def p_compare_op(p):
 # =======================
 
 def p_bitwise_or(p):
-    """bitwise_or : bitwise_or BITWISE_OR bitwise_xor 
+    """bitwise_or : bitwise_or PIPE bitwise_xor 
                   | bitwise_xor 
     """
 
 #TODO: XOR is not available in the tokens, should be added
 def p_bitwise_xor(p):
-    """bitwise_xor : bitwise_xor BITWISE_XOR bitwise_and 
+    """bitwise_xor : bitwise_xor CARET bitwise_and 
                    | bitwise_and
     """
 
 def p_bitwise_and(p):
-    """bitwise_and : bitwise_and BITWISE_AND shift_expr 
+    """bitwise_and : bitwise_and AMPERSAND shift_expr 
                    | shift_expr
     """
 
@@ -316,10 +316,10 @@ def p_sum(p):
 
 
 def p_term(p):
-    """term : term STAR factor 
-            | term DIVISION factor 
-            | term INTEGER_DIVISION factor 
-            | term MODULUS factor
+    """term : term ASTERISK factor 
+            | term SLASH factor 
+            | term DOUBLE_SLASH factor 
+            | term MODULO factor
             | factor
     """
 
@@ -331,7 +331,7 @@ def p_factor(p):
     """
 
 def p_power(p):
-    """power : primary EXPONENTIATION target
+    """power : primary DOUBLE_ASTERISK factor
              | primary
     """
 
@@ -346,6 +346,7 @@ def p_power(p):
 #     | atom
 def p_primary(p):
     """primary : primary L_PARENTHESIS arguments R_PARENTHESIS
+               | primary L_PARENTHESIS R_PARENTHESIS
                | primary L_SQB slices R_SQB
                | primary DOT IDENTIFIER
                | atomic
@@ -386,15 +387,49 @@ def p_atomic(p):
 
 #TODO: Check how this should work
 def p_arguments(p):
-    """arguments : empty
+    """arguments : expressions
     """
 
 # LITERALS
 # ========
-
+def p_expression_list(p):
+    """expression_list : expression_list COMMA expression
+                       | expression    
+    """
 def p_strings(p):
     """strings : STRING
                | TRIPLE_STRING
+    """
+
+# '[' [star_named_expressions] ']' 
+def p_list(p):
+    """list : L_SQB expression_list R_SQB
+            | L_SQB R_SQB
+    """
+
+# | '(' [star_named_expression ',' [star_named_expressions]  ] ')' 
+def p_tuple(p):
+    """tuple : L_PARENTHESIS expression_list R_PARENTHESIS
+             | L_PARENTHESIS R_PARENTHESIS
+    """
+
+def p_set(p):
+    """set : L_CURLY expression_list R_CURLY
+    """
+
+# DICTIONARY
+def p_dict(p):
+    """dict : L_CURLY kvpairs R_CURLY
+            | L_CURLY R_CURLY
+    """
+
+def p_kvpairs(p):
+    """kvpairs : kvpairs COMMA p_kvpair
+               | kvpair
+    """
+
+def p_kvpair(p):
+    """kvpair : expression COLON expression
     """
 
 # ASSIGNMENT TARGETS
@@ -409,8 +444,6 @@ def p_target(p):
     """target : empty
     """
     
-
-
 def p_empty(p):
     'empty :'
     pass

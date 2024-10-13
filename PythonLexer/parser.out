@@ -127,7 +127,7 @@ Rule 111   atomic -> NONE
 Rule 112   atomic -> strings
 Rule 113   atomic -> NUMBER
 Rule 114   atomic -> F_NUMBER
-Rule 115   arguments -> empty
+Rule 115   arguments -> expressions
 Rule 116   strings -> STRING
 Rule 117   strings -> TRIPLE_STRING
 Rule 118   targets -> targets COMMA target
@@ -230,9 +230,9 @@ del_stmt             : 12
 disjunction          : 57 57 58 59
 elif_stmt            : 44 47
 else_block           : 45 48 51 53
-empty                : 115 120
+empty                : 120
 expression           : 44 45 46 47 48 49 51 52 55 56 57 107
-expressions          : 9 21 30 53 54 55
+expressions          : 9 21 30 53 54 55 115
 factor               : 91 92 93 94 95 96 97
 file                 : 0
 for_stmt             : 19
@@ -996,6 +996,7 @@ state 15
     ELIF            reduce using rule 56 (expressions -> expression .)
     ELSE            reduce using rule 56 (expressions -> expression .)
     DEDENT          reduce using rule 56 (expressions -> expression .)
+    R_PARENTHESIS   reduce using rule 56 (expressions -> expression .)
     COLON           reduce using rule 56 (expressions -> expression .)
 
 
@@ -1514,8 +1515,8 @@ state 30
     ELIF            reduce using rule 58 (expression -> disjunction .)
     ELSE            reduce using rule 58 (expression -> disjunction .)
     DEDENT          reduce using rule 58 (expression -> disjunction .)
-    R_SQB           reduce using rule 58 (expression -> disjunction .)
     R_PARENTHESIS   reduce using rule 58 (expression -> disjunction .)
+    R_SQB           reduce using rule 58 (expression -> disjunction .)
 
   ! IF              [ reduce using rule 58 (expression -> disjunction .) ]
 
@@ -1556,8 +1557,8 @@ state 31
     ELIF            reduce using rule 60 (disjunction -> conjunction .)
     ELSE            reduce using rule 60 (disjunction -> conjunction .)
     DEDENT          reduce using rule 60 (disjunction -> conjunction .)
-    R_SQB           reduce using rule 60 (disjunction -> conjunction .)
     R_PARENTHESIS   reduce using rule 60 (disjunction -> conjunction .)
+    R_SQB           reduce using rule 60 (disjunction -> conjunction .)
 
 
 state 32
@@ -1597,8 +1598,8 @@ state 32
     ELIF            reduce using rule 62 (conjunction -> inversion .)
     ELSE            reduce using rule 62 (conjunction -> inversion .)
     DEDENT          reduce using rule 62 (conjunction -> inversion .)
-    R_SQB           reduce using rule 62 (conjunction -> inversion .)
     R_PARENTHESIS   reduce using rule 62 (conjunction -> inversion .)
+    R_SQB           reduce using rule 62 (conjunction -> inversion .)
 
 
 state 33
@@ -1706,8 +1707,8 @@ state 34
     ELIF            reduce using rule 64 (inversion -> comparison .)
     ELSE            reduce using rule 64 (inversion -> comparison .)
     DEDENT          reduce using rule 64 (inversion -> comparison .)
-    R_SQB           reduce using rule 64 (inversion -> comparison .)
     R_PARENTHESIS   reduce using rule 64 (inversion -> comparison .)
+    R_SQB           reduce using rule 64 (inversion -> comparison .)
 
 
 state 35
@@ -1760,8 +1761,8 @@ state 35
     ELIF            reduce using rule 66 (comparison -> bitwise_or .)
     ELSE            reduce using rule 66 (comparison -> bitwise_or .)
     DEDENT          reduce using rule 66 (comparison -> bitwise_or .)
-    R_SQB           reduce using rule 66 (comparison -> bitwise_or .)
     R_PARENTHESIS   reduce using rule 66 (comparison -> bitwise_or .)
+    R_SQB           reduce using rule 66 (comparison -> bitwise_or .)
     BITWISE_OR      shift and go to state 86
     EQUALITY        shift and go to state 88
     INEQUALITY      shift and go to state 89
@@ -1824,8 +1825,8 @@ state 36
     ELIF            reduce using rule 80 (bitwise_or -> bitwise_xor .)
     ELSE            reduce using rule 80 (bitwise_or -> bitwise_xor .)
     DEDENT          reduce using rule 80 (bitwise_or -> bitwise_xor .)
-    R_SQB           reduce using rule 80 (bitwise_or -> bitwise_xor .)
     R_PARENTHESIS   reduce using rule 80 (bitwise_or -> bitwise_xor .)
+    R_SQB           reduce using rule 80 (bitwise_or -> bitwise_xor .)
     BITWISE_XOR     shift and go to state 97
 
 
@@ -1876,8 +1877,8 @@ state 37
     ELIF            reduce using rule 82 (bitwise_xor -> bitwise_and .)
     ELSE            reduce using rule 82 (bitwise_xor -> bitwise_and .)
     DEDENT          reduce using rule 82 (bitwise_xor -> bitwise_and .)
-    R_SQB           reduce using rule 82 (bitwise_xor -> bitwise_and .)
     R_PARENTHESIS   reduce using rule 82 (bitwise_xor -> bitwise_and .)
+    R_SQB           reduce using rule 82 (bitwise_xor -> bitwise_and .)
     BITWISE_AND     shift and go to state 98
 
 
@@ -1930,8 +1931,8 @@ state 38
     ELIF            reduce using rule 84 (bitwise_and -> shift_expr .)
     ELSE            reduce using rule 84 (bitwise_and -> shift_expr .)
     DEDENT          reduce using rule 84 (bitwise_and -> shift_expr .)
-    R_SQB           reduce using rule 84 (bitwise_and -> shift_expr .)
     R_PARENTHESIS   reduce using rule 84 (bitwise_and -> shift_expr .)
+    R_SQB           reduce using rule 84 (bitwise_and -> shift_expr .)
     L_SHIFT         shift and go to state 99
     R_SHIFT         shift and go to state 100
 
@@ -1987,8 +1988,8 @@ state 39
     ELIF            reduce using rule 87 (shift_expr -> sum .)
     ELSE            reduce using rule 87 (shift_expr -> sum .)
     DEDENT          reduce using rule 87 (shift_expr -> sum .)
-    R_SQB           reduce using rule 87 (shift_expr -> sum .)
     R_PARENTHESIS   reduce using rule 87 (shift_expr -> sum .)
+    R_SQB           reduce using rule 87 (shift_expr -> sum .)
     PLUS            shift and go to state 101
     MINUS           shift and go to state 102
 
@@ -2088,8 +2089,8 @@ state 41
     ELIF            reduce using rule 90 (sum -> term .)
     ELSE            reduce using rule 90 (sum -> term .)
     DEDENT          reduce using rule 90 (sum -> term .)
-    R_SQB           reduce using rule 90 (sum -> term .)
     R_PARENTHESIS   reduce using rule 90 (sum -> term .)
+    R_SQB           reduce using rule 90 (sum -> term .)
     STAR            shift and go to state 104
     DIVISION        shift and go to state 105
     INTEGER_DIVISION shift and go to state 106
@@ -2188,8 +2189,8 @@ state 43
     ELIF            reduce using rule 95 (term -> factor .)
     ELSE            reduce using rule 95 (term -> factor .)
     DEDENT          reduce using rule 95 (term -> factor .)
-    R_SQB           reduce using rule 95 (term -> factor .)
     R_PARENTHESIS   reduce using rule 95 (term -> factor .)
+    R_SQB           reduce using rule 95 (term -> factor .)
 
 
 state 44
@@ -2245,8 +2246,8 @@ state 44
     ELIF            reduce using rule 98 (factor -> power .)
     ELSE            reduce using rule 98 (factor -> power .)
     DEDENT          reduce using rule 98 (factor -> power .)
-    R_SQB           reduce using rule 98 (factor -> power .)
     R_PARENTHESIS   reduce using rule 98 (factor -> power .)
+    R_SQB           reduce using rule 98 (factor -> power .)
 
 
 state 45
@@ -2307,8 +2308,8 @@ state 45
     ELIF            reduce using rule 100 (power -> primary .)
     ELSE            reduce using rule 100 (power -> primary .)
     DEDENT          reduce using rule 100 (power -> primary .)
-    R_SQB           reduce using rule 100 (power -> primary .)
     R_PARENTHESIS   reduce using rule 100 (power -> primary .)
+    R_SQB           reduce using rule 100 (power -> primary .)
     L_PARENTHESIS   shift and go to state 110
     L_SQB           shift and go to state 111
     DOT             shift and go to state 112
@@ -2371,8 +2372,8 @@ state 46
     ELIF            reduce using rule 104 (primary -> atomic .)
     ELSE            reduce using rule 104 (primary -> atomic .)
     DEDENT          reduce using rule 104 (primary -> atomic .)
-    R_SQB           reduce using rule 104 (primary -> atomic .)
     R_PARENTHESIS   reduce using rule 104 (primary -> atomic .)
+    R_SQB           reduce using rule 104 (primary -> atomic .)
 
 
 state 47
@@ -2432,8 +2433,8 @@ state 47
     ELIF            reduce using rule 109 (atomic -> TRUE .)
     ELSE            reduce using rule 109 (atomic -> TRUE .)
     DEDENT          reduce using rule 109 (atomic -> TRUE .)
-    R_SQB           reduce using rule 109 (atomic -> TRUE .)
     R_PARENTHESIS   reduce using rule 109 (atomic -> TRUE .)
+    R_SQB           reduce using rule 109 (atomic -> TRUE .)
 
 
 state 48
@@ -2493,8 +2494,8 @@ state 48
     ELIF            reduce using rule 110 (atomic -> FALSE .)
     ELSE            reduce using rule 110 (atomic -> FALSE .)
     DEDENT          reduce using rule 110 (atomic -> FALSE .)
-    R_SQB           reduce using rule 110 (atomic -> FALSE .)
     R_PARENTHESIS   reduce using rule 110 (atomic -> FALSE .)
+    R_SQB           reduce using rule 110 (atomic -> FALSE .)
 
 
 state 49
@@ -2554,8 +2555,8 @@ state 49
     ELIF            reduce using rule 111 (atomic -> NONE .)
     ELSE            reduce using rule 111 (atomic -> NONE .)
     DEDENT          reduce using rule 111 (atomic -> NONE .)
-    R_SQB           reduce using rule 111 (atomic -> NONE .)
     R_PARENTHESIS   reduce using rule 111 (atomic -> NONE .)
+    R_SQB           reduce using rule 111 (atomic -> NONE .)
 
 
 state 50
@@ -2615,8 +2616,8 @@ state 50
     ELIF            reduce using rule 112 (atomic -> strings .)
     ELSE            reduce using rule 112 (atomic -> strings .)
     DEDENT          reduce using rule 112 (atomic -> strings .)
-    R_SQB           reduce using rule 112 (atomic -> strings .)
     R_PARENTHESIS   reduce using rule 112 (atomic -> strings .)
+    R_SQB           reduce using rule 112 (atomic -> strings .)
 
 
 state 51
@@ -2676,8 +2677,8 @@ state 51
     ELIF            reduce using rule 113 (atomic -> NUMBER .)
     ELSE            reduce using rule 113 (atomic -> NUMBER .)
     DEDENT          reduce using rule 113 (atomic -> NUMBER .)
-    R_SQB           reduce using rule 113 (atomic -> NUMBER .)
     R_PARENTHESIS   reduce using rule 113 (atomic -> NUMBER .)
+    R_SQB           reduce using rule 113 (atomic -> NUMBER .)
 
 
 state 52
@@ -2737,8 +2738,8 @@ state 52
     ELIF            reduce using rule 114 (atomic -> F_NUMBER .)
     ELSE            reduce using rule 114 (atomic -> F_NUMBER .)
     DEDENT          reduce using rule 114 (atomic -> F_NUMBER .)
-    R_SQB           reduce using rule 114 (atomic -> F_NUMBER .)
     R_PARENTHESIS   reduce using rule 114 (atomic -> F_NUMBER .)
+    R_SQB           reduce using rule 114 (atomic -> F_NUMBER .)
 
 
 state 53
@@ -2798,8 +2799,8 @@ state 53
     ELIF            reduce using rule 116 (strings -> STRING .)
     ELSE            reduce using rule 116 (strings -> STRING .)
     DEDENT          reduce using rule 116 (strings -> STRING .)
-    R_SQB           reduce using rule 116 (strings -> STRING .)
     R_PARENTHESIS   reduce using rule 116 (strings -> STRING .)
+    R_SQB           reduce using rule 116 (strings -> STRING .)
 
 
 state 54
@@ -2859,8 +2860,8 @@ state 54
     ELIF            reduce using rule 117 (strings -> TRIPLE_STRING .)
     ELSE            reduce using rule 117 (strings -> TRIPLE_STRING .)
     DEDENT          reduce using rule 117 (strings -> TRIPLE_STRING .)
-    R_SQB           reduce using rule 117 (strings -> TRIPLE_STRING .)
     R_PARENTHESIS   reduce using rule 117 (strings -> TRIPLE_STRING .)
+    R_SQB           reduce using rule 117 (strings -> TRIPLE_STRING .)
 
 
 state 55
@@ -3328,8 +3329,8 @@ state 70
     ELIF            reduce using rule 108 (atomic -> IDENTIFIER .)
     ELSE            reduce using rule 108 (atomic -> IDENTIFIER .)
     DEDENT          reduce using rule 108 (atomic -> IDENTIFIER .)
-    R_SQB           reduce using rule 108 (atomic -> IDENTIFIER .)
     R_PARENTHESIS   reduce using rule 108 (atomic -> IDENTIFIER .)
+    R_SQB           reduce using rule 108 (atomic -> IDENTIFIER .)
 
 
 state 71
@@ -3413,8 +3414,8 @@ state 74
     ELIF            reduce using rule 120 (target -> empty .)
     ELSE            reduce using rule 120 (target -> empty .)
     DEDENT          reduce using rule 120 (target -> empty .)
-    R_SQB           reduce using rule 120 (target -> empty .)
     R_PARENTHESIS   reduce using rule 120 (target -> empty .)
+    R_SQB           reduce using rule 120 (target -> empty .)
 
 
 state 75
@@ -3901,8 +3902,8 @@ state 84
     ELIF            reduce using rule 63 (inversion -> NOT inversion .)
     ELSE            reduce using rule 63 (inversion -> NOT inversion .)
     DEDENT          reduce using rule 63 (inversion -> NOT inversion .)
-    R_SQB           reduce using rule 63 (inversion -> NOT inversion .)
     R_PARENTHESIS   reduce using rule 63 (inversion -> NOT inversion .)
+    R_SQB           reduce using rule 63 (inversion -> NOT inversion .)
 
 
 state 85
@@ -3952,8 +3953,8 @@ state 85
     ELIF            reduce using rule 65 (comparison -> bitwise_or compare_op_list .)
     ELSE            reduce using rule 65 (comparison -> bitwise_or compare_op_list .)
     DEDENT          reduce using rule 65 (comparison -> bitwise_or compare_op_list .)
-    R_SQB           reduce using rule 65 (comparison -> bitwise_or compare_op_list .)
     R_PARENTHESIS   reduce using rule 65 (comparison -> bitwise_or compare_op_list .)
+    R_SQB           reduce using rule 65 (comparison -> bitwise_or compare_op_list .)
     EQUALITY        shift and go to state 88
     INEQUALITY      shift and go to state 89
     GREATER_EQUAL   shift and go to state 90
@@ -4071,8 +4072,8 @@ state 87
     ELIF            reduce using rule 68 (compare_op_list -> compare_op .)
     ELSE            reduce using rule 68 (compare_op_list -> compare_op .)
     DEDENT          reduce using rule 68 (compare_op_list -> compare_op .)
-    R_SQB           reduce using rule 68 (compare_op_list -> compare_op .)
     R_PARENTHESIS   reduce using rule 68 (compare_op_list -> compare_op .)
+    R_SQB           reduce using rule 68 (compare_op_list -> compare_op .)
 
 
 state 88
@@ -4930,8 +4931,8 @@ state 103
     ELIF            reduce using rule 96 (factor -> PLUS factor .)
     ELSE            reduce using rule 96 (factor -> PLUS factor .)
     DEDENT          reduce using rule 96 (factor -> PLUS factor .)
-    R_SQB           reduce using rule 96 (factor -> PLUS factor .)
     R_PARENTHESIS   reduce using rule 96 (factor -> PLUS factor .)
+    R_SQB           reduce using rule 96 (factor -> PLUS factor .)
 
 
 state 104
@@ -5143,8 +5144,8 @@ state 108
     ELIF            reduce using rule 97 (factor -> MINUS factor .)
     ELSE            reduce using rule 97 (factor -> MINUS factor .)
     DEDENT          reduce using rule 97 (factor -> MINUS factor .)
-    R_SQB           reduce using rule 97 (factor -> MINUS factor .)
     R_PARENTHESIS   reduce using rule 97 (factor -> MINUS factor .)
+    R_SQB           reduce using rule 97 (factor -> MINUS factor .)
 
 
 state 109
@@ -5202,8 +5203,8 @@ state 109
     ELIF            reduce using rule 121 (empty -> .)
     ELSE            reduce using rule 121 (empty -> .)
     DEDENT          reduce using rule 121 (empty -> .)
-    R_SQB           reduce using rule 121 (empty -> .)
     R_PARENTHESIS   reduce using rule 121 (empty -> .)
+    R_SQB           reduce using rule 121 (empty -> .)
 
     target                         shift and go to state 149
     empty                          shift and go to state 74
@@ -5211,13 +5212,85 @@ state 109
 state 110
 
     (101) primary -> primary L_PARENTHESIS . arguments R_PARENTHESIS
-    (115) arguments -> . empty
-    (121) empty -> .
+    (115) arguments -> . expressions
+    (55) expressions -> . expressions COMMA expression
+    (56) expressions -> . expression
+    (57) expression -> . disjunction IF disjunction ELSE expression
+    (58) expression -> . disjunction
+    (59) disjunction -> . conjunction OR disjunction
+    (60) disjunction -> . conjunction
+    (61) conjunction -> . inversion AND inversion
+    (62) conjunction -> . inversion
+    (63) inversion -> . NOT inversion
+    (64) inversion -> . comparison
+    (65) comparison -> . bitwise_or compare_op_list
+    (66) comparison -> . bitwise_or
+    (79) bitwise_or -> . bitwise_or BITWISE_OR bitwise_xor
+    (80) bitwise_or -> . bitwise_xor
+    (81) bitwise_xor -> . bitwise_xor BITWISE_XOR bitwise_and
+    (82) bitwise_xor -> . bitwise_and
+    (83) bitwise_and -> . bitwise_and BITWISE_AND shift_expr
+    (84) bitwise_and -> . shift_expr
+    (85) shift_expr -> . shift_expr L_SHIFT sum
+    (86) shift_expr -> . shift_expr R_SHIFT sum
+    (87) shift_expr -> . sum
+    (88) sum -> . sum PLUS term
+    (89) sum -> . sum MINUS term
+    (90) sum -> . term
+    (91) term -> . term STAR factor
+    (92) term -> . term DIVISION factor
+    (93) term -> . term INTEGER_DIVISION factor
+    (94) term -> . term MODULUS factor
+    (95) term -> . factor
+    (96) factor -> . PLUS factor
+    (97) factor -> . MINUS factor
+    (98) factor -> . power
+    (99) power -> . primary EXPONENTIATION target
+    (100) power -> . primary
+    (101) primary -> . primary L_PARENTHESIS arguments R_PARENTHESIS
+    (102) primary -> . primary L_SQB slices R_SQB
+    (103) primary -> . primary DOT IDENTIFIER
+    (104) primary -> . atomic
+    (108) atomic -> . IDENTIFIER
+    (109) atomic -> . TRUE
+    (110) atomic -> . FALSE
+    (111) atomic -> . NONE
+    (112) atomic -> . strings
+    (113) atomic -> . NUMBER
+    (114) atomic -> . F_NUMBER
+    (116) strings -> . STRING
+    (117) strings -> . TRIPLE_STRING
 
-    R_PARENTHESIS   reduce using rule 121 (empty -> .)
+    NOT             shift and go to state 33
+    PLUS            shift and go to state 40
+    MINUS           shift and go to state 42
+    IDENTIFIER      shift and go to state 70
+    TRUE            shift and go to state 47
+    FALSE           shift and go to state 48
+    NONE            shift and go to state 49
+    NUMBER          shift and go to state 51
+    F_NUMBER        shift and go to state 52
+    STRING          shift and go to state 53
+    TRIPLE_STRING   shift and go to state 54
 
+    primary                        shift and go to state 45
     arguments                      shift and go to state 150
-    empty                          shift and go to state 151
+    expressions                    shift and go to state 151
+    expression                     shift and go to state 15
+    disjunction                    shift and go to state 30
+    conjunction                    shift and go to state 31
+    inversion                      shift and go to state 32
+    comparison                     shift and go to state 34
+    bitwise_or                     shift and go to state 35
+    bitwise_xor                    shift and go to state 36
+    bitwise_and                    shift and go to state 37
+    shift_expr                     shift and go to state 38
+    sum                            shift and go to state 39
+    term                           shift and go to state 41
+    factor                         shift and go to state 43
+    power                          shift and go to state 44
+    atomic                         shift and go to state 46
+    strings                        shift and go to state 50
 
 state 111
 
@@ -5507,16 +5580,86 @@ state 117
 
     (37) class_def -> CLASS IDENTIFIER L_PARENTHESIS . arguments R_PARENTHESIS COLON block
     (38) class_def -> CLASS IDENTIFIER L_PARENTHESIS . R_PARENTHESIS COLON block
-    (115) arguments -> . empty
-    (121) empty -> .
+    (115) arguments -> . expressions
+    (55) expressions -> . expressions COMMA expression
+    (56) expressions -> . expression
+    (57) expression -> . disjunction IF disjunction ELSE expression
+    (58) expression -> . disjunction
+    (59) disjunction -> . conjunction OR disjunction
+    (60) disjunction -> . conjunction
+    (61) conjunction -> . inversion AND inversion
+    (62) conjunction -> . inversion
+    (63) inversion -> . NOT inversion
+    (64) inversion -> . comparison
+    (65) comparison -> . bitwise_or compare_op_list
+    (66) comparison -> . bitwise_or
+    (79) bitwise_or -> . bitwise_or BITWISE_OR bitwise_xor
+    (80) bitwise_or -> . bitwise_xor
+    (81) bitwise_xor -> . bitwise_xor BITWISE_XOR bitwise_and
+    (82) bitwise_xor -> . bitwise_and
+    (83) bitwise_and -> . bitwise_and BITWISE_AND shift_expr
+    (84) bitwise_and -> . shift_expr
+    (85) shift_expr -> . shift_expr L_SHIFT sum
+    (86) shift_expr -> . shift_expr R_SHIFT sum
+    (87) shift_expr -> . sum
+    (88) sum -> . sum PLUS term
+    (89) sum -> . sum MINUS term
+    (90) sum -> . term
+    (91) term -> . term STAR factor
+    (92) term -> . term DIVISION factor
+    (93) term -> . term INTEGER_DIVISION factor
+    (94) term -> . term MODULUS factor
+    (95) term -> . factor
+    (96) factor -> . PLUS factor
+    (97) factor -> . MINUS factor
+    (98) factor -> . power
+    (99) power -> . primary EXPONENTIATION target
+    (100) power -> . primary
+    (101) primary -> . primary L_PARENTHESIS arguments R_PARENTHESIS
+    (102) primary -> . primary L_SQB slices R_SQB
+    (103) primary -> . primary DOT IDENTIFIER
+    (104) primary -> . atomic
+    (108) atomic -> . IDENTIFIER
+    (109) atomic -> . TRUE
+    (110) atomic -> . FALSE
+    (111) atomic -> . NONE
+    (112) atomic -> . strings
+    (113) atomic -> . NUMBER
+    (114) atomic -> . F_NUMBER
+    (116) strings -> . STRING
+    (117) strings -> . TRIPLE_STRING
 
-  ! shift/reduce conflict for R_PARENTHESIS resolved as shift
     R_PARENTHESIS   shift and go to state 163
-
-  ! R_PARENTHESIS   [ reduce using rule 121 (empty -> .) ]
+    NOT             shift and go to state 33
+    PLUS            shift and go to state 40
+    MINUS           shift and go to state 42
+    IDENTIFIER      shift and go to state 70
+    TRUE            shift and go to state 47
+    FALSE           shift and go to state 48
+    NONE            shift and go to state 49
+    NUMBER          shift and go to state 51
+    F_NUMBER        shift and go to state 52
+    STRING          shift and go to state 53
+    TRIPLE_STRING   shift and go to state 54
 
     arguments                      shift and go to state 162
-    empty                          shift and go to state 151
+    expressions                    shift and go to state 151
+    expression                     shift and go to state 15
+    disjunction                    shift and go to state 30
+    conjunction                    shift and go to state 31
+    inversion                      shift and go to state 32
+    comparison                     shift and go to state 34
+    bitwise_or                     shift and go to state 35
+    bitwise_xor                    shift and go to state 36
+    bitwise_and                    shift and go to state 37
+    shift_expr                     shift and go to state 38
+    sum                            shift and go to state 39
+    term                           shift and go to state 41
+    factor                         shift and go to state 43
+    power                          shift and go to state 44
+    primary                        shift and go to state 45
+    atomic                         shift and go to state 46
+    strings                        shift and go to state 50
 
 state 118
 
@@ -5756,6 +5899,7 @@ state 121
     ELIF            reduce using rule 55 (expressions -> expressions COMMA expression .)
     ELSE            reduce using rule 55 (expressions -> expressions COMMA expression .)
     DEDENT          reduce using rule 55 (expressions -> expressions COMMA expression .)
+    R_PARENTHESIS   reduce using rule 55 (expressions -> expressions COMMA expression .)
     COLON           reduce using rule 55 (expressions -> expressions COMMA expression .)
 
 
@@ -5919,8 +6063,8 @@ state 125
     ELIF            reduce using rule 59 (disjunction -> conjunction OR disjunction .)
     ELSE            reduce using rule 59 (disjunction -> conjunction OR disjunction .)
     DEDENT          reduce using rule 59 (disjunction -> conjunction OR disjunction .)
-    R_SQB           reduce using rule 59 (disjunction -> conjunction OR disjunction .)
     R_PARENTHESIS   reduce using rule 59 (disjunction -> conjunction OR disjunction .)
+    R_SQB           reduce using rule 59 (disjunction -> conjunction OR disjunction .)
 
 
 state 126
@@ -5958,8 +6102,8 @@ state 126
     ELIF            reduce using rule 61 (conjunction -> inversion AND inversion .)
     ELSE            reduce using rule 61 (conjunction -> inversion AND inversion .)
     DEDENT          reduce using rule 61 (conjunction -> inversion AND inversion .)
-    R_SQB           reduce using rule 61 (conjunction -> inversion AND inversion .)
     R_PARENTHESIS   reduce using rule 61 (conjunction -> inversion AND inversion .)
+    R_SQB           reduce using rule 61 (conjunction -> inversion AND inversion .)
 
 
 state 127
@@ -6006,8 +6150,8 @@ state 127
     ELIF            reduce using rule 67 (compare_op_list -> compare_op_list compare_op .)
     ELSE            reduce using rule 67 (compare_op_list -> compare_op_list compare_op .)
     DEDENT          reduce using rule 67 (compare_op_list -> compare_op_list compare_op .)
-    R_SQB           reduce using rule 67 (compare_op_list -> compare_op_list compare_op .)
     R_PARENTHESIS   reduce using rule 67 (compare_op_list -> compare_op_list compare_op .)
+    R_SQB           reduce using rule 67 (compare_op_list -> compare_op_list compare_op .)
 
 
 state 128
@@ -6056,8 +6200,8 @@ state 128
     ELIF            reduce using rule 79 (bitwise_or -> bitwise_or BITWISE_OR bitwise_xor .)
     ELSE            reduce using rule 79 (bitwise_or -> bitwise_or BITWISE_OR bitwise_xor .)
     DEDENT          reduce using rule 79 (bitwise_or -> bitwise_or BITWISE_OR bitwise_xor .)
-    R_SQB           reduce using rule 79 (bitwise_or -> bitwise_or BITWISE_OR bitwise_xor .)
     R_PARENTHESIS   reduce using rule 79 (bitwise_or -> bitwise_or BITWISE_OR bitwise_xor .)
+    R_SQB           reduce using rule 79 (bitwise_or -> bitwise_or BITWISE_OR bitwise_xor .)
     BITWISE_XOR     shift and go to state 97
 
 
@@ -6106,8 +6250,8 @@ state 129
     ELIF            reduce using rule 69 (compare_op -> EQUALITY bitwise_or .)
     ELSE            reduce using rule 69 (compare_op -> EQUALITY bitwise_or .)
     DEDENT          reduce using rule 69 (compare_op -> EQUALITY bitwise_or .)
-    R_SQB           reduce using rule 69 (compare_op -> EQUALITY bitwise_or .)
     R_PARENTHESIS   reduce using rule 69 (compare_op -> EQUALITY bitwise_or .)
+    R_SQB           reduce using rule 69 (compare_op -> EQUALITY bitwise_or .)
     BITWISE_OR      shift and go to state 86
 
 
@@ -6156,8 +6300,8 @@ state 130
     ELIF            reduce using rule 70 (compare_op -> INEQUALITY bitwise_or .)
     ELSE            reduce using rule 70 (compare_op -> INEQUALITY bitwise_or .)
     DEDENT          reduce using rule 70 (compare_op -> INEQUALITY bitwise_or .)
-    R_SQB           reduce using rule 70 (compare_op -> INEQUALITY bitwise_or .)
     R_PARENTHESIS   reduce using rule 70 (compare_op -> INEQUALITY bitwise_or .)
+    R_SQB           reduce using rule 70 (compare_op -> INEQUALITY bitwise_or .)
     BITWISE_OR      shift and go to state 86
 
 
@@ -6206,8 +6350,8 @@ state 131
     ELIF            reduce using rule 71 (compare_op -> GREATER_EQUAL bitwise_or .)
     ELSE            reduce using rule 71 (compare_op -> GREATER_EQUAL bitwise_or .)
     DEDENT          reduce using rule 71 (compare_op -> GREATER_EQUAL bitwise_or .)
-    R_SQB           reduce using rule 71 (compare_op -> GREATER_EQUAL bitwise_or .)
     R_PARENTHESIS   reduce using rule 71 (compare_op -> GREATER_EQUAL bitwise_or .)
+    R_SQB           reduce using rule 71 (compare_op -> GREATER_EQUAL bitwise_or .)
     BITWISE_OR      shift and go to state 86
 
 
@@ -6256,8 +6400,8 @@ state 132
     ELIF            reduce using rule 72 (compare_op -> LESSER_EQUAL bitwise_or .)
     ELSE            reduce using rule 72 (compare_op -> LESSER_EQUAL bitwise_or .)
     DEDENT          reduce using rule 72 (compare_op -> LESSER_EQUAL bitwise_or .)
-    R_SQB           reduce using rule 72 (compare_op -> LESSER_EQUAL bitwise_or .)
     R_PARENTHESIS   reduce using rule 72 (compare_op -> LESSER_EQUAL bitwise_or .)
+    R_SQB           reduce using rule 72 (compare_op -> LESSER_EQUAL bitwise_or .)
     BITWISE_OR      shift and go to state 86
 
 
@@ -6306,8 +6450,8 @@ state 133
     ELIF            reduce using rule 73 (compare_op -> GREATER bitwise_or .)
     ELSE            reduce using rule 73 (compare_op -> GREATER bitwise_or .)
     DEDENT          reduce using rule 73 (compare_op -> GREATER bitwise_or .)
-    R_SQB           reduce using rule 73 (compare_op -> GREATER bitwise_or .)
     R_PARENTHESIS   reduce using rule 73 (compare_op -> GREATER bitwise_or .)
+    R_SQB           reduce using rule 73 (compare_op -> GREATER bitwise_or .)
     BITWISE_OR      shift and go to state 86
 
 
@@ -6356,8 +6500,8 @@ state 134
     ELIF            reduce using rule 74 (compare_op -> LESSER bitwise_or .)
     ELSE            reduce using rule 74 (compare_op -> LESSER bitwise_or .)
     DEDENT          reduce using rule 74 (compare_op -> LESSER bitwise_or .)
-    R_SQB           reduce using rule 74 (compare_op -> LESSER bitwise_or .)
     R_PARENTHESIS   reduce using rule 74 (compare_op -> LESSER bitwise_or .)
+    R_SQB           reduce using rule 74 (compare_op -> LESSER bitwise_or .)
     BITWISE_OR      shift and go to state 86
 
 
@@ -6468,8 +6612,8 @@ state 136
     ELIF            reduce using rule 77 (compare_op -> IN bitwise_or .)
     ELSE            reduce using rule 77 (compare_op -> IN bitwise_or .)
     DEDENT          reduce using rule 77 (compare_op -> IN bitwise_or .)
-    R_SQB           reduce using rule 77 (compare_op -> IN bitwise_or .)
     R_PARENTHESIS   reduce using rule 77 (compare_op -> IN bitwise_or .)
+    R_SQB           reduce using rule 77 (compare_op -> IN bitwise_or .)
     BITWISE_OR      shift and go to state 86
 
 
@@ -6580,8 +6724,8 @@ state 138
     ELIF            reduce using rule 78 (compare_op -> IS bitwise_or .)
     ELSE            reduce using rule 78 (compare_op -> IS bitwise_or .)
     DEDENT          reduce using rule 78 (compare_op -> IS bitwise_or .)
-    R_SQB           reduce using rule 78 (compare_op -> IS bitwise_or .)
     R_PARENTHESIS   reduce using rule 78 (compare_op -> IS bitwise_or .)
+    R_SQB           reduce using rule 78 (compare_op -> IS bitwise_or .)
     BITWISE_OR      shift and go to state 86
 
 
@@ -6632,8 +6776,8 @@ state 139
     ELIF            reduce using rule 81 (bitwise_xor -> bitwise_xor BITWISE_XOR bitwise_and .)
     ELSE            reduce using rule 81 (bitwise_xor -> bitwise_xor BITWISE_XOR bitwise_and .)
     DEDENT          reduce using rule 81 (bitwise_xor -> bitwise_xor BITWISE_XOR bitwise_and .)
-    R_SQB           reduce using rule 81 (bitwise_xor -> bitwise_xor BITWISE_XOR bitwise_and .)
     R_PARENTHESIS   reduce using rule 81 (bitwise_xor -> bitwise_xor BITWISE_XOR bitwise_and .)
+    R_SQB           reduce using rule 81 (bitwise_xor -> bitwise_xor BITWISE_XOR bitwise_and .)
     BITWISE_AND     shift and go to state 98
 
 
@@ -6686,8 +6830,8 @@ state 140
     ELIF            reduce using rule 83 (bitwise_and -> bitwise_and BITWISE_AND shift_expr .)
     ELSE            reduce using rule 83 (bitwise_and -> bitwise_and BITWISE_AND shift_expr .)
     DEDENT          reduce using rule 83 (bitwise_and -> bitwise_and BITWISE_AND shift_expr .)
-    R_SQB           reduce using rule 83 (bitwise_and -> bitwise_and BITWISE_AND shift_expr .)
     R_PARENTHESIS   reduce using rule 83 (bitwise_and -> bitwise_and BITWISE_AND shift_expr .)
+    R_SQB           reduce using rule 83 (bitwise_and -> bitwise_and BITWISE_AND shift_expr .)
     L_SHIFT         shift and go to state 99
     R_SHIFT         shift and go to state 100
 
@@ -6743,8 +6887,8 @@ state 141
     ELIF            reduce using rule 85 (shift_expr -> shift_expr L_SHIFT sum .)
     ELSE            reduce using rule 85 (shift_expr -> shift_expr L_SHIFT sum .)
     DEDENT          reduce using rule 85 (shift_expr -> shift_expr L_SHIFT sum .)
-    R_SQB           reduce using rule 85 (shift_expr -> shift_expr L_SHIFT sum .)
     R_PARENTHESIS   reduce using rule 85 (shift_expr -> shift_expr L_SHIFT sum .)
+    R_SQB           reduce using rule 85 (shift_expr -> shift_expr L_SHIFT sum .)
     PLUS            shift and go to state 101
     MINUS           shift and go to state 102
 
@@ -6803,8 +6947,8 @@ state 142
     ELIF            reduce using rule 86 (shift_expr -> shift_expr R_SHIFT sum .)
     ELSE            reduce using rule 86 (shift_expr -> shift_expr R_SHIFT sum .)
     DEDENT          reduce using rule 86 (shift_expr -> shift_expr R_SHIFT sum .)
-    R_SQB           reduce using rule 86 (shift_expr -> shift_expr R_SHIFT sum .)
     R_PARENTHESIS   reduce using rule 86 (shift_expr -> shift_expr R_SHIFT sum .)
+    R_SQB           reduce using rule 86 (shift_expr -> shift_expr R_SHIFT sum .)
     PLUS            shift and go to state 101
     MINUS           shift and go to state 102
 
@@ -6865,8 +7009,8 @@ state 143
     ELIF            reduce using rule 88 (sum -> sum PLUS term .)
     ELSE            reduce using rule 88 (sum -> sum PLUS term .)
     DEDENT          reduce using rule 88 (sum -> sum PLUS term .)
-    R_SQB           reduce using rule 88 (sum -> sum PLUS term .)
     R_PARENTHESIS   reduce using rule 88 (sum -> sum PLUS term .)
+    R_SQB           reduce using rule 88 (sum -> sum PLUS term .)
     STAR            shift and go to state 104
     DIVISION        shift and go to state 105
     INTEGER_DIVISION shift and go to state 106
@@ -6926,8 +7070,8 @@ state 144
     ELIF            reduce using rule 89 (sum -> sum MINUS term .)
     ELSE            reduce using rule 89 (sum -> sum MINUS term .)
     DEDENT          reduce using rule 89 (sum -> sum MINUS term .)
-    R_SQB           reduce using rule 89 (sum -> sum MINUS term .)
     R_PARENTHESIS   reduce using rule 89 (sum -> sum MINUS term .)
+    R_SQB           reduce using rule 89 (sum -> sum MINUS term .)
     STAR            shift and go to state 104
     DIVISION        shift and go to state 105
     INTEGER_DIVISION shift and go to state 106
@@ -6987,8 +7131,8 @@ state 145
     ELIF            reduce using rule 91 (term -> term STAR factor .)
     ELSE            reduce using rule 91 (term -> term STAR factor .)
     DEDENT          reduce using rule 91 (term -> term STAR factor .)
-    R_SQB           reduce using rule 91 (term -> term STAR factor .)
     R_PARENTHESIS   reduce using rule 91 (term -> term STAR factor .)
+    R_SQB           reduce using rule 91 (term -> term STAR factor .)
 
 
 state 146
@@ -7044,8 +7188,8 @@ state 146
     ELIF            reduce using rule 92 (term -> term DIVISION factor .)
     ELSE            reduce using rule 92 (term -> term DIVISION factor .)
     DEDENT          reduce using rule 92 (term -> term DIVISION factor .)
-    R_SQB           reduce using rule 92 (term -> term DIVISION factor .)
     R_PARENTHESIS   reduce using rule 92 (term -> term DIVISION factor .)
+    R_SQB           reduce using rule 92 (term -> term DIVISION factor .)
 
 
 state 147
@@ -7101,8 +7245,8 @@ state 147
     ELIF            reduce using rule 93 (term -> term INTEGER_DIVISION factor .)
     ELSE            reduce using rule 93 (term -> term INTEGER_DIVISION factor .)
     DEDENT          reduce using rule 93 (term -> term INTEGER_DIVISION factor .)
-    R_SQB           reduce using rule 93 (term -> term INTEGER_DIVISION factor .)
     R_PARENTHESIS   reduce using rule 93 (term -> term INTEGER_DIVISION factor .)
+    R_SQB           reduce using rule 93 (term -> term INTEGER_DIVISION factor .)
 
 
 state 148
@@ -7158,8 +7302,8 @@ state 148
     ELIF            reduce using rule 94 (term -> term MODULUS factor .)
     ELSE            reduce using rule 94 (term -> term MODULUS factor .)
     DEDENT          reduce using rule 94 (term -> term MODULUS factor .)
-    R_SQB           reduce using rule 94 (term -> term MODULUS factor .)
     R_PARENTHESIS   reduce using rule 94 (term -> term MODULUS factor .)
+    R_SQB           reduce using rule 94 (term -> term MODULUS factor .)
 
 
 state 149
@@ -7215,8 +7359,8 @@ state 149
     ELIF            reduce using rule 99 (power -> primary EXPONENTIATION target .)
     ELSE            reduce using rule 99 (power -> primary EXPONENTIATION target .)
     DEDENT          reduce using rule 99 (power -> primary EXPONENTIATION target .)
-    R_SQB           reduce using rule 99 (power -> primary EXPONENTIATION target .)
     R_PARENTHESIS   reduce using rule 99 (power -> primary EXPONENTIATION target .)
+    R_SQB           reduce using rule 99 (power -> primary EXPONENTIATION target .)
 
 
 state 150
@@ -7228,9 +7372,11 @@ state 150
 
 state 151
 
-    (115) arguments -> empty .
+    (115) arguments -> expressions .
+    (55) expressions -> expressions . COMMA expression
 
-    R_PARENTHESIS   reduce using rule 115 (arguments -> empty .)
+    R_PARENTHESIS   reduce using rule 115 (arguments -> expressions .)
+    COMMA           shift and go to state 75
 
 
 state 152
@@ -7316,8 +7462,8 @@ state 155
     ELIF            reduce using rule 103 (primary -> primary DOT IDENTIFIER .)
     ELSE            reduce using rule 103 (primary -> primary DOT IDENTIFIER .)
     DEDENT          reduce using rule 103 (primary -> primary DOT IDENTIFIER .)
-    R_SQB           reduce using rule 103 (primary -> primary DOT IDENTIFIER .)
     R_PARENTHESIS   reduce using rule 103 (primary -> primary DOT IDENTIFIER .)
+    R_SQB           reduce using rule 103 (primary -> primary DOT IDENTIFIER .)
 
 
 state 156
@@ -7679,8 +7825,8 @@ state 170
     ELIF            reduce using rule 75 (compare_op -> NOT IN bitwise_or .)
     ELSE            reduce using rule 75 (compare_op -> NOT IN bitwise_or .)
     DEDENT          reduce using rule 75 (compare_op -> NOT IN bitwise_or .)
-    R_SQB           reduce using rule 75 (compare_op -> NOT IN bitwise_or .)
     R_PARENTHESIS   reduce using rule 75 (compare_op -> NOT IN bitwise_or .)
+    R_SQB           reduce using rule 75 (compare_op -> NOT IN bitwise_or .)
     BITWISE_OR      shift and go to state 86
 
 
@@ -7729,8 +7875,8 @@ state 171
     ELIF            reduce using rule 76 (compare_op -> IS NOT bitwise_or .)
     ELSE            reduce using rule 76 (compare_op -> IS NOT bitwise_or .)
     DEDENT          reduce using rule 76 (compare_op -> IS NOT bitwise_or .)
-    R_SQB           reduce using rule 76 (compare_op -> IS NOT bitwise_or .)
     R_PARENTHESIS   reduce using rule 76 (compare_op -> IS NOT bitwise_or .)
+    R_SQB           reduce using rule 76 (compare_op -> IS NOT bitwise_or .)
     BITWISE_OR      shift and go to state 86
 
 
@@ -7791,8 +7937,8 @@ state 172
     ELIF            reduce using rule 101 (primary -> primary L_PARENTHESIS arguments R_PARENTHESIS .)
     ELSE            reduce using rule 101 (primary -> primary L_PARENTHESIS arguments R_PARENTHESIS .)
     DEDENT          reduce using rule 101 (primary -> primary L_PARENTHESIS arguments R_PARENTHESIS .)
-    R_SQB           reduce using rule 101 (primary -> primary L_PARENTHESIS arguments R_PARENTHESIS .)
     R_PARENTHESIS   reduce using rule 101 (primary -> primary L_PARENTHESIS arguments R_PARENTHESIS .)
+    R_SQB           reduce using rule 101 (primary -> primary L_PARENTHESIS arguments R_PARENTHESIS .)
 
 
 state 173
@@ -7852,8 +7998,8 @@ state 173
     ELIF            reduce using rule 102 (primary -> primary L_SQB slices R_SQB .)
     ELSE            reduce using rule 102 (primary -> primary L_SQB slices R_SQB .)
     DEDENT          reduce using rule 102 (primary -> primary L_SQB slices R_SQB .)
-    R_SQB           reduce using rule 102 (primary -> primary L_SQB slices R_SQB .)
     R_PARENTHESIS   reduce using rule 102 (primary -> primary L_SQB slices R_SQB .)
+    R_SQB           reduce using rule 102 (primary -> primary L_SQB slices R_SQB .)
 
 
 state 174
@@ -8573,8 +8719,8 @@ state 187
     ELIF            reduce using rule 57 (expression -> disjunction IF disjunction ELSE expression .)
     ELSE            reduce using rule 57 (expression -> disjunction IF disjunction ELSE expression .)
     DEDENT          reduce using rule 57 (expression -> disjunction IF disjunction ELSE expression .)
-    R_SQB           reduce using rule 57 (expression -> disjunction IF disjunction ELSE expression .)
     R_PARENTHESIS   reduce using rule 57 (expression -> disjunction IF disjunction ELSE expression .)
+    R_SQB           reduce using rule 57 (expression -> disjunction IF disjunction ELSE expression .)
 
 
 state 188
@@ -9624,7 +9770,6 @@ WARNING: shift/reduce conflict for NOT in state 35 resolved as shift
 WARNING: shift/reduce conflict for PLUS in state 39 resolved as shift
 WARNING: shift/reduce conflict for MINUS in state 39 resolved as shift
 WARNING: shift/reduce conflict for NOT in state 85 resolved as shift
-WARNING: shift/reduce conflict for R_PARENTHESIS in state 117 resolved as shift
 WARNING: shift/reduce conflict for PLUS in state 141 resolved as shift
 WARNING: shift/reduce conflict for MINUS in state 141 resolved as shift
 WARNING: shift/reduce conflict for PLUS in state 142 resolved as shift

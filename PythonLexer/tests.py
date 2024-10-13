@@ -47,10 +47,10 @@ class TestLexer(unittest.TestCase):
             NEW_TOKEN("PLUS", 0),
             NEW_TOKEN("MINUS", 0),
             NEW_TOKEN("STAR", 0),
-            NEW_TOKEN("DIVISION", 0),
-            NEW_TOKEN("INTEGER_DIVISION", 0),
-            NEW_TOKEN("MODULUS", 0),
-            NEW_TOKEN("EXPONENTIATION", 0),
+            NEW_TOKEN("SLASH", 0),
+            NEW_TOKEN("DOUBLE_SLASH", 0),
+            NEW_TOKEN("PERCENT", 0),
+            NEW_TOKEN("DOUBLE_STAR", 0),
             NEW_TOKEN("ENDMARKER", 0)
         ]
         self.assertTokens(input_str, expected_tokens)
@@ -59,12 +59,12 @@ class TestLexer(unittest.TestCase):
         input_str = "= += -= *= /= //= %= **="
         expected_tokens = [
             NEW_TOKEN("ASSIGNMENT", 0),
-            NEW_TOKEN("SUM_ASSIGNMENT", 0),
+            NEW_TOKEN("ADDITION_ASSIGNMENT", 0),
             NEW_TOKEN("SUBTRACTION_ASSIGNMENT", 0),
-            NEW_TOKEN("PRODUCT_ASSIGNMENT", 0),
+            NEW_TOKEN("MULTIPLICATION_ASSIGNMENT", 0),
             NEW_TOKEN("DIVISION_ASSIGNMENT", 0),
-            NEW_TOKEN("INTEGER_DIVISION_ASSIGNMENT", 0),
-            NEW_TOKEN("MODULUS_ASSIGNMENT", 0),
+            NEW_TOKEN("FLOOR_DIVISION_ASSIGNMENT", 0),
+            NEW_TOKEN("MODULO_ASSIGNMENT", 0),
             NEW_TOKEN("EXPONENTIATION_ASSIGNMENT", 0),
             NEW_TOKEN("ENDMARKER", 0)
         ]
