@@ -93,7 +93,7 @@ def p_statement(p):
 #     | ';'.simple_stmt+ [';'] NEWLINE 
 # TODO: Check recursion
 def p_simple_stmts(p):
-    """simple_stmts : simple_stmts SEMICOLON simple_stmt
+    """simple_stmts : simple_stmts SEMICOLON simple_stmt NEWLINE
                     | simple_stmt NEWLINE
     """
 
@@ -462,7 +462,7 @@ def p_empty(p):
 
 def p_error(p):
     if p:
-        error_msg = f"Syntax Error near '{p.value}' in line {p.lineno}"
+        error_msg = f"Syntax Error near '{p.value if p.value else p.type}' in line {p.lineno}"
         raise SyntaxError(error_msg)
     else:
         raise SyntaxError("Syntax error at EOF")

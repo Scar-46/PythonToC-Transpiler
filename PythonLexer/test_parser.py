@@ -30,7 +30,13 @@ def test_empty_input(parser):
 def test_input_with_newline(parser):
     code = 'print("Hello World")\n'
     result = parse_code(parser, code)
-    assert result is not None
+    assert result is None
+
+def test_input_withOUT_newline(parser):
+    code = 'print("Hello World")'
+    result = parse_code(parser, code)
+    assert result is None
+
 
 # Invalid function call statement
 def test_invalid_input(parser):

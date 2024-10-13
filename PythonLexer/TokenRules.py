@@ -212,7 +212,7 @@ def t_IDENTIFIER(t):
 
 def t_escaped_newline(t):
     r'\\(\n\r|\n|\r)'
-    t.lexer.lineno += 1
+    print("escapped a newline")
     pass
 
 def t_NEWLINE(t):
