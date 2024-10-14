@@ -123,11 +123,11 @@ def p_compound_stmt(p):
 # SIMPLE STATEMENTS
 # =================
 
-# TODO: Check this later
+# TODO: TARGET CAN BE TOO WIDE FOR THE ASSIGNMENT!!
 def p_assignment(p):
-    """assignment : IDENTIFIER augmentation_assignment expressions
-                  | IDENTIFIER ASSIGNMENT assignment
-                  | IDENTIFIER ASSIGNMENT expressions
+    """assignment : target augmentation_assignment expressions
+                  | target ASSIGNMENT assignment
+                  | target ASSIGNMENT expressions
     """
 
 # augassign
@@ -456,7 +456,7 @@ def p_targets(p):
 
 # TODO: THIS SHOULD BE CHANGE!!
 def p_target(p):
-    """target : atomic
+    """target : primary
     """
     
 def p_empty(p):
