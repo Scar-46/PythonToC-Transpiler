@@ -454,8 +454,9 @@ def p_targets(p):
                | target
     """
 
+# TODO: THIS SHOULD BE CHANGE!!
 def p_target(p):
-    """target : empty
+    """target : atomic
     """
     
 def p_empty(p):
