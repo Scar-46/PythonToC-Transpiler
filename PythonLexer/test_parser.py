@@ -32,7 +32,7 @@ def test_input_with_newline(parser):
     result = parse_code(parser, code)
     assert result is None
 
-def test_input_withOUT_newline(parser):
+def test_input_without_newline(parser):
     code = 'print("Hello World")'
     result = parse_code(parser, code)
     assert result is None
@@ -44,9 +44,15 @@ def test_invalid_input(parser):
     with pytest.raises(SyntaxError):
         parser.parse(code)
 
+# Invalid function call statement
+def test_newline_input(parser):
+    code = '\n'
+    result = parse_code(parser, code)
+    assert result is None
+
 # Test case for reading from a file
 def test_read_file(parser):
-    code = read_file("PythonLexer\sample.py")
+    code = read_file("sample.py")
     result = parse_code(parser, code)
     assert result is None
 

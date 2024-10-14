@@ -52,6 +52,7 @@ def assignIndentations(token_stream):
     scope_depth: int = 0
     previous_scope_depths: list[int] = [0]
     previous_line_start: bool = False
+    empty_line: bool = True
     
     # For every token in the stream:
     # - Keep track of expression and scope depth accordingly
@@ -59,6 +60,7 @@ def assignIndentations(token_stream):
     # - Place INDENT and DEDENT tokens in their place
     for token in token_stream:
         if (token.type != "NEWLINE" and token.type != "WHITESPACE"):
+            empty_line = False
             if token.must_indent:
                 if not (scope_depth > previous_scope_depths[-1]):
                     raise IndentationError(f"expected an indented block on line {token.lineno}")
@@ -89,7 +91,7 @@ def assignIndentations(token_stream):
                 previous_line_start = False
             
             case "NEWLINE":
-                if (expression_depth <= 0):
+                if (expression_depth <= 0) and not empty_line:
                     scope_depth = 0
                     previous_line_start = True
                     yield NEW_TOKEN("NEWLINE", token.lineno)
