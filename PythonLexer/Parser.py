@@ -439,8 +439,10 @@ def p_dict(p):
     """
 
 def p_kvpairs(p):
-    """kvpairs : kvpairs COMMA kvpair
+    """kvpairs : kvpair COMMA kvpairs
+               | kvpair COMMA
                | kvpair
+               
     """
 
 def p_kvpair(p):

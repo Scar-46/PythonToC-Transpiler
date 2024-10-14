@@ -210,11 +210,6 @@ def t_IDENTIFIER(t):
     t.type = keywords.get(t.value,'IDENTIFIER')
     return t
 
-def t_escaped_newline(t):
-    r'\\(\n\r|\n|\r)'
-    print("escapped a newline")
-    pass
-
 def t_NEWLINE(t):
     r'(\n\r|\n|\r)+'
     if t.lexer.lineno is not None:

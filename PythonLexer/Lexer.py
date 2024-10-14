@@ -80,11 +80,11 @@ def assignIndentations(token_stream):
             yield token
 
         match token.type:
-            case "L_PARENTHESIS":
+            case "L_PARENTHESIS" | "L_CB" | "L_SQB":
                 expression_depth += 1
                 previous_line_start = False
 
-            case "R_PARENTHESIS":
+            case "R_PARENTHESIS" | "R_CB" | "R_SQB":
                 expression_depth -= 1
                 previous_line_start = False
             
