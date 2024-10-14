@@ -114,13 +114,8 @@ def filter(lexer, addEndMarker=True):
     token_stream = assignIndentations(token_stream)
 
     tok = None
-    last_token = None
     for tok in token_stream:
-        last_token = tok
         yield tok
-    
-    if last_token and last_token.type != "NEWLINE":
-        yield NEW_TOKEN("NEWLINE", 1 if tok is None else tok.lineno)
 
     if addEndMarker:
         yield NEW_TOKEN("ENDMARKER", 1 if tok is None else tok.lineno)

@@ -79,6 +79,7 @@ def p_file(p):
 # statements: statement+  (One or more statement)
 def p_statements(p):
     """statements : statements statement
+                  | statements NEWLINE
                   | statement
     """
 
@@ -95,6 +96,7 @@ def p_statement(p):
 def p_simple_stmts(p):
     """simple_stmts : simple_stmts SEMICOLON simple_stmt NEWLINE
                     | simple_stmt NEWLINE
+                    | simple_stmt
     """
 
 # REMOVED: Assert_stmt
