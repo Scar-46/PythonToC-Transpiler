@@ -126,12 +126,13 @@ def p_compound_stmt(p):
 # TODO: Check this later
 def p_assignment(p):
     """assignment : IDENTIFIER augmentation_assignment expressions
+                  | IDENTIFIER ASSIGNMENT assignment
+                  | IDENTIFIER ASSIGNMENT expressions
     """
 
 # augassign
 def p_augmentation_assignment(p):
-    """augmentation_assignment : ASSIGNMENT
-                               | ADDITION_ASSIGNMENT
+    """augmentation_assignment : ADDITION_ASSIGNMENT
                                | SUBTRACTION_ASSIGNMENT
                                | MULTIPLICATION_ASSIGNMENT
                                | DIVISION_ASSIGNMENT
