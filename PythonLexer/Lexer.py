@@ -11,7 +11,7 @@ def NEW_TOKEN(newType: str, lineno: int):
     token.type = newType
     token.value = None
     token.lineno = lineno
-    token.lexpos = None
+    token.lexpos = 0
     return token
 
 def INDENT(lineno: int):
@@ -52,6 +52,7 @@ def assignIndentations(token_stream):
     scope_depth: int = 0
     previous_scope_depths: list[int] = [0]
     previous_line_start: bool = False
+    empty_line: bool = True
     
     # For every token in the stream:
     # - Keep track of expression and scope depth accordingly
@@ -59,6 +60,7 @@ def assignIndentations(token_stream):
     # - Place INDENT and DEDENT tokens in their place
     for token in token_stream:
         if (token.type != "NEWLINE" and token.type != "WHITESPACE"):
+            empty_line = False
             if token.must_indent:
                 if not (scope_depth > previous_scope_depths[-1]):
                     raise IndentationError(f"expected an indented block on line {token.lineno}")
@@ -80,18 +82,19 @@ def assignIndentations(token_stream):
             yield token
 
         match token.type:
-            case "L_PARENTHESIS":
+            case "L_PARENTHESIS" | "L_CB" | "L_SQB":
                 expression_depth += 1
                 previous_line_start = False
 
-            case "R_PARENTHESIS":
+            case "R_PARENTHESIS" | "R_CB" | "R_SQB":
                 expression_depth -= 1
                 previous_line_start = False
             
             case "NEWLINE":
-                if (expression_depth <= 0):
+                if (expression_depth <= 0) and not empty_line:
                     scope_depth = 0
                     previous_line_start = True
+                    yield NEW_TOKEN("NEWLINE", token.lineno)
 
             case "WHITESPACE":
                 if (previous_line_start):
@@ -102,7 +105,9 @@ def assignIndentations(token_stream):
     if len(previous_scope_depths) > 1:
         assert token is not None
         for z in range(1, len(previous_scope_depths)):
+            yield NEW_TOKEN("NEWLINE", token.lineno)
             yield DEDENT(token.lineno)
+            
 
 # Construct a tab-filtered (INDENT and DEDENT) lexeme stream for a given lexer
 def filter(lexer, addEndMarker=True):
@@ -114,8 +119,18 @@ def filter(lexer, addEndMarker=True):
     for tok in token_stream:
         yield tok
 
-    if addEndMarker:    
+    if addEndMarker:
         yield NEW_TOKEN("ENDMARKER", 1 if tok is None else tok.lineno)
+
+def empty_input():
+    raise NotImplementedError("empty_input")
+
+# Compute column.
+#     input is the input text string
+#     token is a token instance
+def find_column(input, token):
+    line_start = input.rfind('\n', 0, token.lexpos) + 1
+    return (token.lexpos - line_start) + 1
 
 # Lexer wrapper for Fangless Python 
 class Lexer(object):
@@ -128,9 +143,12 @@ class Lexer(object):
     def input(self, data: str, addEndMarker=True):
         self.lexer.lineno = 0
         self.lexer.input(data)
+        self.input_is_empty = not data
         self.token_stream = filter(self.lexer, addEndMarker)
 
     def token(self):
+        if self.input_is_empty:
+            return None
         try:
             return next(self.token_stream)
         except StopIteration:
