@@ -125,8 +125,8 @@ def p_compound_stmt(p):
 
 # TODO: TARGET CAN BE TOO WIDE FOR THE ASSIGNMENT!!
 def p_assignment(p):
-    """assignment : target augmentation_assignment expressions
-                  | target ASSIGNMENT assignment
+    """assignment : targets augmentation_assignment expressions
+                  | targets ASSIGNMENT assignment
                   | target ASSIGNMENT expressions
     """
 
@@ -452,13 +452,29 @@ def p_kvpair(p):
 # ASSIGNMENT TARGETS
 # ==================
 def p_targets(p):
-    """targets : targets COMMA target 
+    """targets : targets COMMA target
                | target
     """
 
 # TODO: THIS SHOULD BE CHANGE!!
 def p_target(p):
-    """target : primary
+    """target : target_primary DOT IDENTIFIER
+              | target_primary L_SQB slices R_SQB
+              | target_atomic
+    """
+
+def p_target_primary(p):
+    """target_primary : target_primary DOT IDENTIFIER
+                      | target_primary L_SQB slices R_SQB
+                      | target_primary L_PARENTHESIS R_PARENTHESIS
+                      | target_primary L_PARENTHESIS arguments R_PARENTHESIS
+                      | target_atomic
+    """
+
+def p_target_atomic(p):
+    """target_atomic : IDENTIFIER
+                     | L_SQB target_primary R_SQB
+                     | L_PARENTHESIS targets R_PARENTHESIS
     """
     
 def p_empty(p):
