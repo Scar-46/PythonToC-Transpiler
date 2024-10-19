@@ -44,6 +44,15 @@ def test_invalid_input(parser):
     with pytest.raises(SyntaxError):
         parser.parse(code)
 
+# Test invalid assigment
+def test_invalid_assigment(parser):
+    code = '20 = 47'
+    with pytest.raises(SyntaxError):
+        parser.parse(code)
+
+
+def test_assigment(parser):
+    code = 'a,b = 20,50'
 # Invalid function call statement
 def test_newline_input(parser):
     code = '\n'
@@ -52,8 +61,6 @@ def test_newline_input(parser):
 
 # Test case for reading from a file
 def test_read_file(parser):
-    code = read_file("sample.py")
+    code = read_file("PythonLexer\sample.py")
     result = parse_code(parser, code)
     assert result is None
-
-
