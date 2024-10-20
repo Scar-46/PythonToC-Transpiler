@@ -1,3 +1,6 @@
+import sys
+sys.path.insert(0, 'PythonLexer')
+
 import unittest
 from Lexer import Lexer, NEW_TOKEN
 

@@ -1,3 +1,6 @@
+import sys
+sys.path.insert(0, 'PythonLexer')
+
 import pytest
 from Parser import Parser
 
@@ -52,6 +55,6 @@ def test_newline_input(parser):
 
 # Test case for reading from a file
 def test_read_file(parser):
-    code = read_file("PythonLexer\sample.py")
+    code = read_file("PythonLexer\Tests\sample.py")
     result = parse_code(parser, code)
     assert result is None
