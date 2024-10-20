@@ -53,7 +53,7 @@ def test_newline_input(parser):
     result = parse_code(parser, code)
     assert result is None
 
-def test_target_list_assigment(parser):
+def test_assigment(parser):
     code = 'hola, adios = greetings = ("Hello", "Goodbye")'
     result = parse_code(parser, code)
     assert result is None
