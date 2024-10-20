@@ -12,16 +12,36 @@ pip install -r requirements.txt
 
 ## Manual de uso
 
-Para usar el transpiler, el usuario debe ejecutar el siguiente comando,
+Para usar el transpiler, el usuario debe ejecutar el siguiente comando en la terminal:
 
+```bash
+    python PythonLexerParser/main.py <ruta_del_archivo>
+```
+
+Donde `<ruta_del_archivo>` es la dirección del archivo que se desea analizar. Es importante proporcionar la ruta completa o relativa al archivo que se quiere procesar.
+
+Por ejemplo:
+
+```bash
+    python PythonLexerParser/main.py ./codigo_ejemplo.py
+```
+
+Este comando permitirá analizar el archivo especificado y generará la salida correspondiente al proceso de análisis.
 
 ## Ejecutar Pruebas
-Las pruebas para este proyecto están escritas usando pytest. Para ejecutar las pruebas, simplemente ejecuta el siguiente comando:
+Las pruebas para este proyecto están escritas usando pytest. Para ejecutar las pruebas, simplemente ejecute el siguiente comando en la terminal:
 
 ```bash
     pytest
 ```
-Este comando descubrirá y ejecutará automáticamente todos los casos de prueba ubicados en el directorio PythonLexer.
+Este comando descubrirá y ejecutará automáticamente todos los casos de prueba ubicados en el directorio `PythonLexerParser/Tests`.
+
+Dentro de este directorio, se encuentran los siguientes archivos de prueba:
+
+- `test_lexer.py`: Contiene los casos de prueba para el lexer.
+- `test_parser.py`: Contiene los casos de prueba para el parser.
+
+Ambos archivos se ejecutarán como parte del conjunto de pruebas al ejecutar el comando pytest.
 
 ## Funcionalidades No Implementadas
 

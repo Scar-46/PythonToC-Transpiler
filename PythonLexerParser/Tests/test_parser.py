@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0, 'PythonLexer')
+sys.path.insert(0, 'PythonLexerParser')
 
 import pytest
 from Parser import Parser
