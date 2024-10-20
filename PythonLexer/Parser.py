@@ -127,7 +127,7 @@ def p_compound_stmt(p):
 def p_assignment(p):
     """assignment : targets augmentation_assignment expressions
                   | targets ASSIGNMENT assignment
-                  | target ASSIGNMENT expressions
+                  | targets ASSIGNMENT expressions
     """
 
 # augassign
@@ -452,8 +452,7 @@ def p_kvpair(p):
 # ASSIGNMENT TARGETS
 # ==================
 def p_targets(p):
-    """targets : targets COMMA target
-               | target
+    """targets : primary
     """
 
 # TODO: THIS SHOULD BE CHANGE!!

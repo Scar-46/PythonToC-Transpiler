@@ -121,14 +121,18 @@ class TestLexer(unittest.TestCase):
             NEW_TOKEN("L_PARENTHESIS", 0),
             NEW_TOKEN("R_PARENTHESIS", 0),
             NEW_TOKEN("COLON", 0),
+            NEW_TOKEN("NEWLINE", 0),
             NEW_TOKEN("INDENT", 1),
             NEW_TOKEN("IF", 1),
             NEW_TOKEN("TRUE", 1),
             NEW_TOKEN("COLON", 1),
+            NEW_TOKEN("NEWLINE", 1),
             NEW_TOKEN("INDENT", 2),
             NEW_TOKEN("PASS", 2),
+            NEW_TOKEN("NEWLINE", 2),
             NEW_TOKEN("DEDENT", 3),
             NEW_TOKEN("RETURN", 3),
+            NEW_TOKEN("NEWLINE", 3),
             NEW_TOKEN("DEDENT", 3),
             NEW_TOKEN("ENDMARKER", 3)
         ]

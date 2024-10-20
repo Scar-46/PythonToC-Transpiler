@@ -53,6 +53,9 @@ def test_invalid_assigment(parser):
 
 def test_assigment(parser):
     code = 'a,b = 20,50'
+    result = parse_code(parser, code)
+    assert result is None
+
 # Invalid function call statement
 def test_newline_input(parser):
     code = '\n'
