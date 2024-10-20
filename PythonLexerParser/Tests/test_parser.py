@@ -53,8 +53,18 @@ def test_newline_input(parser):
     result = parse_code(parser, code)
     assert result is None
 
+def test_target_list_assigment(parser):
+    code = 'hola, adios = greetings = ("Hello", "Goodbye")'
+    result = parse_code(parser, code)
+    assert result is None
+
+def test_target_list_in_for(parser):
+    code = 'for hola, adios in range(10):\n\tprint("Salut!")'
+    result = parse_code(parser, code)
+    assert result is None
+
 # Test case for reading from a file
 def test_read_file(parser):
-    code = read_file("PythonLexerParser/Tests/sample.py")
+    code = read_file("Tests/sample.py")
     result = parse_code(parser, code)
     assert result is None

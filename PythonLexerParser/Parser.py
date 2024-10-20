@@ -69,13 +69,14 @@ def p_compound_stmt(p):
 # SIMPLE STATEMENTS
 # =================
 
-# TODO: TARGET CAN BE TOO WIDE FOR THE ASSIGNMENT!!
+# TODO: Target_chain eats up more expressions than it should, since it uses primary instead of target_primary!!
 def p_assignment(p):
-    """assignment : targets augmentation_assignment expressions
-                  | targets ASSIGNMENT assignment
-                  | targets ASSIGNMENT expressions
+    """assignment : target_chain augmentation_assignment expressions
+                  | target_chain ASSIGNMENT expressions
     """
-
+def p_target_chain(p):
+    """target_chain : target_chain ASSIGNMENT targets
+                    | targets"""
 # augassign
 def p_augmentation_assignment(p):
     """augmentation_assignment : ADDITION_ASSIGNMENT
@@ -164,16 +165,14 @@ def p_else_block(p):
 
 # while_stmt:
 def p_while_stmt(p):
-    """while_stmt : WHILE expression COLON block else_block
-                  | WHILE expression COLON block
+    """while_stmt : WHILE expression COLON block
     """
 
 # for_stmt:
 #     | 'for' star_targets 'in' ~ star_expressions
 # TODO: Add Range() function, and fix the IDENTIFIER, and expresions.
 def p_for_stmt(p):
-    """for_stmt : FOR targets IN expressions COLON else_block
-                | FOR targets IN expressions COLON block
+    """for_stmt : FOR targets IN expressions COLON block
     """
 
 # EXPRESSIONS
@@ -314,17 +313,16 @@ def p_slices(p):
 #TODO: This should be change
 def p_slice(p):
     """slice : expression COLON expression COLON expression
-             | expression COLON expression
-             | expression COLON
-             | COLON expression
+             | COLON expression COLON expression
+             | expression COLON COLON expression
+             | COLON expression COLON
+             | COLON COLON expression
+             | expression COLON COLON
              | COLON COLON
-             | COLON
              | expression
+             | COLON
     """
 
-#NOTE: MAY HAVE SOME ISSUES OF PRECEDENCE SINCE DICT AND SET ARE SIMILAR
-#NOTE: ERROR: Infinite recursion detected for symbol 'dict'
-#      ERROR: Infinite recursion detected for symbol 'set'
 def p_atomic(p):
     """atomic : IDENTIFIER
               | TRUE
@@ -347,7 +345,7 @@ def p_number(p):
     """
 # FUNCTION CALL ARGUMENTS
 # =======================
-#TODO: Check how this should work
+#TODO: Check how this should work may want to include keyword arguments
 def p_arguments(p):
     """arguments : expressions
     """
@@ -398,10 +396,11 @@ def p_kvpair(p):
 # ASSIGNMENT TARGETS
 # ==================
 def p_targets(p):
-    """targets : primary
+    """targets : primary COMMA targets
+               | primary
     """
 
-# TODO: THIS SHOULD BE CHANGE!!
+# TODO: THIS SHOULD BE CHANGED, because implementations as asked for in python does not work properly!!
 def p_target(p):
     """target : target_primary DOT IDENTIFIER
               | target_primary L_SQB slices R_SQB
