@@ -2,62 +2,8 @@ from TokenRules import tokens
 from Lexer import Lexer
 import ply.yacc as yacc
 
+# Based on PEG grammar for Python
 # Python 3 grammar: https://docs.python.org/3/reference/grammar.html
-
-# ========================= START OF THE GRAMMAR =========================
-
-# General grammatical elements and rules:
-#
-# * Strings with double quotes (") denote SOFT KEYWORDS
-# * Strings with single quotes (') denote KEYWORDS
-# * Upper case names (NAME) denote tokens in the Grammar/Tokens file
-# * Rule names starting with "invalid_" are used for specialized syntax errors
-#     - These rules are NOT used in the first pass of the parser.
-#     - Only if the first pass fails to parse, a second pass including the invalid
-#       rules will be executed.
-#     - If the parser fails in the second phase with a generic syntax error, the
-#       location of the generic failure of the first pass will be used (this avoids
-#       reporting incorrect locations due to the invalid rules).
-#     - The order of the alternatives involving invalid rules matter
-#       (like any rule in PEG).
-#
-# Grammar Syntax (see PEP 617 for more information):
-#
-# rule_name: expression
-#   Optionally, a type can be included right after the rule name, which
-#   specifies the return type of the C or Python function corresponding to the
-#   rule:
-# rule_name[return_type]: expression
-#   If the return type is omitted, then a void * is returned in C and an Any in
-#   Python.
-# e1 e2
-#   Match e1, then match e2.
-# e1 | e2
-#   Match e1 or e2.
-#   The first alternative can also appear on the line after the rule name for
-#   formatting purposes. In that case, a | must be used before the first
-#   alternative, like so:
-#       rule_name[return_type]:
-#            | first_alt
-#            | second_alt
-# ( e )
-#   Match e (allows also to use other operators in the group like '(e)*')
-# [ e ] or e?
-#   Optionally match e.
-# e*
-#   Match zero or more occurrences of e.
-# e+
-#   Match one or more occurrences of e.
-# s.e+
-#   Match one or more occurrences of e, separated by s. The generated parse tree
-#   does not include the separator. This is otherwise identical to (e (s e)*).
-# &e
-#   Succeed if e can be parsed, without consuming any input.
-# !e
-#   Fail if e can be parsed, without consuming any input.
-# ~
-#   Commit to the current alternative, even if it fails to parse.
-#
 
 # precedence = (
 #     ('left', 'PLUS', 'MINUS'),
@@ -125,9 +71,9 @@ def p_compound_stmt(p):
 
 # TODO: TARGET CAN BE TOO WIDE FOR THE ASSIGNMENT!!
 def p_assignment(p):
-    """assignment : target augmentation_assignment expressions
-                  | target ASSIGNMENT assignment
-                  | target ASSIGNMENT expressions
+    """assignment : targets augmentation_assignment expressions
+                  | targets ASSIGNMENT assignment
+                  | targets ASSIGNMENT expressions
     """
 
 # augassign
@@ -452,13 +398,28 @@ def p_kvpair(p):
 # ASSIGNMENT TARGETS
 # ==================
 def p_targets(p):
-    """targets : targets COMMA target 
-               | target
+    """targets : primary
     """
 
 # TODO: THIS SHOULD BE CHANGE!!
 def p_target(p):
-    """target : primary
+    """target : target_primary DOT IDENTIFIER
+              | target_primary L_SQB slices R_SQB
+              | target_atomic
+    """
+
+def p_target_primary(p):
+    """target_primary : target_primary DOT IDENTIFIER
+                      | target_primary L_SQB slices R_SQB
+                      | target_primary L_PARENTHESIS R_PARENTHESIS
+                      | target_primary L_PARENTHESIS arguments R_PARENTHESIS
+                      | target_atomic
+    """
+
+def p_target_atomic(p):
+    """target_atomic : IDENTIFIER
+                     | L_SQB target_primary R_SQB
+                     | L_PARENTHESIS targets R_PARENTHESIS
     """
     
 def p_empty(p):
