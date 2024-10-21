@@ -120,7 +120,7 @@ def p_block(p):
 # Class definitions
 # -----------------
 def p_class_def(p):
-    """class_def : CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block  
+    """class_def : CLASS IDENTIFIER L_PARENTHESIS argument R_PARENTHESIS COLON block  
                  | CLASS IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block
                  | CLASS IDENTIFIER COLON block
     """
@@ -188,12 +188,12 @@ def p_expression(p):
     """
 
 def p_disjunction(p):
-    """disjunction : conjunction OR disjunction
+    """disjunction : disjunction OR conjunction
                    | conjunction 
     """
 
 def p_conjunction(p):
-    """conjunction : inversion AND inversion
+    """conjunction : conjunction AND inversion
                    | inversion
     """
 
@@ -285,11 +285,6 @@ def p_power(p):
 # =======================
 
 # primary:
-#     | primary '.' NAME 
-#     | primary genexp 
-#     | primary '(' [arguments] ')' 
-#     | primary '[' slices ']' 
-#     | atom
 def p_primary(p):
     """primary : primary L_PARENTHESIS arguments R_PARENTHESIS
                | L_PARENTHESIS expression R_PARENTHESIS
@@ -345,6 +340,9 @@ def p_number(p):
     """
 # FUNCTION CALL ARGUMENTS
 # =======================
+def p_argument(p):
+    """argument : expression"""
+
 #TODO: Check how this should work may want to include keyword arguments
 def p_arguments(p):
     """arguments : expressions
@@ -383,16 +381,18 @@ def p_dict(p):
     """
 
 def p_kvpairs(p):
-    """kvpairs : kvpair COMMA kvpairs
-               | kvpair COMMA
-               | kvpair
-               
+    """kvpairs : kvpair_list COMMA
+               | kvpair_list
     """
 
 def p_kvpair(p):
     """kvpair : expression COLON expression
     """
 
+def p_kvpair_list(p):
+    """kvpair_list : kvpair_list COMMA kvpair
+                   | kvpair
+    """
 # ASSIGNMENT TARGETS
 # ==================
 def p_targets(p):
