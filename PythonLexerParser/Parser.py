@@ -66,6 +66,38 @@ def p_compound_stmt(p):
                      | while_stmt
     """
 
+def p_reserved_keyword_usage_error(p):
+    """reserved_keyword_usage_error : reserved_keyword error NEWLINE
+    """
+    print("Reseved keyword usage error")
+    raise SyntaxError(f"Invalid use of reserved keyword '{p.value}'", p)
+
+# REDESERVED KEYWORDS
+# ================================================
+def p_reserved_keyword(p):
+    """reserved_keyword : AND
+                        | OR
+                        | NOT
+                        | IF
+                        | ELSE
+                        | ELIF
+                        | FOR
+                        | WHILE
+                        | BREAK
+                        | PASS
+                        | CONTINUE
+                        | DEF
+                        | AS
+                        | CLASS
+                        | RETURN
+                        | TRUE
+                        | FALSE
+                        | DEL
+                        | GLOBAL
+                        | IN
+                        | IS
+                        | NONE
+    """
 # SIMPLE STATEMENTS
 # =================
 
@@ -465,7 +497,9 @@ class Parser(object):
         return result
 
     def build_error(self, error: Exception, error_type: str):
-        assert len(error.args) > 1
+        if len(error.args) < 2:
+            print(error)
+            return
         token = error.args[1]
         self.error_logger.log_error(
             error.args[0],
