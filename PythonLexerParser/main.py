@@ -1,4 +1,5 @@
 from Parser import Parser
+from ErrorLogger import ErrorLogger
 import sys
 
 def read_file(file_name):
@@ -11,12 +12,18 @@ def read_file(file_name):
 
 def main():
     code = read_file(sys.argv[1])
-    parser = Parser()
+    error_logger = ErrorLogger(sys.argv[1])
+    parser = Parser(error_logger=error_logger)
     try:
         parser.parse(code)
     except Exception as e:
         print(f"Error during parsing: {e}")
-        exit(1)
+    if error_logger.error_count() <= 0:
+        exit_code = 0
+    else:
+        exit_code = 1
+        error_logger.print_error()
+    exit(exit_code)
 
 if __name__ == "__main__":
     main()

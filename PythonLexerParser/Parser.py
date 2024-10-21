@@ -1,5 +1,5 @@
-from TokenRules import tokens
-from Lexer import Lexer
+from TokenRules import LexingError, tokens, find_column, get_input
+from Lexer import Lexer, IndentationError
 import ply.yacc as yacc
 
 # Based on PEG grammar for Python
@@ -66,6 +66,38 @@ def p_compound_stmt(p):
                      | while_stmt
     """
 
+def p_reserved_keyword_usage_error(p):
+    """reserved_keyword_usage_error : reserved_keyword error NEWLINE
+    """
+    print("Reseved keyword usage error")
+    raise SyntaxError(f"Invalid use of reserved keyword '{p.value}'", p)
+
+# REDESERVED KEYWORDS
+# ================================================
+def p_reserved_keyword(p):
+    """reserved_keyword : AND
+                        | OR
+                        | NOT
+                        | IF
+                        | ELSE
+                        | ELIF
+                        | FOR
+                        | WHILE
+                        | BREAK
+                        | PASS
+                        | CONTINUE
+                        | DEF
+                        | AS
+                        | CLASS
+                        | RETURN
+                        | TRUE
+                        | FALSE
+                        | DEL
+                        | GLOBAL
+                        | IN
+                        | IS
+                        | NONE
+    """
 # SIMPLE STATEMENTS
 # =================
 
@@ -120,7 +152,7 @@ def p_block(p):
 # Class definitions
 # -----------------
 def p_class_def(p):
-    """class_def : CLASS IDENTIFIER L_PARENTHESIS arguments R_PARENTHESIS COLON block  
+    """class_def : CLASS IDENTIFIER L_PARENTHESIS argument R_PARENTHESIS COLON block  
                  | CLASS IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block
                  | CLASS IDENTIFIER COLON block
     """
@@ -188,12 +220,12 @@ def p_expression(p):
     """
 
 def p_disjunction(p):
-    """disjunction : conjunction OR disjunction
+    """disjunction : disjunction OR conjunction
                    | conjunction 
     """
 
 def p_conjunction(p):
-    """conjunction : inversion AND inversion
+    """conjunction : conjunction AND inversion
                    | inversion
     """
 
@@ -285,11 +317,6 @@ def p_power(p):
 # =======================
 
 # primary:
-#     | primary '.' NAME 
-#     | primary genexp 
-#     | primary '(' [arguments] ')' 
-#     | primary '[' slices ']' 
-#     | atom
 def p_primary(p):
     """primary : primary L_PARENTHESIS arguments R_PARENTHESIS
                | L_PARENTHESIS expression R_PARENTHESIS
@@ -345,6 +372,9 @@ def p_number(p):
     """
 # FUNCTION CALL ARGUMENTS
 # =======================
+def p_argument(p):
+    """argument : expression"""
+
 #TODO: Check how this should work may want to include keyword arguments
 def p_arguments(p):
     """arguments : expressions
@@ -383,16 +413,18 @@ def p_dict(p):
     """
 
 def p_kvpairs(p):
-    """kvpairs : kvpair COMMA kvpairs
-               | kvpair COMMA
-               | kvpair
-               
+    """kvpairs : kvpair_list COMMA
+               | kvpair_list
     """
 
 def p_kvpair(p):
     """kvpair : expression COLON expression
     """
 
+def p_kvpair_list(p):
+    """kvpair_list : kvpair_list COMMA kvpair
+                   | kvpair
+    """
 # ASSIGNMENT TARGETS
 # ==================
 def p_targets(p):
@@ -435,13 +467,44 @@ def p_error(p):
         raise SyntaxError("Syntax error at EOF")
     
 class Parser(object):
-    def __init__(self, lexer=None):
+    def __init__(self, lexer=None, error_logger=None):
         if lexer is None:
-            lexer = Lexer()
+            lexer = Lexer(error_logger == None)
         self.lexer = lexer
+        self.error_logger = error_logger
         self.parser = yacc.yacc(start="file", debug=True)
 
-    def parse(self, code: str):
-        self.lexer.input(code)
-        result = self.parser.parse(lexer=self.lexer, debug=True)
+    def parse(self, code):
+        result = None
+        try:
+            self.lexer.input(code)
+            result = self.parser.parse(lexer=self.lexer, debug=True)
+        except LexingError as e:
+            if not self.error_logger:
+                raise e
+            else:
+               self.build_error(e, "lexing")
+        except (IndentationError, SyntaxError) as e:
+            if not self.error_logger:
+                raise e
+            else:
+               self.build_error(e, "syntax")
+        except Exception as e:
+            if not self.error_logger:
+                raise e
+            else:
+               self.build_error(e, "error")
         return result
+
+    def build_error(self, error: Exception, error_type: str):
+        if len(error.args) < 2:
+            print(error)
+            return
+        token = error.args[1]
+        self.error_logger.log_error(
+            error.args[0],
+            token.lineno + 1,
+            find_column(token.lexer.lexdata, token),
+            get_input(token.lexer.lexdata, token),
+            error_type
+        )

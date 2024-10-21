@@ -45,8 +45,11 @@ def identifyIndentations(token_stream):
                     indentation = FORBIDDEN
         yield token
 
+class IndentationError(Exception):
+    pass
+
 # Replace indentations with IDENT and DEDENT tokens for a given token stream
-def assignIndentations(token_stream):
+def assignIndentations(token_stream, format_error=True):
     token = None
     expression_depth: int = 0
     scope_depth: int = 0
@@ -63,14 +66,21 @@ def assignIndentations(token_stream):
             empty_line = False
             if token.must_indent:
                 if not (scope_depth > previous_scope_depths[-1]):
-                    raise IndentationError(f"expected an indented block on line {token.lineno}")
+                    if format_error:
+                        raise IndentationError(f"expected an indented at {token.lineno}")
+                    else:
+                        raise IndentationError("expected an indented", token)
 
                 previous_scope_depths.append(scope_depth)
                 yield INDENT(token.lineno)
             
             elif previous_line_start:
                 if scope_depth > previous_scope_depths[-1]:
-                    raise IndentationError(f"unexpected indentation on line {token.lineno}")
+                    if format_error:
+                        raise IndentationError(f"unexpected indentation at {token.lineno}")
+                    else:
+                        raise IndentationError("unexpected indentation", token)
+
                 elif scope_depth < previous_scope_depths[-1]:
                     try:
                         i = previous_scope_depths.index(scope_depth)
@@ -78,7 +88,10 @@ def assignIndentations(token_stream):
                             previous_scope_depths.pop()
                             yield DEDENT(token.lineno)
                     except ValueError:
-                        raise IndentationError(f"unmatched indentation on line {token.lineno}")
+                        if format_error:
+                            raise IndentationError(f"unmatched indentation at {token.lineno}")
+                        else:
+                            raise IndentationError("unmatched indentation", token)
             yield token
 
         match token.type:
@@ -110,10 +123,10 @@ def assignIndentations(token_stream):
             
 
 # Construct a tab-filtered (INDENT and DEDENT) lexeme stream for a given lexer
-def filter(lexer, addEndMarker=True):
+def filter(lexer, addEndMarker=True, format_error=None):
     token_stream = iter(lexer.token, None)
     token_stream = identifyIndentations(token_stream)
-    token_stream = assignIndentations(token_stream)
+    token_stream = assignIndentations(token_stream, format_error=format_error)
 
     tok = None
     for tok in token_stream:
@@ -122,29 +135,20 @@ def filter(lexer, addEndMarker=True):
     if addEndMarker:
         yield NEW_TOKEN("ENDMARKER", 1 if tok is None else tok.lineno)
 
-def empty_input():
-    raise NotImplementedError("empty_input")
-
-# Compute column.
-#     input is the input text string
-#     token is a token instance
-def find_column(input, token):
-    line_start = input.rfind('\n', 0, token.lexpos) + 1
-    return (token.lexpos - line_start) + 1
-
 # Lexer wrapper for Fangless Python 
 class Lexer(object):
-    def __init__(self):
+    def __init__(self, format_error=True):
         self.lexer = lex.lex(
             module=TokenRules, 
             reflags=int(re.MULTILINE)
         )
+        self.format_error = format_error
 
     def input(self, data: str, addEndMarker=True):
         self.lexer.lineno = 0
         self.lexer.input(data)
         self.input_is_empty = not data
-        self.token_stream = filter(self.lexer, addEndMarker)
+        self.token_stream = filter(self.lexer, addEndMarker, self.format_error)
 
     def token(self):
         if self.input_is_empty:
