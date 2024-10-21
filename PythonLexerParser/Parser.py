@@ -441,7 +441,7 @@ class Parser(object):
         self.lexer = lexer
         self.parser = yacc.yacc(start="file", debug=True)
 
-    def parse(self, code):
+    def parse(self, code: str):
         self.lexer.input(code)
         result = self.parser.parse(lexer=self.lexer, debug=True)
         return result
