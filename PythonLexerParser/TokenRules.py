@@ -224,6 +224,19 @@ def t_WHITESPACE(t):
 class LexingError(Exception):
     pass
 
+# Compute column.
+def find_column(input, token):
+    line_start = input.rfind('\n', 0, token.lexpos) + 1
+    return (token.lexpos - line_start) + 1
+
+def get_input(input, token):
+    line_start = input.rfind('\n', 0, token.lexpos) + 1
+    line_end = input.find('\n', token.lexpos)
+    if line_end == -1:
+        line_end = len(input)
+    
+    return input[line_start:line_end]
+
 def t_error(t):
     t.lexer.skip(1)
-    raise LexingError(f"unrecognized sequence: {t.value} on line {t.lineno}")
+    raise LexingError("unrecognized sequence", t)

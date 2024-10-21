@@ -1,5 +1,5 @@
-from TokenRules import tokens
-from Lexer import Lexer
+from TokenRules import LexingError, tokens, find_column, get_input
+from Lexer import Lexer, IndentationError
 import ply.yacc as yacc
 
 # Based on PEG grammar for Python
@@ -435,13 +435,42 @@ def p_error(p):
         raise SyntaxError("Syntax error at EOF")
     
 class Parser(object):
-    def __init__(self, lexer=None):
+    def __init__(self, lexer=None, error_logger=None):
         if lexer is None:
-            lexer = Lexer()
+            lexer = Lexer(error_logger == None)
         self.lexer = lexer
+        self.error_logger = error_logger
         self.parser = yacc.yacc(start="file", debug=True)
 
     def parse(self, code):
-        self.lexer.input(code)
-        result = self.parser.parse(lexer=self.lexer, debug=True)
+        result = None
+        try:
+            self.lexer.input(code)
+            result = self.parser.parse(lexer=self.lexer, debug=True)
+        except LexingError as e:
+            if not self.error_logger:
+                raise e
+            else:
+               self.build_error(e, "lexing")
+        except (IndentationError, SyntaxError) as e:
+            if not self.error_logger:
+                raise e
+            else:
+               self.build_error(e, "syntax")
+        except Exception as e:
+            if not self.error_logger:
+                raise e
+            else:
+               self.build_error(e, "error")
         return result
+
+    def build_error(self, error: Exception, error_type: str):
+        assert len(error.args) > 1
+        token = error.args[1]
+        self.error_logger.log_error(
+            error.args[0],
+            token.lineno + 1,
+            find_column(token.lexer.lexdata, token),
+            get_input(token.lexer.lexdata, token),
+            error_type
+        )
