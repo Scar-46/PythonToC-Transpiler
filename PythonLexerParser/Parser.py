@@ -184,6 +184,11 @@ def p_for_stmt(p):
     """for_stmt : FOR targets IN expressions COLON block
     """
 
+def p_for_stmt_error(p):
+    """for_stmt_error : FOR error COLON block
+    """
+    print("invalid for")
+
 # EXPRESSIONS
 # ===================
 def p_expressions(p):
@@ -442,6 +447,7 @@ def p_error(p):
         # raise SyntaxError(error_msg)
     else:
         # raise SyntaxError("Syntax error at EOF")
+        pass
     
 class Parser(object):
     def __init__(self, lexer=None, error_logger=None):
