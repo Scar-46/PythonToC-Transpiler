@@ -66,38 +66,15 @@ def p_compound_stmt(p):
                      | while_stmt
     """
 
-def p_reserved_keyword_usage_error(p):
-    """reserved_keyword_usage_error : reserved_keyword error NEWLINE
-    """
-    print("Reseved keyword usage error")
-    raise SyntaxError(f"Invalid use of reserved keyword '{p.value}'", p)
+# def p_reserved_keyword_usage_error(p):
+#     """reserved_keyword_usage_error : reserved_keyword error NEWLINE
+#     """
+#     print("Reseved keyword usage error")
+#     raise SyntaxError(f"Invalid use of reserved keyword '{p.value}'", p)
 
 # REDESERVED KEYWORDS
 # ================================================
-def p_reserved_keyword(p):
-    """reserved_keyword : AND
-                        | OR
-                        | NOT
-                        | IF
-                        | ELSE
-                        | ELIF
-                        | FOR
-                        | WHILE
-                        | BREAK
-                        | PASS
-                        | CONTINUE
-                        | DEF
-                        | AS
-                        | CLASS
-                        | RETURN
-                        | TRUE
-                        | FALSE
-                        | DEL
-                        | GLOBAL
-                        | IN
-                        | IS
-                        | NONE
-    """
+# s
 # SIMPLE STATEMENTS
 # =================
 
@@ -462,9 +439,9 @@ def p_empty(p):
 def p_error(p):
     if p:
         error_msg = f"Syntax Error near '{p.value if p.value else p.type}' in line {p.lineno}"
-        raise SyntaxError(error_msg)
+        # raise SyntaxError(error_msg)
     else:
-        raise SyntaxError("Syntax error at EOF")
+        # raise SyntaxError("Syntax error at EOF")
     
 class Parser(object):
     def __init__(self, lexer=None, error_logger=None):
