@@ -65,6 +65,6 @@ def test_target_list_in_for(parser):
 
 # Test case for reading from a file
 def test_read_file(parser):
-    code = read_file("Tests/sample.py")
+    code = read_file("PythonLexerParser/Tests/sample.py")
     result = parse_code(parser, code)
     assert result is None
