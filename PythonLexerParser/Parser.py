@@ -91,11 +91,53 @@ def p_compound_stmt(p):
 
 # REDESERVED KEYWORDS
 # ================================================
-# s
+# TARGETS
+# ==================
+# TODO: THIS SHOULD BE CHANGED, because implementations as asked for in python does not work properly!!
+def p_target(p):
+    """target : primary DOT IDENTIFIER
+              | primary L_SQB slices R_SQB
+              | primary
+    """
+
+def p_single_target(p):
+    """single_target : single_subscript_attribute_target
+                     | L_PARENTHESIS single_target R_PARENTHESIS
+                     | IDENTIFIER
+    """
+
+def p_single_subscript_attribute_target(p):
+    """single_subscript_attribute_target : primary DOT IDENTIFIER
+                                         | primary L_SQB slices R_SQB
+    """
+
+def p_targets(p):
+    """targets : targets COMMA target
+               | target
+    """
+
+def p_target_assigment_list(p):
+    """target_assigment_list : target_assigment_list COMMA single_target
+                             | single_target
+    """
+
+def p_target_assignment_chain(p):
+    """target_assignment_chain : target_assignment_chain target_assigment_list ASSIGNMENT
+                               | target_assigment_list ASSIGNMENT"""
+
+def p_target_tuple_seq(p):
+    """target_tuple_seq : target_tuple_seq target
+                        | target COMMA"""
+
+def p_target_atomic(p):
+    """target_atomic : L_PARENTHESIS targets R_PARENTHESIS
+                     | L_SQB target_tuple_seq R_SQB
+                     | L_PARENTHESIS R_PARENTHESIS
+                     | L_SQB R_SQB
+                     | IDENTIFIER
+    """
 # SIMPLE STATEMENTS
 # =================
-
-# TODO: Target_chain eats up more expressions than it should, since it uses primary instead of target_primary!!
 def p_assignment(p):
     """assignment : L_PARENTHESIS single_target R_PARENTHESIS ASSIGNMENT expressions
                   | single_target augmentation_assignment expressions
@@ -419,51 +461,7 @@ def p_kvpair_list(p):
     """kvpair_list : kvpair_list COMMA kvpair
                    | kvpair
     """
-# ASSIGNMENT TARGETS
-# ==================
-# TODO: THIS SHOULD BE CHANGED, because implementations as asked for in python does not work properly!!
-def p_target(p):
-    """target : target_primary DOT IDENTIFIER
-              | target_primary L_SQB slices R_SQB
-              | target_atomic
-    """
-
-def p_single_target(p):
-    """single_target : single_subscript_attribute_target
-                     | L_PARENTHESIS single_target R_PARENTHESIS
-                     | IDENTIFIER
-    """
-
-def p_single_subscript_attribute_target(p):
-    """single_subscript_attribute_target : target_primary DOT IDENTIFIER
-                                         | target_primary L_SQB slices R_SQB
-    """
-
-def p_targets(p):
-    """targets : targets COMMA target
-               | target
-    """
-
-def p_target_assignment_chain(p):
-    """target_assignment_chain : target_assignment_chain single_target ASSIGNMENT
-                               | single_target ASSIGNMENT"""
-
-# According to python's grammar, this should be a primary with a lookahead after.
-def p_target_primary(p):
-    """target_primary : primary
-    """
-
-def p_target_tuple_seq(p):
-    """target_tuple_seq : target_tuple_seq target
-                        | target COMMA"""
-
-def p_target_atomic(p):
-    """target_atomic : L_PARENTHESIS targets R_PARENTHESIS
-                     | L_SQB target_tuple_seq R_SQB
-                     | L_PARENTHESIS R_PARENTHESIS
-                     | L_SQB R_SQB
-                     | IDENTIFIER
-    """
+    
     
 def p_empty(p):
     'empty :'
@@ -483,7 +481,7 @@ class Parser(object):
         if lexer is None:
             lexer = Lexer()
         self._lexer = lexer
-        self._parser = yacc.yacc(start="file", debug=True, errorlog=yacc.NullLogger())
+        self._parser = yacc.yacc(start="file", debug=True)
 
     def parse(self, code):
         result = None

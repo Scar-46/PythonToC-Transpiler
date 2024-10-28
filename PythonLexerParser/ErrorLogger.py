@@ -19,6 +19,9 @@ class ErrorLogger:
 
     def error_count(self):
         return len(self.errors)
+    
+    def clear_errors(self):
+        self.errors = []
 
     def print_error(self, filename: str):
         console = Console()
