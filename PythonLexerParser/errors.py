@@ -1,2 +1,1 @@
-def @():
-    dd
+hello = salut = "world"
