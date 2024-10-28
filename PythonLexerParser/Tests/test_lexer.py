@@ -23,6 +23,7 @@ def assert_tokens(input_str, expected_tokens):
 def test_keywords():
     input_str = "if elif else while break"
     expected_tokens = [
+        NEW_TOKEN("STARTMARKER", 0),
         NEW_TOKEN("IF", 0),
         NEW_TOKEN("ELIF", 0),
         NEW_TOKEN("ELSE", 0),
@@ -36,6 +37,7 @@ def test_keywords():
 def test_operators():
     input_str = "== != >= <= + - * / // % **"
     expected_tokens = [
+        NEW_TOKEN("STARTMARKER", 0),
         NEW_TOKEN("EQUALITY", 0),
         NEW_TOKEN("INEQUALITY", 0),
         NEW_TOKEN("GREATER_EQUAL", 0),
@@ -55,6 +57,7 @@ def test_operators():
 def test_assignment_operators():
     input_str = "= += -= *= /= //= %= **="
     expected_tokens = [
+        NEW_TOKEN("STARTMARKER", 0),
         NEW_TOKEN("ASSIGNMENT", 0),
         NEW_TOKEN("ADDITION_ASSIGNMENT", 0),
         NEW_TOKEN("SUBTRACTION_ASSIGNMENT", 0),
@@ -72,6 +75,7 @@ def test_literals():
     # Test for normal strings
     input_str = "\"Hello \\\" \\'\" 'World'"
     expected_tokens = [
+        NEW_TOKEN("STARTMARKER", 0),
         NEW_TOKEN("STRING", 0),
         NEW_TOKEN("STRING", 0),
         NEW_TOKEN("ENDMARKER", 0)
@@ -81,6 +85,7 @@ def test_literals():
     # Test for numbers
     input_str = '012 35.67 0x1A 0o17 0b1010'
     expected_tokens = [
+        NEW_TOKEN("STARTMARKER", 0),
         NEW_TOKEN("NUMBER", 0),
         NEW_TOKEN("F_NUMBER", 0),
         NEW_TOKEN("HEX_NUMBER", 0),
@@ -93,6 +98,7 @@ def test_literals():
     # Test for triple strings
     input_str = '"""Triple\nQuote""" \'\'\'Another Triple\'\'\' """Hello " """ \'\'\'Hello \' \'\'\''
     expected_tokens = [
+        NEW_TOKEN("STARTMARKER", 0),
         NEW_TOKEN("TRIPLE_STRING", 0),
         NEW_TOKEN("TRIPLE_STRING", 0),
         NEW_TOKEN("TRIPLE_STRING", 0),
@@ -105,6 +111,7 @@ def test_literals():
 def test_identifiers():
     input_str = "variable_name another_var func012"
     expected_tokens = [
+        NEW_TOKEN("STARTMARKER", 0),
         NEW_TOKEN("IDENTIFIER", 0),
         NEW_TOKEN("IDENTIFIER", 0),
         NEW_TOKEN("IDENTIFIER", 0),
@@ -116,6 +123,7 @@ def test_identifiers():
 def test_indentation():
     input_str = "def foo():\n\tif True:\n\t\tpass\n\treturn" 
     expected_tokens = [
+        NEW_TOKEN("STARTMARKER", 0),
         NEW_TOKEN("DEF", 0),
         NEW_TOKEN("IDENTIFIER", 0),
         NEW_TOKEN("L_PARENTHESIS", 0),
