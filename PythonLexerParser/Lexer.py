@@ -123,7 +123,10 @@ def assignIndentations(token_stream, format_error=True):
             
 
 # Construct a tab-filtered (INDENT and DEDENT) lexeme stream for a given lexer
-def filter(lexer, addEndMarker=True, format_error=None):
+def filter(lexer, addEdgeMarkers=True, format_error=None):
+    if addEdgeMarkers:
+        yield NEW_TOKEN("STARTMARKER", 0)
+
     token_stream = iter(lexer.token, None)
     token_stream = identifyIndentations(token_stream)
     token_stream = assignIndentations(token_stream, format_error=format_error)
@@ -132,7 +135,7 @@ def filter(lexer, addEndMarker=True, format_error=None):
     for tok in token_stream:
         yield tok
 
-    if addEndMarker:
+    if addEdgeMarkers:
         yield NEW_TOKEN("ENDMARKER", 1 if tok is None else tok.lineno)
 
 # Lexer wrapper for Fangless Python 
@@ -144,11 +147,11 @@ class Lexer(object):
         )
         self.format_error = format_error
 
-    def input(self, data: str, addEndMarker=True):
+    def input(self, data: str, addEdgeMarkers=True):
         self.lexer.lineno = 0
         self.lexer.input(data)
         self.input_is_empty = not data
-        self.token_stream = filter(self.lexer, addEndMarker, self.format_error)
+        self.token_stream = filter(self.lexer, addEdgeMarkers, self.format_error)
 
     def token(self):
         if self.input_is_empty:

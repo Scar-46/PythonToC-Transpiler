@@ -105,6 +105,7 @@ tokens = [
     'INDENT',
     'DEDENT',
     'ENDMARKER',
+    'STARTMARKER',
 ] + list(keywords.values())
 
 # Comments

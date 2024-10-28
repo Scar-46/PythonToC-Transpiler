@@ -32,13 +32,14 @@ precedence = (
 # They define 3 starting rules, but i do not know if it applies to our case
 
 def p_file(p):
-    """file : statements ENDMARKER
-            | ENDMARKER
+    """file : STARTMARKER statements ENDMARKER
+            | STARTMARKER ENDMARKER
             | file_error
     """
 
 def p_file_error(p):
-    """file_error : statements_error ENDMARKER
+    """file_error : STARTMARKER statements_error ENDMARKER
+            | STARTMARKER wild_error error ENDMARKER
     """
     print_error("Whole-file error", p)
 
@@ -1002,8 +1003,12 @@ def p_wild_error(p):
     error_msg: str = "Unrecognized syntax error "
     
     if p:
-        p[0] = p[1]
-        error_msg += f"near {p[0].value if p[0].value else p[0].type} in line {p.lineno(1)}"
+        content: str = "unknown token"
+
+        if p[1]:
+            content = p[1].value if p[1].value else p[1].type
+
+        error_msg += f"near {content} in line {p.lineno(1)}"
     else:
         error_msg += "at EOF"
 
@@ -1037,35 +1042,25 @@ class Parser(object):
 
     def parse(self, code):
         result = None
-        self.lexer.input(code)
 
-        while True:
-            errorHandled : bool = False
-
-            try:
-                result = self.parser.parse(lexer=self.lexer, debug=True, tracking=True)
-            except LexingError as e:
-                errorHandled = True
-                if not self.error_logger:
-                    raise e
-                else:
-                    self.build_error(e, "lexing")
-            except (IndentationError, SyntaxError) as e:
-                errorHandled = True
-                if not self.error_logger:
-                    raise e
-                else:
-                    self.build_error(e, "syntax")
-            except Exception as e:
-                if not self.error_logger:
-                    raise e
-                else:
-                    self.build_error(e, "error")
-            
-            if errorHandled:
-                self.parser.errok()
+        try:
+            self.lexer.input(code)
+            result = self.parser.parse(lexer=self.lexer, debug=True, tracking=True)
+        except LexingError as e:
+            if not self.error_logger:
+                raise e
             else:
-                break
+                self.build_error(e, "lexing")
+        except (IndentationError, SyntaxError) as e:
+            if not self.error_logger:
+                raise e
+            else:
+                self.build_error(e, "syntax")
+        except Exception as e:
+            if not self.error_logger:
+                raise e
+            else:
+                self.build_error(e, "error")
 
         return result
 
