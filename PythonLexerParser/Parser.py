@@ -1,4 +1,4 @@
-from PythonLexerParser import ErrorLogger
+from ErrorLogger import ErrorLogger
 from TokenRules import LexingError, tokens, find_column, get_input
 from Lexer import Lexer, IndentationError
 import ply.yacc as yacc
