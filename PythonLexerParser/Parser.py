@@ -1,3 +1,4 @@
+from PythonLexerParser import ErrorLogger
 from TokenRules import LexingError, tokens, find_column, get_input
 from Lexer import Lexer, IndentationError
 import ply.yacc as yacc
@@ -1001,14 +1002,8 @@ def p_wild_error(p):
     error_msg: str = "Unrecognized syntax error "
     
     if p:
-        content : str = "unknown token"
-
-        if hasattr(p, "value") and p.value:
-            content = p.value
-        elif hasattr(p, "type") and p.type:
-            content = p.type
-
-        error_msg += f"near {content} in line {p.lineno(1)}"
+        p[0] = p[1]
+        error_msg += f"near {p[0].value if p[0].value else p[0].type} in line {p.lineno(1)}"
     else:
         error_msg += "at EOF"
 
@@ -1028,41 +1023,44 @@ def print_error(title: str, token):
             break
 
     print(title, "near", lexeme_hint, "in line", token.lineno(1))
-    
+    # raise SyntaxError(token)
+
 class Parser(object):
-    def __init__(self, lexer=None, error_logger=None):
+    def __init__(self, lexer:Lexer = None, error_logger: ErrorLogger = None):
         if lexer is None:
             lexer = Lexer(error_logger == None)
-        self.lexer = lexer
-        self.error_logger = error_logger
+
+        self.lexer: Lexer = lexer
+        self.error_logger: ErrorLogger = error_logger
+
         self.parser = yacc.yacc(start="file", debug=True)
 
     def parse(self, code):
         result = None
+        self.lexer.input(code)
+
         while True:
             errorHandled : bool = False
 
             try:
-                self.lexer.input(code)
                 result = self.parser.parse(lexer=self.lexer, debug=True, tracking=True)
             except LexingError as e:
+                errorHandled = True
                 if not self.error_logger:
                     raise e
                 else:
                     self.build_error(e, "lexing")
-                    errorHandled = True
             except (IndentationError, SyntaxError) as e:
+                errorHandled = True
                 if not self.error_logger:
                     raise e
                 else:
                     self.build_error(e, "syntax")
-                    errorHandled = True
             except Exception as e:
                 if not self.error_logger:
                     raise e
                 else:
                     self.build_error(e, "error")
-                    errorHandled = True
             
             if errorHandled:
                 self.parser.errok()
