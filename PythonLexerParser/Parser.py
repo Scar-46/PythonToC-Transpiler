@@ -1,6 +1,7 @@
-from TokenRules import LexingError, tokens, find_column, get_input
-from Lexer import Lexer, IndentationError
+from TokenRules import tokens
+from Lexer import Lexer
 import ply.yacc as yacc
+from common import log_error
 
 # Based on PEG grammar for Python
 # Python 3 grammar: https://docs.python.org/3/reference/grammar.html
@@ -66,12 +67,6 @@ def p_compound_stmt(p):
                      | while_stmt
     """
 
-# def p_reserved_keyword_usage_error(p):
-#     """reserved_keyword_usage_error : reserved_keyword error NEWLINE
-#     """
-#     print("Reseved keyword usage error")
-#     raise SyntaxError(f"Invalid use of reserved keyword '{p.value}'", p)
-
 # REDESERVED KEYWORDS
 # ================================================
 # s
@@ -86,6 +81,7 @@ def p_assignment(p):
 def p_target_chain(p):
     """target_chain : target_chain ASSIGNMENT targets
                     | targets"""
+
 # augassign
 def p_augmentation_assignment(p):
     """augmentation_assignment : ADDITION_ASSIGNMENT
@@ -101,6 +97,7 @@ def p_augmentation_assignment(p):
 #     | 'return' [star_expressions] 
 def p_return_stmt(p):
     """return_stmt : RETURN expressions
+                   | RETURN
     """
 
 def p_global_stmt(p):
@@ -183,11 +180,6 @@ def p_while_stmt(p):
 def p_for_stmt(p):
     """for_stmt : FOR targets IN expressions COLON block
     """
-
-def p_for_stmt_error(p):
-    """for_stmt_error : FOR error COLON block
-    """
-    print("invalid for")
 
 # EXPRESSIONS
 # ===================
@@ -309,8 +301,6 @@ def p_primary(p):
     """
 
 # slices:
-#     | slice !',' 
-#     | ','.(slice | starred_expression)+ [',']
 def p_slices(p):
     """slices : slices COMMA slice
               | slice
@@ -371,13 +361,11 @@ def p_strings(p):
 
 # LIST, TUPLE, SET, AND DICTIONARY
 # =======================
-# '[' [star_named_expressions] ']' 
 def p_list(p):
     """list : L_SQB expressions R_SQB
             | L_SQB R_SQB
     """
 
-# | '(' [star_named_expression ',' [star_named_expressions]  ] ')' 
 def p_tuple(p):
     """tuple : L_PARENTHESIS expression COMMA expressions R_PARENTHESIS
              | L_PARENTHESIS expression COMMA R_PARENTHESIS
@@ -441,53 +429,26 @@ def p_empty(p):
 
 # ========================= END OF THE GRAMMAR ===========================
 
-def p_error(p):
-    if p:
-        error_msg = f"Syntax Error near '{p.value if p.value else p.type}' in line {p.lineno}"
-        # raise SyntaxError(error_msg)
+def p_error(token):
+    if token:
+        error_msg = f"Syntax Error near '{token.value if token.value else token.type}'"
     else:
-        # raise SyntaxError("Syntax error at EOF")
-        pass
+        error_msg = "Syntax error at EOF"
+    log_error(message=error_msg, type="syntax", token=token)
     
 class Parser(object):
-    def __init__(self, lexer=None, error_logger=None):
+    def __init__(self, lexer=None):
         if lexer is None:
-            lexer = Lexer(error_logger == None)
-        self.lexer = lexer
-        self.error_logger = error_logger
-        self.parser = yacc.yacc(start="file", debug=True)
+            lexer = Lexer()
+        self._lexer = lexer
+        self._parser = yacc.yacc(start="file", debug=True, errorlog=yacc.NullLogger())
 
     def parse(self, code):
         result = None
         try:
-            self.lexer.input(code)
-            result = self.parser.parse(lexer=self.lexer, debug=True)
-        except LexingError as e:
-            if not self.error_logger:
-                raise e
-            else:
-               self.build_error(e, "lexing")
-        except (IndentationError, SyntaxError) as e:
-            if not self.error_logger:
-                raise e
-            else:
-               self.build_error(e, "syntax")
+            self._lexer.input(code)
+            result = self._parser.parse(lexer=self._lexer, debug=False)
         except Exception as e:
-            if not self.error_logger:
-                raise e
-            else:
-               self.build_error(e, "error")
+            # TODO: This should be unreachable
+            print("Error: ", e)
         return result
-
-    def build_error(self, error: Exception, error_type: str):
-        if len(error.args) < 2:
-            print(error)
-            return
-        token = error.args[1]
-        self.error_logger.log_error(
-            error.args[0],
-            token.lineno + 1,
-            find_column(token.lexer.lexdata, token),
-            get_input(token.lexer.lexdata, token),
-            error_type
-        )

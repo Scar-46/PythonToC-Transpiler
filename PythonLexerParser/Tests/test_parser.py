@@ -3,6 +3,7 @@ sys.path.insert(0, 'PythonLexerParser')
 
 import pytest
 from Parser import Parser
+from ErrorLogger import LOGGER
 
 def read_file(file_name):
     try:
@@ -25,9 +26,8 @@ def parse_code(parser, code):
 # The parser should allow empty strings
 def test_empty_input(parser):
     code = ''
-    with pytest.raises(SyntaxError, match="Syntax error at EOF"):
-        parser.parse(code) 
-
+    parse_code(parser, code)
+    assert LOGGER.error_count() > 0
 
 # Function call statement with newline at the end
 def test_input_with_newline(parser):
@@ -44,8 +44,8 @@ def test_input_without_newline(parser):
 # Invalid function call statement
 def test_invalid_input(parser):
     code = 'print("Hello"'
-    with pytest.raises(SyntaxError):
-        parser.parse(code)
+    parse_code(parser, code)
+    assert LOGGER.error_count() > 0
 
 # Invalid function call statement
 def test_newline_input(parser):
@@ -65,6 +65,6 @@ def test_target_list_in_for(parser):
 
 # Test case for reading from a file
 def test_read_file(parser):
-    code = read_file("Tests/sample.py")
+    code = read_file("PythonLexerParser/Tests/sample.py")
     result = parse_code(parser, code)
     assert result is None

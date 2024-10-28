@@ -1,6 +1,7 @@
 # module: TokenRules.py
 # Lexing rule definitions
 
+from common import log_error
 # ------------ Lexemes and patterns ------------
 # Fixed-size reserved keywords
 keywords = {
@@ -220,23 +221,6 @@ def t_WHITESPACE(t):
     r'[ \t\f]+'
     return t
 
-# May want to log errors on errorlist to give them formatting.
-class LexingError(Exception):
-    pass
-
-# Compute column.
-def find_column(input, token):
-    line_start = input.rfind('\n', 0, token.lexpos) + 1
-    return (token.lexpos - line_start) + 1
-
-def get_input(input, token):
-    line_start = input.rfind('\n', 0, token.lexpos) + 1
-    line_end = input.find('\n', token.lexpos)
-    if line_end == -1:
-        line_end = len(input)
-    
-    return input[line_start:line_end]
-
 def t_error(t):
+    log_error(f"unrecognized sequence '{t.value}'", "lexing", token=t)
     t.lexer.skip(1)
-    raise LexingError("unrecognized sequence", t)
