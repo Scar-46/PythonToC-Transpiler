@@ -309,7 +309,6 @@ def p_power(p):
 # primary:
 def p_primary(p):
     """primary : primary L_PARENTHESIS arguments R_PARENTHESIS
-               | L_PARENTHESIS expression R_PARENTHESIS
                | primary L_PARENTHESIS R_PARENTHESIS
                | primary L_SQB slices R_SQB
                | primary DOT IDENTIFIER
@@ -346,6 +345,7 @@ def p_atomic(p):
               | strings
               | number
               | tuple
+              | group
               | list
               | dict
               | set
@@ -386,6 +386,10 @@ def p_tuple(p):
     """tuple : L_PARENTHESIS expression COMMA expressions R_PARENTHESIS
              | L_PARENTHESIS expression COMMA R_PARENTHESIS
              | L_PARENTHESIS R_PARENTHESIS
+    """
+
+def p_group(p):
+    """group : L_PARENTHESIS expression R_PARENTHESIS
     """
 
 def p_set(p):
