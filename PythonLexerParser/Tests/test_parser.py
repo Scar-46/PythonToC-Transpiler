@@ -3,7 +3,7 @@ sys.path.insert(0, 'PythonLexerParser')
 
 import pytest
 from Parser import Parser
-from ErrorLogger import LOGGER
+from common import error_logger
 
 def read_file(file_name):
     try:
@@ -27,7 +27,7 @@ def parse_code(parser, code):
 def test_empty_input(parser):
     code = ''
     parse_code(parser, code)
-    assert LOGGER.error_count() > 0
+    assert error_logger.error_count() > 0
 
 # Function call statement with newline at the end
 def test_input_with_newline(parser):
@@ -45,7 +45,7 @@ def test_input_without_newline(parser):
 def test_invalid_input(parser):
     code = 'print("Hello"'
     parse_code(parser, code)
-    assert LOGGER.error_count() > 0
+    assert error_logger.error_count() > 0
 
 # Invalid function call statement
 def test_newline_input(parser):

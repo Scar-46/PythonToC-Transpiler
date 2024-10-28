@@ -53,6 +53,3 @@ class ErrorLogger:
             console.print("    " + " " * (column - 1) + "^")
         error_count = len(self.errors)
         console.print(f"[red bold]error[/]: could not transpile '{filename}' due to {error_count} previous error{"s" if error_count > 1 else ""}")
-
-# Global logger instance
-LOGGER = ErrorLogger()

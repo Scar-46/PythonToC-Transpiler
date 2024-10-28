@@ -1,4 +1,7 @@
-from ErrorLogger import LOGGER
+from ErrorLogger import ErrorLogger
+
+# GLOBAL instance
+error_logger = ErrorLogger()
 
 # Compute column.
 def find_column(input, token):
@@ -18,7 +21,7 @@ def log_error(message: str, type: str, token=None):
             lexer = token.lexer.lexer
         except AttributeError:
             lexer = token.lexer
-        LOGGER.log_error(
+        error_logger.log_error(
             message=message,
             line=token.lineno + 1,
             column=find_column(lexer.lexdata, token),
@@ -26,7 +29,7 @@ def log_error(message: str, type: str, token=None):
             error_type=type
         )
     else:
-        LOGGER.log_error(
+        error_logger.log_error(
             message=message,
             error_type=type
         )

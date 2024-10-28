@@ -91,7 +91,7 @@ def p_compound_stmt(p):
 
 # TODO: Target_chain eats up more expressions than it should, since it uses primary instead of target_primary!!
 def p_assignment(p):
-    """assignment : target_chain augmentation_assignment expressions
+    """assignment : targets augmentation_assignment expressions
                   | target_chain ASSIGNMENT expressions
     """
 def p_target_chain(p):
@@ -414,7 +414,7 @@ def p_kvpair_list(p):
 # ASSIGNMENT TARGETS
 # ==================
 def p_targets(p):
-    """targets : primary COMMA targets
+    """targets : targets COMMA primary
                | primary
     """
 
