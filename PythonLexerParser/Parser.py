@@ -6,10 +6,26 @@ from common import log_error
 # Based on PEG grammar for Python
 # Python 3 grammar: https://docs.python.org/3/reference/grammar.html
 
-# precedence = (
-#     ('left', 'PLUS', 'MINUS'),
-#     ('left', 'TIMES', 'DIVIDE'),
-# )
+precedence = (
+    # Lowest precedence
+    ('left', 'OR'),
+    ('left', 'AND'),
+    ('left', 'NOT'),
+
+    ('left', 'LESSER', 'LESSER_EQUAL', 'GREATER', 'GREATER_EQUAL', 'EQUALITY', 'NOT'),
+
+    ('left', 'PIPE'),               # Bitwise OR: |
+    ('left', 'CARET'),              # Bitwise XOR: ^
+    ('left', 'AMPERSAND'),          # Bitwise AND: &
+
+    ('left', 'PLUS', 'MINUS'),
+
+    ('left', 'STAR', 'SLASH', 'PERCENT', 'DOUBLE_SLASH'),
+
+    ('right', 'DOUBLE_STAR'),
+
+    ('left', 'L_PARENTHESIS', 'L_SQB', 'DOT'),
+)
 
 # STARTING RULES
 # ==============
