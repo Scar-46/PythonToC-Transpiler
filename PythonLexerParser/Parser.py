@@ -1,6 +1,7 @@
-from TokenRules import LexingError, tokens, find_column, get_input
-from Lexer import Lexer, IndentationError
+from TokenRules import tokens
+from Lexer import Lexer
 import ply.yacc as yacc
+from common import log_error
 
 # Based on PEG grammar for Python
 # Python 3 grammar: https://docs.python.org/3/reference/grammar.html
@@ -17,14 +18,20 @@ precedence = (
     ('left', 'CARET'),              # Bitwise XOR: ^
     ('left', 'AMPERSAND'),          # Bitwise AND: &
 
-    ('left', 'PLUS', 'MINUS'),
+    ('left', 'PLUS', 'MINUS',
+     'ADDITION_ASSIGNMENT', 'SUBTRACTION_ASSIGNMENT'),
 
-    ('left', 'STAR', 'SLASH', 'PERCENT', 'DOUBLE_SLASH'),
+    ('left', 'STAR', 'SLASH', 'PERCENT', 'DOUBLE_SLASH',
+     'MULTIPLICATION_ASSIGNMENT', 'DIVISION_ASSIGNMENT', 'MODULO_ASSIGNMENT', 'FLOOR_DIVISION_ASSIGNMENT'),
+    
 
-    ('right', 'DOUBLE_STAR'),
+    ('right', 'DOUBLE_STAR', 'EXPONENTIATION_ASSIGNMENT'),
 
     ('left', 'L_PARENTHESIS', 'L_SQB', 'DOT'),
+
+    ('right', 'ASSIGNMENT')
 )
+
 
 # STARTING RULES
 # ==============
@@ -82,17 +89,19 @@ def p_compound_stmt(p):
                      | while_stmt
     """
 
+# REDESERVED KEYWORDS
+# ================================================
+# s
 # SIMPLE STATEMENTS
 # =================
 
 # TODO: Target_chain eats up more expressions than it should, since it uses primary instead of target_primary!!
 def p_assignment(p):
-    """assignment : target_chain augmentation_assignment expressions
-                  | target_chain ASSIGNMENT expressions
+    """assignment : L_PARENTHESIS single_target R_PARENTHESIS ASSIGNMENT expressions
+                  | single_target augmentation_assignment expressions
+                  | target_assignment_chain expressions
     """
-def p_target_chain(p):
-    """target_chain : target_chain ASSIGNMENT targets
-                    | targets"""
+
 # augassign
 def p_augmentation_assignment(p):
     """augmentation_assignment : ADDITION_ASSIGNMENT
@@ -108,6 +117,7 @@ def p_augmentation_assignment(p):
 #     | 'return' [star_expressions] 
 def p_return_stmt(p):
     """return_stmt : RETURN expressions
+                   | RETURN
     """
 
 def p_global_stmt(p):
@@ -303,7 +313,6 @@ def p_power(p):
 # primary:
 def p_primary(p):
     """primary : primary L_PARENTHESIS arguments R_PARENTHESIS
-               | L_PARENTHESIS expression R_PARENTHESIS
                | primary L_PARENTHESIS R_PARENTHESIS
                | primary L_SQB slices R_SQB
                | primary DOT IDENTIFIER
@@ -311,8 +320,6 @@ def p_primary(p):
     """
 
 # slices:
-#     | slice !',' 
-#     | ','.(slice | starred_expression)+ [',']
 def p_slices(p):
     """slices : slices COMMA slice
               | slice
@@ -342,6 +349,7 @@ def p_atomic(p):
               | strings
               | number
               | tuple
+              | group
               | list
               | dict
               | set
@@ -373,17 +381,19 @@ def p_strings(p):
 
 # LIST, TUPLE, SET, AND DICTIONARY
 # =======================
-# '[' [star_named_expressions] ']' 
 def p_list(p):
     """list : L_SQB expressions R_SQB
             | L_SQB R_SQB
     """
 
-# | '(' [star_named_expression ',' [star_named_expressions]  ] ')' 
 def p_tuple(p):
     """tuple : L_PARENTHESIS expression COMMA expressions R_PARENTHESIS
              | L_PARENTHESIS expression COMMA R_PARENTHESIS
              | L_PARENTHESIS R_PARENTHESIS
+    """
+
+def p_group(p):
+    """group : L_PARENTHESIS expression R_PARENTHESIS
     """
 
 def p_set(p):
@@ -411,11 +421,6 @@ def p_kvpair_list(p):
     """
 # ASSIGNMENT TARGETS
 # ==================
-def p_targets(p):
-    """targets : primary COMMA targets
-               | primary
-    """
-
 # TODO: THIS SHOULD BE CHANGED, because implementations as asked for in python does not work properly!!
 def p_target(p):
     """target : target_primary DOT IDENTIFIER
@@ -423,18 +428,41 @@ def p_target(p):
               | target_atomic
     """
 
-def p_target_primary(p):
-    """target_primary : target_primary DOT IDENTIFIER
-                      | target_primary L_SQB slices R_SQB
-                      | target_primary L_PARENTHESIS R_PARENTHESIS
-                      | target_primary L_PARENTHESIS arguments R_PARENTHESIS
-                      | target_atomic
+def p_single_target(p):
+    """single_target : single_subscript_attribute_target
+                     | L_PARENTHESIS single_target R_PARENTHESIS
+                     | IDENTIFIER
     """
 
+def p_single_subscript_attribute_target(p):
+    """single_subscript_attribute_target : target_primary DOT IDENTIFIER
+                                         | target_primary L_SQB slices R_SQB
+    """
+
+def p_targets(p):
+    """targets : targets COMMA target
+               | target
+    """
+
+def p_target_assignment_chain(p):
+    """target_assignment_chain : target_assignment_chain single_target ASSIGNMENT
+                               | single_target ASSIGNMENT"""
+
+# According to python's grammar, this should be a primary with a lookahead after.
+def p_target_primary(p):
+    """target_primary : primary
+    """
+
+def p_target_tuple_seq(p):
+    """target_tuple_seq : target_tuple_seq target
+                        | target COMMA"""
+
 def p_target_atomic(p):
-    """target_atomic : IDENTIFIER
-                     | L_SQB target_primary R_SQB
-                     | L_PARENTHESIS targets R_PARENTHESIS
+    """target_atomic : L_PARENTHESIS targets R_PARENTHESIS
+                     | L_SQB target_tuple_seq R_SQB
+                     | L_PARENTHESIS R_PARENTHESIS
+                     | L_SQB R_SQB
+                     | IDENTIFIER
     """
     
 def p_empty(p):
@@ -443,50 +471,26 @@ def p_empty(p):
 
 # ========================= END OF THE GRAMMAR ===========================
 
-def p_error(p):
-    if p:
-        error_msg = f"Syntax Error near '{p.value if p.value else p.type}' in line {p.lineno}"
-        raise SyntaxError(error_msg)
+def p_error(token):
+    if token:
+        error_msg = f"Syntax Error near '{token.value if token.value else token.type}'"
     else:
-        raise SyntaxError("Syntax error at EOF")
+        error_msg = "Syntax error at EOF"
+    log_error(message=error_msg, type="syntax", token=token)
     
 class Parser(object):
-    def __init__(self, lexer=None, error_logger=None):
+    def __init__(self, lexer=None):
         if lexer is None:
-            lexer = Lexer(error_logger == None)
-        self.lexer = lexer
-        self.error_logger = error_logger
-        self.parser = yacc.yacc(start="file", debug=True)
+            lexer = Lexer()
+        self._lexer = lexer
+        self._parser = yacc.yacc(start="file", debug=True, errorlog=yacc.NullLogger())
 
     def parse(self, code):
         result = None
         try:
-            self.lexer.input(code)
-            result = self.parser.parse(lexer=self.lexer, debug=True)
-        except LexingError as e:
-            if not self.error_logger:
-                raise e
-            else:
-               self.build_error(e, "lexing")
-        except (IndentationError, SyntaxError) as e:
-            if not self.error_logger:
-                raise e
-            else:
-               self.build_error(e, "syntax")
+            self._lexer.input(code)
+            result = self._parser.parse(lexer=self._lexer, debug=True)
         except Exception as e:
-            if not self.error_logger:
-                raise e
-            else:
-               self.build_error(e, "error")
+            # TODO: This should be unreachable
+            print("Error: ", e)
         return result
-
-    def build_error(self, error: Exception, error_type: str):
-        assert len(error.args) > 1
-        token = error.args[1]
-        self.error_logger.log_error(
-            error.args[0],
-            token.lineno + 1,
-            find_column(token.lexer.lexdata, token),
-            get_input(token.lexer.lexdata, token),
-            error_type
-        )

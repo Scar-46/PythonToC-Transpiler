@@ -1,6 +1,7 @@
 import re
 import TokenRules
 import ply.lex as lex
+from common import log_error
 
 # Errors
 errorList = []
@@ -45,9 +46,6 @@ def identifyIndentations(token_stream):
                     indentation = FORBIDDEN
         yield token
 
-class IndentationError(Exception):
-    pass
-
 # Replace indentations with IDENT and DEDENT tokens for a given token stream
 def assignIndentations(token_stream, format_error=True):
     token = None
@@ -67,9 +65,9 @@ def assignIndentations(token_stream, format_error=True):
             if token.must_indent:
                 if not (scope_depth > previous_scope_depths[-1]):
                     if format_error:
-                        raise IndentationError(f"expected an indented at {token.lineno}")
+                        log_error("expected an indent", "syntax", token)
                     else:
-                        raise IndentationError("expected an indented", token)
+                        raise IndentationError(f"expected an indented at {token.lineno}")
 
                 previous_scope_depths.append(scope_depth)
                 yield INDENT(token.lineno)
@@ -77,9 +75,9 @@ def assignIndentations(token_stream, format_error=True):
             elif previous_line_start:
                 if scope_depth > previous_scope_depths[-1]:
                     if format_error:
-                        raise IndentationError(f"unexpected indentation at {token.lineno}")
+                        log_error("unexpected indentation", "syntax", token)
                     else:
-                        raise IndentationError("unexpected indentation", token)
+                        raise IndentationError(f"unexpected indentation at {token.lineno}")
 
                 elif scope_depth < previous_scope_depths[-1]:
                     try:
@@ -89,9 +87,9 @@ def assignIndentations(token_stream, format_error=True):
                             yield DEDENT(token.lineno)
                     except ValueError:
                         if format_error:
-                            raise IndentationError(f"unmatched indentation at {token.lineno}")
+                            log_error("unmatched indentation", "syntax", token)
                         else:
-                            raise IndentationError("unmatched indentation", token)
+                            raise IndentationError(f"unmatched indentation at {token.lineno}")
             yield token
 
         match token.type:
@@ -144,6 +142,14 @@ class Lexer(object):
         )
         self.format_error = format_error
 
+    @property
+    def lexer(self):
+        return self._lexer
+    
+    @lexer.setter
+    def lexer(self, value):
+        self._lexer = value
+    
     def input(self, data: str, addEndMarker=True):
         self.lexer.lineno = 0
         self.lexer.input(data)
