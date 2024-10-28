@@ -47,7 +47,7 @@ def test_invalid_input(parser: Parser):
     with pytest.raises(SyntaxError):
         parser.parse(code)
 
-# Invalid function call statement
+# Invalid trailing newline
 def test_newline_input(parser: Parser):
     code = '\n'
     result = parse_code(parser, code)

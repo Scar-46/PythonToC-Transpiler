@@ -33,11 +33,13 @@ precedence = (
 def p_file(p):
     """file : statements ENDMARKER
             | ENDMARKER
+            | file_error
     """
 
 def p_file_error(p):
-    """file : statements_error ENDMARKER
+    """file_error : statements_error ENDMARKER
     """
+    print_error("Whole-file error", p)
 
 # GENERAL STATEMENTS
 # ==================
@@ -47,27 +49,21 @@ def p_statements(p):
     """statements : statements statement
                   | statements NEWLINE
                   | statement
+                  | statements_error
     """
 
 def p_statements_error(p):
     """statements_error : statements_error statement
-                  | statements statement_error
-                  | statements_error statement_error
                   | statements_error NEWLINE
-                  | statement_error
                   | statements_error wild_error
                   | statements wild_error
     """
+    print_error("Statement list error", p)
 
 # statement: simple_stmts | compound_stmt
 def p_statement(p):
     """statement : compound_stmt
                  | simple_stmts
-    """
-
-def p_statement_error(p):
-    """statement_error : compound_stmt_error
-                 | simple_stmts_error
     """
 
 # simple_stmts:
@@ -78,14 +74,6 @@ def p_simple_stmts(p):
     """simple_stmts : simple_stmts SEMICOLON simple_stmt NEWLINE
                     | simple_stmt NEWLINE
                     | simple_stmt
-    """
-
-def p_simple_stmts_error(p):
-    """simple_stmts_error : simple_stmts_error SEMICOLON simple_stmt NEWLINE
-                    | simple_stmts SEMICOLON simple_stmt_error NEWLINE
-                    | simple_stmts_error SEMICOLON simple_stmt_error NEWLINE
-                    | simple_stmt_error NEWLINE
-                    | simple_stmt_error
     """
 
 # REMOVED: Assert_stmt
@@ -101,14 +89,6 @@ def p_simple_stmt(p):
                    | global_stmt
     """
 
-def p_simple_stmt_error(p):
-    """simple_stmt_error : assignment_error
-                   | expressions_error
-                   | return_stmt_error
-                   | del_stmt_error
-                   | global_stmt_error
-    """
-
 def p_compound_stmt(p):
     """compound_stmt : function_def
                      | if_stmt
@@ -117,18 +97,10 @@ def p_compound_stmt(p):
                      | while_stmt
     """
 
-def p_compound_stmt_error(p):
-    """compound_stmt_error : function_def_error
-                     | if_stmt_error
-                     | class_def_error
-                     | for_stmt_error
-                     | while_stmt_error
-    """
-
 # def p_reserved_keyword_usage_error(p):
 #     """reserved_keyword_usage_error : reserved_keyword error NEWLINE
 #     """
-#     print("Reseved keyword usage error")
+#     print_error("Reseved keyword usage error")
 #     raise SyntaxError(f"Invalid use of reserved keyword '{p.value}'", p)
 
 # REDESERVED KEYWORDS
@@ -141,6 +113,7 @@ def p_compound_stmt_error(p):
 def p_assignment(p):
     """assignment : target_chain augmentation_assignment expressions
                   | target_chain ASSIGNMENT expressions
+                  | assignment_error
     """
 
 def p_assignment_error(p):
@@ -155,20 +128,22 @@ def p_assignment_error(p):
                   | target_chain_error ASSIGNMENT wild_error
                   | target_chain ASSIGNMENT wild_error
     """
+    print_error("Assignment error", p)
 
 def p_target_chain(p):
     """target_chain : target_chain ASSIGNMENT targets
                     | targets
+                    | target_chain_error
     """
 
 def p_target_chain_error(p):
     """target_chain_error : target_chain_error ASSIGNMENT targets
                     | target_chain ASSIGNMENT targets_error
                     | target_chain_error ASSIGNMENT targets_error
-                    | targets_error
                     | target_chain_error ASSIGNMENT wild_error
                     | target_chain ASSIGNMENT wild_error
     """
+    print_error("Target-chain error", p)
 
 # augassign
 def p_augmentation_assignment(p):
@@ -185,40 +160,48 @@ def p_augmentation_assignment(p):
 #     | 'return' [star_expressions] 
 def p_return_stmt(p):
     """return_stmt : RETURN expressions
+                | return_stmt_error
     """
 
 def p_return_stmt_error(p):
     """return_stmt_error : RETURN expressions_error
                 | RETURN wild_error
     """
+    print_error("RETURN-statement error", p)
 
 def p_global_stmt(p):
     """global_stmt : GLOBAL namelist
+                | global_stmt_error
     """
 
 def p_global_stmt_error(p):
     """global_stmt_error : GLOBAL namelist_error
                 | GLOBAL wild_error
     """
+    print_error("GLOBAL-statement error", p)
 
 def p_del_stmt(p):
     """del_stmt : DEL namelist
+                | del_stmt_error
     """
 
 def p_del_stmt_error(p):
     """del_stmt_error : DEL namelist_error
                 | DEL wild_error
     """
+    print_error("DEL-statement error", p)
 
 def p_namelist(p):
     """namelist : namelist COMMA IDENTIFIER
                 | IDENTIFIER
+                | namelist_error
     """
 
 # TODO: Check correctness
 def p_namelist_error(p):
     """namelist_error : wild_error COMMA IDENTIFIER
     """
+    print_error("Name-list error", p)
 
 # COMPOUND STATEMENTS
 # ===================
@@ -228,12 +211,13 @@ def p_namelist_error(p):
 def p_block(p):
     """block : NEWLINE INDENT statements DEDENT
              | simple_stmts
+             | block_error
     """
 
 def p_block_error(p):
     """block_error : NEWLINE INDENT statements_error DEDENT
-             | simple_stmts_error
     """
+    print_error("Statement-block error", p)
 
 # Class definitions
 # -----------------
@@ -241,25 +225,25 @@ def p_class_def(p):
     """class_def : CLASS IDENTIFIER L_PARENTHESIS argument R_PARENTHESIS COLON block  
                  | CLASS IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block
                  | CLASS IDENTIFIER COLON block
+                 | class_def_error
     """
 
 def p_class_def_error(p):
-    """class_def_error : CLASS IDENTIFIER L_PARENTHESIS argument_error R_PARENTHESIS COLON block
-                 | CLASS IDENTIFIER L_PARENTHESIS argument R_PARENTHESIS COLON block_error  
-                 | CLASS IDENTIFIER L_PARENTHESIS argument_error R_PARENTHESIS COLON block_error  
+    """class_def_error : CLASS IDENTIFIER L_PARENTHESIS argument R_PARENTHESIS COLON block_error  
                  | CLASS IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block_error
                  | CLASS IDENTIFIER COLON block_error
-                 | CLASS IDENTIFIER L_PARENTHESIS argument_error R_PARENTHESIS COLON wild_error
                  | CLASS IDENTIFIER L_PARENTHESIS argument R_PARENTHESIS COLON wild_error  
                  | CLASS IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON wild_error
                  | CLASS IDENTIFIER COLON wild_error
                  | CLASS IDENTIFIER wild_error
                  | CLASS wild_error
     """
+    print_error("Class definition error", p)
 
 def p_function_def(p):
     """function_def : DEF IDENTIFIER L_PARENTHESIS parameters R_PARENTHESIS COLON block
                     | DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block
+                    | function_def_error
     """
 
 def p_function_def_error(p):
@@ -273,6 +257,7 @@ def p_function_def_error(p):
                     | DEF IDENTIFIER wild_error
                     | DEF wild_error
     """
+    print_error("Function definition error", p)
 
 # parameters:
 #     | slash_no_default param_no_default* param_with_default* [star_etc] 
@@ -285,18 +270,21 @@ def p_function_def_error(p):
 def p_parameters(p):
     """parameters : parameters COMMA IDENTIFIER
                   | IDENTIFIER
+                  | parameters_error
     """
 
 def p_parameters_error(p):
     """parameters_error : parameters_error COMMA IDENTIFIER
                   | IDENTIFIER
     """
+    print_error("Parameter list error", p)
 
 # If statement
 def p_if_stmt(p):
     """if_stmt : IF expression COLON block elif_stmt
                | IF expression COLON block else_block
                | IF expression COLON block
+               | if_stmt_error
     """
 
 def p_if_stmt_error(p):
@@ -324,12 +312,14 @@ def p_if_stmt_error(p):
                  | IF expression_error COLON wild_error
                  | IF expression COLON wild_error
     """
+    print_error("If-statement error", p)
 
 # elif_stmt:
 def p_elif_stmt(p):
     """elif_stmt : ELIF expression COLON block elif_stmt
                  | ELIF expression COLON block else_block
                  | ELIF expression COLON block
+                 | elif_stmt_error
     """
 
 def p_elif_stmt_error(p):
@@ -357,6 +347,7 @@ def p_elif_stmt_error(p):
                  | ELIF expression_error COLON wild_error
                  | ELIF expression COLON wild_error
     """
+    print_error("Else-if statement error", p)
 
 def p_else_block(p):
     """else_block : ELSE COLON block
@@ -364,27 +355,31 @@ def p_else_block(p):
 
 def p_else_block_error(p):
     """else_block_error : ELSE COLON block_error
-                   | ELSE COLON wild_error
+                  | ELSE COLON wild_error
     """
+    print_error("Else-block error", p)
 
 # while_stmt:
 def p_while_stmt(p):
     """while_stmt : WHILE expression COLON block
+                  | while_stmt_error
     """
 
 def p_while_stmt_error(p):
     """while_stmt_error : WHILE expression_error COLON block
-                   | WHILE expression COLON block_error
-                   | WHILE expression_error COLON block_error
-                   | WHILE expression_error COLON wild_error
-                   | WHILE expression COLON wild_error
+                  | WHILE expression COLON block_error
+                  | WHILE expression_error COLON block_error
+                  | WHILE expression_error COLON wild_error
+                  | WHILE expression COLON wild_error
     """
+    print_error("While-loop error", p)
 
 # for_stmt:
 #     | 'for' star_targets 'in' ~ star_expressions
 # TODO: Add Range() function, and fix the IDENTIFIER, and expresions.
 def p_for_stmt(p):
     """for_stmt : FOR targets IN expressions COLON block
+                   | for_stmt_error
     """
 
 def p_for_stmt_error(p):
@@ -400,27 +395,29 @@ def p_for_stmt_error(p):
                    | FOR targets IN expressions_error COLON wild_error
                    | FOR targets IN expressions COLON wild_error
     """
-    # print("invalid for")
+    print_error("For-loop error", p)
 
 # EXPRESSIONS
 # ===================
 def p_expressions(p):
     """expressions : expressions COMMA expression
                    | expression
+                   | expressions_error
     """
 
 def p_expressions_error(p):
     """expressions_error : expressions_error COMMA expression
                    | expressions COMMA expression_error
                    | expressions_error COMMA expression_error
-                   | expression_error
                    | expressions_error COMMA wild_error
                    | expressions COMMA wild_error
     """
+    print_error("Expressions error", p)
 
 def p_expression(p):
     """expression : disjunction IF disjunction ELSE expression
                   | disjunction
+                  | expression_error
     """
 
 def p_expression_error(p):
@@ -431,30 +428,32 @@ def p_expression_error(p):
                   | disjunction IF disjunction_error ELSE expression_error
                   | disjunction_error IF disjunction ELSE expression_error
                   | disjunction IF disjunction ELSE expression_error
-                  | disjunction_error
                   | disjunction_error IF disjunction ELSE wild_error
                   | disjunction_error IF disjunction_error ELSE wild_error
                   | disjunction IF disjunction_error ELSE wild_error
                   | disjunction IF disjunction ELSE wild_error
     """
+    print_error("Expression error", p)
 
 def p_disjunction(p):
     """disjunction : disjunction OR conjunction
                    | conjunction 
+                   | disjunction_error
     """
 
 def p_disjunction_error(p):
     """disjunction_error : disjunction_error OR conjunction
                    | disjunction OR conjunction_error
                    | disjunction_error OR conjunction_error
-                   | conjunction_error
                    | disjunction_error OR wild_error
                    | disjunction OR wild_error
     """
+    print_error("Disjunction expression error", p)
 
 def p_conjunction(p):
     """conjunction : conjunction AND inversion
                    | inversion
+                   | conjunction_error
     """
 
 def p_conjunction_error(p):
@@ -463,19 +462,20 @@ def p_conjunction_error(p):
                    | conjunction_error AND inversion_error
                    | conjunction_error AND wild_error
                    | conjunction AND wild_error
-                   | inversion_error
     """
+    print_error("Conjunction expression error", p)
 
 def p_inversion(p):
     """inversion : NOT inversion 
                  | comparison
+                 | inversion_error
     """
 
 def p_inversion_error(p):
     """inversion_error : NOT inversion_error 
-                 | comparison_error
                  | NOT wild_error
     """
+    print_error("Inversion expression error", p)
 
 # COMPARISON OPERATORS
 # =======================
@@ -483,30 +483,32 @@ def p_inversion_error(p):
 def p_comparison(p):
     """comparison : bitwise_or compare_op_list
                   | bitwise_or
+                  | comparison_error
     """
 
 def p_comparison_error(p):
     """comparison_error : bitwise_or_error compare_op_list
                   | bitwise_or compare_op_list_error
                   | bitwise_or_error compare_op_list_error
-                  | bitwise_or_error
                   | bitwise_or_error wild_error
                   | bitwise_or wild_error
     """
+    print_error("Comparison error", p)
 
 def p_compare_op_list(p):
     """compare_op_list : compare_op_list compare_op
                        | compare_op 
+                       | compare_op_list_error
     """
 
 def p_compare_op_list_error(p):
     """compare_op_list_error : compare_op_list_error compare_op
                        | compare_op_list compare_op_error
                        | compare_op_list_error compare_op_error
-                       | compare_op_error
                        | compare_op_list_error wild_error
                        | compare_op_list wild_error
     """
+    print_error("Comparison expressions error", p)
 
 #NOTE: This can be changed
 def p_compare_op(p):
@@ -520,6 +522,7 @@ def p_compare_op(p):
                   | IS NOT bitwise_or 
                   | IN bitwise_or 
                   | IS bitwise_or 
+                  | compare_op_error
     """
 
 def p_compare_op_error(p):
@@ -544,6 +547,7 @@ def p_compare_op_error(p):
                   | IN wild_error
                   | IS wild_error
     """
+    print_error("Comparison expression error", p)
 
 # BITWISE OPERATORS
 # =======================
@@ -551,62 +555,66 @@ def p_compare_op_error(p):
 def p_bitwise_or(p):
     """bitwise_or : bitwise_or PIPE bitwise_xor 
                   | bitwise_xor 
+                  | bitwise_or_error
     """
 
 def p_bitwise_or_error(p):
     """bitwise_or_error : bitwise_or_error PIPE bitwise_xor
                   | bitwise_or PIPE bitwise_xor_error
                   | bitwise_or_error PIPE bitwise_xor_error 
-                  | bitwise_xor_error
                   | bitwise_or_error PIPE wild_error
-                  | bitwise_or PIPE wild_error
+                  | bitwise_or PIPE wild_error           
                   
     """
+    print_error("Bitwise XOR expression error", p)
 
 #TODO: XOR is not available in the tokens, should be added
 def p_bitwise_xor(p):
     """bitwise_xor : bitwise_xor CARET bitwise_and 
                    | bitwise_and
+                   | bitwise_xor_error
     """
 
 def p_bitwise_xor_error(p):
     """bitwise_xor_error : bitwise_xor_error CARET bitwise_and
                    | bitwise_xor CARET bitwise_and_error 
                    | bitwise_xor_error CARET bitwise_and_error
-                   | bitwise_and_error
                    | bitwise_xor_error CARET wild_error
                    | bitwise_xor CARET wild_error
     """
+    print_error("Bitwise XOR expression error", p)
 
 def p_bitwise_and(p):
     """bitwise_and : bitwise_and AMPERSAND shift_expr 
                    | shift_expr
+                   | bitwise_and_error
     """
 
 def p_bitwise_and_error(p):
     """bitwise_and_error : bitwise_and_error AMPERSAND shift_expr
                    | bitwise_and AMPERSAND shift_expr_error
                    | bitwise_and_error AMPERSAND shift_expr_error 
-                   | shift_expr_error
                    | bitwise_and_error AMPERSAND wild_error
                    | bitwise_and AMPERSAND wild_error
     """
+    print_error("Bitwise AND expression error", p)
 
 def p_shift_expr(p):
     """shift_expr : shift_expr L_SHIFT sum
                   | shift_expr R_SHIFT sum
                   | sum
+                  | shift_expr_error
     """
 
 def p_shift_expr_error(p):
     """shift_expr_error : shift_expr_error L_SHIFT sum
                   | shift_expr L_SHIFT sum_error
                   | shift_expr_error R_SHIFT sum_error
-                  | sum_error
                   | shift_expr_error L_SHIFT wild_error
                   | shift_expr L_SHIFT wild_error
                   | shift_expr_error R_SHIFT wild_error
     """
+    print_error("Shift expression error", p)
 
 # ARITHMETIC OPERATORS
 # =======================
@@ -614,6 +622,7 @@ def p_sum(p):
     """sum : sum PLUS term
            | sum MINUS term
            | term
+           | sum_error
     """
 
 def p_sum_error(p):
@@ -623,12 +632,12 @@ def p_sum_error(p):
            | sum_error MINUS term
            | sum MINUS term_error
            | sum_error MINUS term_error
-           | term_error
            | sum_error PLUS wild_error
            | sum PLUS wild_error
            | sum_error MINUS wild_error
            | sum MINUS wild_error
     """
+    print_error("Sum expression error", p)
 
 def p_term(p):
     """term : term STAR factor 
@@ -636,6 +645,7 @@ def p_term(p):
             | term DOUBLE_SLASH factor 
             | term PERCENT factor
             | factor
+            | term_error
     """
 
 def p_term_error(p):
@@ -651,7 +661,6 @@ def p_term_error(p):
             | term_error PERCENT factor
             | term PERCENT factor_error
             | term_error PERCENT factor_error
-            | factor_error
             | term_error STAR wild_error
             | term STAR wild_error
             | term_error SLASH wild_error
@@ -661,34 +670,37 @@ def p_term_error(p):
             | term_error PERCENT wild_error
             | term PERCENT wild_error
     """
+    print_error("Term expression error", p)
 
 def p_factor(p):
     """factor : PLUS factor 
               | MINUS factor 
               | power
+              | factor_error
     """
 
 def p_factor_error(p):
     """factor_error : PLUS factor_error 
               | MINUS factor_error
-              | power_error
               | PLUS wild_error 
               | MINUS wild_error
     """
+    print_error("Factor expression error", p)
 
 def p_power(p):
     """power : primary DOUBLE_STAR factor
              | primary
+             | power_error
     """
 
 def p_power_error(p):
     """power_error : primary_error DOUBLE_STAR factor
              | primary DOUBLE_STAR factor_error
              | primary_error DOUBLE_STAR factor_error
-             | primary_error
              | primary_error DOUBLE_STAR wild_error
              | primary DOUBLE_STAR wild_error
     """
+    print_error("Power expression error", p)
 
 # PRIMARY ELEMENTS
 # =======================
@@ -701,23 +713,22 @@ def p_primary(p):
                | primary L_SQB slices R_SQB
                | primary DOT IDENTIFIER
                | atomic
+               | primary_error
     """
 
 def p_primary_error(p):
     """primary_error : primary_error L_PARENTHESIS arguments R_PARENTHESIS
-               | primary L_PARENTHESIS arguments_error R_PARENTHESIS
-               | primary_error L_PARENTHESIS arguments_error R_PARENTHESIS
                | L_PARENTHESIS expression_error R_PARENTHESIS
                | primary_error L_PARENTHESIS R_PARENTHESIS
                | primary_error L_SQB slices R_SQB
                | primary L_SQB slices_error R_SQB
                | primary_error L_SQB slices_error R_SQB
                | primary_error DOT IDENTIFIER
-               | atomic_error
                | primary L_PARENTHESIS arguments wild_error
                | primary_error L_PARENTHESIS arguments wild_error
                | primary_error L_PARENTHESIS wild_error
     """
+    print_error("Primary expression error", p)
 
 # slices:
 #     | slice !',' 
@@ -725,16 +736,17 @@ def p_primary_error(p):
 def p_slices(p):
     """slices : slices COMMA slice
               | slice
+              | slices_error
     """
 
 def p_slices_error(p):
     """slices_error : slices_error COMMA slice
               | slices COMMA slice_error
               | slices_error COMMA slice_error
-              | slice_error
               | slices_error COMMA wild_error
               | slices COMMA wild_error
     """
+    print_error("Slices error", p)
 
 # slice:
 #     | [expression] ':' [expression] [':' [expression] ] 
@@ -750,6 +762,7 @@ def p_slice(p):
              | COLON COLON
              | expression
              | COLON
+             | slice_error
     """
 
 def p_slice_error(p):
@@ -769,7 +782,6 @@ def p_slice_error(p):
              | COLON expression_error COLON
              | COLON COLON expression_error
              | expression_error COLON COLON
-             | expression_error
              | expression_error COLON expression COLON wild_error
              | expression_error COLON expression_error COLON wild_error
              | expression COLON expression_error COLON wild_error
@@ -779,6 +791,7 @@ def p_slice_error(p):
              | expression_error COLON COLON wild_error
              | expression COLON COLON wild_error
     """
+    print_error("Slice error", p)
 
 def p_atomic(p):
     """atomic : IDENTIFIER
@@ -793,13 +806,6 @@ def p_atomic(p):
               | set
     """
 
-def p_atomic_error(p):
-    """atomic_error : tuple_error
-              | list_error
-              | dict_error
-              | set_error
-    """
-
 def p_number(p):
     """number : NUMBER
               | F_NUMBER
@@ -810,18 +816,12 @@ def p_number(p):
 # FUNCTION CALL ARGUMENTS
 # =======================
 def p_argument(p):
-    """argument : expression"""
-
-def p_argument_error(p):
-    """argument_error : expression_error"""
+    """argument : expression
+    """
 
 #TODO: Check how this should work may want to include keyword arguments
 def p_arguments(p):
     """arguments : expressions
-    """
-
-def p_arguments_error(p):
-    """arguments_error : expressions_error
     """
 
 # LITERALS
@@ -837,17 +837,20 @@ def p_strings(p):
 def p_list(p):
     """list : L_SQB expressions R_SQB
             | L_SQB R_SQB
+            | list_error
     """
 
 def p_list_error(p):
     """list_error : L_SQB expressions_error R_SQB
     """
+    print_error("List error", p)
 
 # | '(' [star_named_expression ',' [star_named_expressions]  ] ')' 
 def p_tuple(p):
     """tuple : L_PARENTHESIS expression COMMA expressions R_PARENTHESIS
              | L_PARENTHESIS expression COMMA R_PARENTHESIS
              | L_PARENTHESIS R_PARENTHESIS
+             | tuple_error
     """
 
 def p_tuple_error(p):
@@ -856,37 +859,44 @@ def p_tuple_error(p):
              | L_PARENTHESIS expression_error COMMA expressions_error R_PARENTHESIS
              | L_PARENTHESIS expression_error COMMA R_PARENTHESIS
     """
+    print_error("Tuple error", p)
 
 def p_set(p):
     """set : L_CB expressions R_CB
+            | set_error
     """
 
 def p_set_error(p):
     """set_error : L_CB expressions_error R_CB
     """
+    print_error("Set error", p)
 
 # DICTIONARY
 def p_dict(p):
     """dict : L_CB kvpairs R_CB
             | L_CB R_CB
+            | dict_error
     """
 
 def p_dict_error(p):
     """dict_error : L_CB kvpairs_error R_CB
     """
+    print_error("Dictionary error", p)
 
 def p_kvpairs(p):
     """kvpairs : kvpair_list COMMA
                | kvpair_list
+               | kvpairs_error
     """
 
 def p_kvpairs_error(p):
     """kvpairs_error : kvpair_list_error COMMA
-               | kvpair_list_error
     """
+    print_error("Key-value pairs error", p)
 
 def p_kvpair(p):
     """kvpair : expression COLON expression
+                   | kvpair_error
     """
 
 def p_kvpair_error(p):
@@ -896,42 +906,46 @@ def p_kvpair_error(p):
                    | expression COLON wild_error
                    | expression_error COLON wild_error
     """
+    print_error("Key-value pair error", p)
 
 def p_kvpair_list(p):
     """kvpair_list : kvpair_list COMMA kvpair
                    | kvpair
+                   | kvpair_list_error
     """
 
 def p_kvpair_list_error(p):
     """kvpair_list_error : kvpair_list_error COMMA kvpair
                    | kvpair_list COMMA kvpair_error
                    | kvpair_list_error COMMA kvpair_error
-                   | kvpair_error
                    | kvpair_list COMMA wild_error
                    | kvpair_list_error COMMA wild_error
     """
+    print_error("Key-value pair list error", p)
 
 # ASSIGNMENT TARGETS
 # ==================
 def p_targets(p):
     """targets : primary COMMA targets
                | primary
+               | targets_error
     """
 
 def p_targets_error(p):
     """targets_error : primary_error COMMA targets
                | primary COMMA targets_error
                | primary_error COMMA targets_error
-               | primary_error
                | primary COMMA wild_error 
                | primary_error COMMA wild_error
     """
+    print_error("Targets error", p)
 
 # TODO: THIS SHOULD BE CHANGED, because implementations as asked for in python does not work properly!!
 def p_target(p):
     """target : target_primary DOT IDENTIFIER
               | target_primary L_SQB slices R_SQB
               | target_atomic
+              | target_error
     """
 
 def p_target_error(p):
@@ -939,8 +953,8 @@ def p_target_error(p):
               | target_primary_error L_SQB slices R_SQB
               | target_primary L_SQB slices_error R_SQB
               | target_primary_error L_SQB slices_error R_SQB
-              | target_atomic_error
     """
+    print_error("Target error", p)
 
 def p_target_primary(p):
     """target_primary : target_primary DOT IDENTIFIER
@@ -948,6 +962,7 @@ def p_target_primary(p):
                       | target_primary L_PARENTHESIS R_PARENTHESIS
                       | target_primary L_PARENTHESIS arguments R_PARENTHESIS
                       | target_atomic
+                      | target_primary_error
     """
 
 def p_target_primary_error(p):
@@ -957,21 +972,21 @@ def p_target_primary_error(p):
                       | target_primary_error L_SQB slices_error R_SQB
                       | target_primary_error L_PARENTHESIS R_PARENTHESIS
                       | target_primary_error L_PARENTHESIS arguments R_PARENTHESIS
-                      | target_primary L_PARENTHESIS arguments_error R_PARENTHESIS
-                      | target_primary_error L_PARENTHESIS arguments_error R_PARENTHESIS
-                      | target_atomic_error
     """
+    print_error("Target primary error", p)
 
 def p_target_atomic(p):
     """target_atomic : IDENTIFIER
                      | L_SQB target_primary R_SQB
                      | L_PARENTHESIS targets R_PARENTHESIS
+                     | target_atomic_error
     """
 
 def p_target_atomic_error(p):
     """target_atomic_error : L_SQB target_primary_error R_SQB
                      | L_PARENTHESIS targets_error R_PARENTHESIS
     """
+    print_error("Atomic target error", p)
     
 def p_empty(p):
     'empty :'
@@ -983,16 +998,36 @@ def p_wild_error(p):
     """wild_error : wild_error error
                | error
     """
+    error_msg: str = "Unrecognized syntax error "
+    
+    if p:
+        content : str = "unknown token"
+
+        if hasattr(p, "value") and p.value:
+            content = p.value
+        elif hasattr(p, "type") and p.type:
+            content = p.type
+
+        error_msg += f"near {content} in line {p.lineno(1)}"
+    else:
+        error_msg += "at EOF"
+
+    print(error_msg)
+
+def p_error(p):
+    # Dominated by p_wild_error
+    return
 
 # ========================= END OF THE GRAMMAR ===========================
 
-def p_error(p):
-    if p:
-        error_msg = f"Syntax Error near '{p.value if p.value else p.type}' in line {p.lineno}"
-        # raise SyntaxError(error_msg)
-    else:
-        # raise SyntaxError("Syntax error at EOF")
-        pass
+def print_error(title: str, token):
+    lexeme_hint: str = "unknown token"
+    for child in token:
+        if child is not None:
+            lexeme_hint = child
+            break
+
+    print(title, "near", lexeme_hint, "in line", token.lineno(1))
     
 class Parser(object):
     def __init__(self, lexer=None, error_logger=None):
@@ -1004,24 +1039,36 @@ class Parser(object):
 
     def parse(self, code):
         result = None
-        try:
-            self.lexer.input(code)
-            result = self.parser.parse(lexer=self.lexer, debug=True)
-        except LexingError as e:
-            if not self.error_logger:
-                raise e
+        while True:
+            errorHandled : bool = False
+
+            try:
+                self.lexer.input(code)
+                result = self.parser.parse(lexer=self.lexer, debug=True, tracking=True)
+            except LexingError as e:
+                if not self.error_logger:
+                    raise e
+                else:
+                    self.build_error(e, "lexing")
+                    errorHandled = True
+            except (IndentationError, SyntaxError) as e:
+                if not self.error_logger:
+                    raise e
+                else:
+                    self.build_error(e, "syntax")
+                    errorHandled = True
+            except Exception as e:
+                if not self.error_logger:
+                    raise e
+                else:
+                    self.build_error(e, "error")
+                    errorHandled = True
+            
+            if errorHandled:
+                self.parser.errok()
             else:
-               self.build_error(e, "lexing")
-        except (IndentationError, SyntaxError) as e:
-            if not self.error_logger:
-                raise e
-            else:
-               self.build_error(e, "syntax")
-        except Exception as e:
-            if not self.error_logger:
-                raise e
-            else:
-               self.build_error(e, "error")
+                break
+
         return result
 
     def build_error(self, error: Exception, error_type: str):
