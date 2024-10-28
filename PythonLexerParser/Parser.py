@@ -37,9 +37,22 @@ def p_file(p):
             | file_error
     """
 
+# TODO: Check for total correctness
 def p_file_error(p):
-    """file_error : STARTMARKER statements_error ENDMARKER
-            | STARTMARKER wild_error error ENDMARKER
+    """file_error : STARTMARKER wild_error
+            | STARTMARKER wild_error error
+
+            | STARTMARKER statements wild_error
+            | STARTMARKER statements wild_error error
+
+            | STARTMARKER statements_error wild_error
+            | STARTMARKER statements_error wild_error error
+
+            | STARTMARKER statements wild_error ENDMARKER
+            | STARTMARKER statements wild_error error ENDMARKER
+
+            | STARTMARKER statements_error wild_error ENDMARKER
+            | STARTMARKER statements_error wild_error error ENDMARKER
     """
     print_error("Whole-file error", p)
 
@@ -761,8 +774,10 @@ def p_slice(p):
              | COLON expression COLON
              | COLON COLON expression
              | expression COLON COLON
+             | expression COLON expression
              | COLON COLON
-             | expression
+             | expression COLON
+             | COLON expression
              | COLON
              | slice_error
     """
@@ -784,6 +799,10 @@ def p_slice_error(p):
              | COLON expression_error COLON
              | COLON COLON expression_error
              | expression_error COLON COLON
+             | expression COLON expression_error
+             | expression_error COLON expression
+             | expression_error COLON expression_error
+             | COLON expression_error
              | expression_error COLON expression COLON wild_error
              | expression_error COLON expression_error COLON wild_error
              | expression COLON expression_error COLON wild_error
@@ -792,6 +811,10 @@ def p_slice_error(p):
              | COLON expression COLON wild_error
              | expression_error COLON COLON wild_error
              | expression COLON COLON wild_error
+             | expression COLON wild_error
+             | expression_error COLON
+             | expression_error COLON wild_error
+             | COLON wild_error
     """
     print_error("Slice error", p)
 
@@ -1024,7 +1047,10 @@ def print_error(title: str, token):
     lexeme_hint: str = "unknown token"
     for child in token:
         if child is not None:
-            lexeme_hint = child
+            if hasattr(child, "value") and child.value:
+                lexeme_hint = child.value
+            elif hasattr(child, "type") and child.type:
+                lexeme_hint = child.type
             break
 
     print(title, "near", lexeme_hint, "in line", token.lineno(1))
@@ -1038,14 +1064,14 @@ class Parser(object):
         self.lexer: Lexer = lexer
         self.error_logger: ErrorLogger = error_logger
 
-        self.parser = yacc.yacc(start="file", debug=True)
+        self.parser = yacc.yacc(start="file", debug=False)
 
     def parse(self, code):
         result = None
 
         try:
             self.lexer.input(code)
-            result = self.parser.parse(lexer=self.lexer, debug=True, tracking=True)
+            result = self.parser.parse(lexer=self.lexer, debug=False, tracking=True)
         except LexingError as e:
             if not self.error_logger:
                 raise e
