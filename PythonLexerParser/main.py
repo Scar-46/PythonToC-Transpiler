@@ -19,7 +19,8 @@ def main():
         print(f"Unexpected Error during parsing: {e}")
     if error_logger.error_count() <= 0:
         exit_code = 0
-        print("File parsed successfully!")
+        # TODO: make this message prettier
+        print("############# File parsed successfully! #############")
     else:
         exit_code = 1
         error_logger.print_error(sys.argv[1])
