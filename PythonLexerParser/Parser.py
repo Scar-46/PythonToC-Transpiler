@@ -18,14 +18,20 @@ precedence = (
     ('left', 'CARET'),              # Bitwise XOR: ^
     ('left', 'AMPERSAND'),          # Bitwise AND: &
 
-    ('left', 'PLUS', 'MINUS'),
+    ('left', 'PLUS', 'MINUS',
+     'ADDITION_ASSIGNMENT', 'SUBTRACTION_ASSIGNMENT'),
 
-    ('left', 'STAR', 'SLASH', 'PERCENT', 'DOUBLE_SLASH'),
+    ('left', 'STAR', 'SLASH', 'PERCENT', 'DOUBLE_SLASH',
+     'MULTIPLICATION_ASSIGNMENT', 'DIVISION_ASSIGNMENT', 'MODULO_ASSIGNMENT', 'FLOOR_DIVISION_ASSIGNMENT'),
+    
 
-    ('right', 'DOUBLE_STAR'),
+    ('right', 'DOUBLE_STAR', 'EXPONENTIATION_ASSIGNMENT'),
 
     ('left', 'L_PARENTHESIS', 'L_SQB', 'DOT'),
+
+    ('right', 'ASSIGNMENT')
 )
+
 
 # STARTING RULES
 # ==============
