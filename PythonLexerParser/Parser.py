@@ -2,6 +2,7 @@ from TokenRules import tokens
 from Lexer import Lexer
 import ply.yacc as yacc
 from common import log_error
+from node import Node
 
 # Based on PEG grammar for Python
 # Python 3 grammar: https://docs.python.org/3/reference/grammar.html
@@ -174,6 +175,12 @@ def p_namelist(p):
     """namelist : namelist COMMA IDENTIFIER
                 | IDENTIFIER
     """
+    if len(p) == 4:
+        p[0] = p[1]
+        p[0].add_child(p[3])
+    else: 
+        p[0] = Node('NameList', children=[p[1]])
+
 
 # COMPOUND STATEMENTS
 # ===================
@@ -360,12 +367,33 @@ def p_primary(p):
                | primary DOT IDENTIFIER
                | atomic
     """
+    # Function call: primary ( arguments )
+    if len(p) == 5 and p[2] == '(' and p[4] == ')':
+        p[0] = Node('FunctionCall')
+        p[0].add_child(p[1])
+        p[0].add_child(p[3])
+    # Attribute access: primary . IDENTIFIER
+    elif len(p) == 4 and p[2] == '.':
+        p[0] = Node('AttributeAccess', value=p[3])
+        p[0].add_child(p[1])
+    # Subscript/slice: primary [ slices ]
+    elif len(p) == 5 and p[2] == '[' and p[4] == ']':
+        p[0] = Node('Subscript')
+        p[0].add_child(p[1])
+        p[0].add_child(p[3])
+    # Atomic case
+    else:
+        p[0] = p[1]
 
 # slices:
 def p_slices(p):
     """slices : slices COMMA slice
               | slice
     """
+    if len(p) == 4:
+        p[0] = Node('Slices', children=[p[1], p[3]])
+    else:
+        p[0] = Node('Slices', children=[p[1]])
 
 # slice:
 #     | [expression] ':' [expression] [':' [expression] ] 
@@ -382,6 +410,14 @@ def p_slice(p):
              | expression
              | COLON
     """
+    children = []
+    
+    for i in range(1, len(p)):
+        # Add NON-COLON elements
+        if p[i] != 'COLON':
+            children.append(p[i])
+
+    p[0] = Node('Slice', children=children)
 
 def p_atomic(p):
     """atomic : IDENTIFIER
@@ -396,6 +432,20 @@ def p_atomic(p):
               | dict
               | set
     """
+    # Literales
+    if p[1] == 'TRUE' or p[1] == 'FALSE' or p[1] == 'NONE':
+        p[0] = Node('Literal', value=p[1])
+    elif isinstance(p[1], str):
+        p[0] = Node('String', value=p[1])
+    elif isinstance(p[1], (int, float)):
+        p[0] = Node('Number', value=p[1])
+    # Nested nodes
+    elif isinstance(p[1], Node):
+        p[0] = p[1]
+    # Simple identifiers
+    else:
+        # Handle simple identifiers or other tokens
+        p[0] = Node('Identifier', value=p[1])
 
 def p_number(p):
     """number : NUMBER
@@ -404,6 +454,9 @@ def p_number(p):
               | HEX_NUMBER
               | OCT_NUMBER
     """
+    p[0] = Node("Number", value=p[1])
+
+
 # FUNCTION CALL ARGUMENTS
 # =======================
 def p_argument(p):
@@ -420,6 +473,7 @@ def p_strings(p):
     """strings : STRING
                | TRIPLE_STRING
     """
+    p[0] = Node("String", value=p[1])
 
 # LIST, TUPLE, SET, AND DICTIONARY
 # =======================
@@ -433,34 +487,56 @@ def p_tuple(p):
              | L_PARENTHESIS expression COMMA R_PARENTHESIS
              | L_PARENTHESIS R_PARENTHESIS
     """
+    # L_PARENTHESIS expression COMMA expressions R_PARENTHESIS
+    if len(p) == 6:
+        p[0] = Node('Tuple', children=[p[2], p[4]])
+    # L_PARENTHESIS expression COMMA R_PARENTHESIS
+    elif len(p) == 5:
+        p[0] = Node('Tuple', children=[p[2]])
+    # L_PARENTHESIS R_PARENTHESIS
+    else:
+        p[0] = Node('Tuple')
 
 def p_group(p):
     """group : L_PARENTHESIS expression R_PARENTHESIS
     """
+    p[0] = Node('Group', children=[p[2]])
 
 def p_set(p):
     """set : L_CB expressions R_CB
     """
+    p[0] = Node('Set', children=[p[2]])
 
 # DICTIONARY
 def p_dict(p):
     """dict : L_CB kvpairs R_CB
             | L_CB R_CB
     """
+    if len(p) == 4:  
+        p[0] = Node('Dictionary', children=[p[2]])
+    else:
+        p[0] = Node('Dictionary')
 
 def p_kvpairs(p):
     """kvpairs : kvpair_list COMMA
                | kvpair_list
     """
+    p[0] = p[1] 
 
 def p_kvpair(p):
     """kvpair : expression COLON expression
     """
+    p[0] = Node('KeyValuePair', children=[p[1], p[3]])
 
 def p_kvpair_list(p):
     """kvpair_list : kvpair_list COMMA kvpair
                    | kvpair
     """
+    if len(p) == 4:
+        p[0] = p[1]
+        p[0].add_child(p[3])
+    else: 
+        p[0] = Node('KeyValuePairList', children=[p[1]])
     
     
 def p_empty(p):
