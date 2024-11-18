@@ -2,7 +2,7 @@ from TokenRules import tokens
 from Lexer import Lexer
 import ply.yacc as yacc
 from common import log_error
-
+import Node as Node
 # Based on PEG grammar for Python
 # Python 3 grammar: https://docs.python.org/3/reference/grammar.html
 
@@ -35,7 +35,6 @@ precedence = (
 
 # STARTING RULES
 # ==============
-# They define 3 starting rules, but i do not know if it applies to our case
 
 def p_file(p):
     """file : statements ENDMARKER
@@ -51,24 +50,35 @@ def p_statements(p):
                   | statements NEWLINE
                   | statement
     """
+    if len(p) == 3:
+            if isinstance(p[2], Node):
+                p[0] = p[1]
+                p[0].add_child(p[2])
+            else: # Ignore NEWLINE
+                p[0] = p[1]
+    else:  # Single statement
+        p[0] = Node("statements", children=[p[1]])
+    
 
-# statement: simple_stmts | compound_stmt
 def p_statement(p):
     """statement : compound_stmt
                  | simple_stmts
     """
+    p[0] = Node("statement", children=[p[1]])
+    
 
-# simple_stmts:
-#     | simple_stmt !';' NEWLINE  # Not needed, there for speedup
-#     | ';'.simple_stmt+ [';'] NEWLINE 
-# TODO: Check recursion
 def p_simple_stmts(p):
     """simple_stmts : simple_stmts SEMICOLON simple_stmt NEWLINE
                     | simple_stmt NEWLINE
                     | simple_stmt
     """
+    if len(p) == 5:
+        p[0] = p[1]
+        p[0].add_child(p[3])
+    elif len(p) <= 3: # Ignore NEWLINE
+        p[0] = Node("simple_stmts", children=[p[1]])
 
-# REMOVED: Assert_stmt
+
 # SIMPLE STATEMENTS
 def p_simple_stmt(p):
     """simple_stmt : assignment
@@ -80,6 +90,11 @@ def p_simple_stmt(p):
                    | CONTINUE 
                    | global_stmt
     """
+    if isinstance(p[1], Node):
+        p[0] = p[1]
+    else: # Handling reserved keywords like PASS, BREAK, CONTINUE
+        p[0] = Node("simple_stmt", value=p[1])
+
 
 def p_compound_stmt(p):
     """compound_stmt : function_def
@@ -88,54 +103,9 @@ def p_compound_stmt(p):
                      | for_stmt
                      | while_stmt
     """
+    p[0] = p[1]
 
-# REDESERVED KEYWORDS
-# ================================================
-# TARGETS
-# ==================
-# TODO: THIS SHOULD BE CHANGED, because implementations as asked for in python does not work properly!!
-def p_target(p):
-    """target : primary DOT IDENTIFIER
-              | primary L_SQB slices R_SQB
-              | primary
-    """
 
-def p_single_target(p):
-    """single_target : single_subscript_attribute_target
-                     | L_PARENTHESIS single_target R_PARENTHESIS
-                     | IDENTIFIER
-    """
-
-def p_single_subscript_attribute_target(p):
-    """single_subscript_attribute_target : primary DOT IDENTIFIER
-                                         | primary L_SQB slices R_SQB
-    """
-
-def p_targets(p):
-    """targets : targets COMMA target
-               | target
-    """
-
-def p_target_assigment_list(p):
-    """target_assigment_list : target_assigment_list COMMA single_target
-                             | single_target
-    """
-
-def p_target_assignment_chain(p):
-    """target_assignment_chain : target_assignment_chain target_assigment_list ASSIGNMENT
-                               | target_assigment_list ASSIGNMENT"""
-
-def p_target_tuple_seq(p):
-    """target_tuple_seq : target_tuple_seq target
-                        | target COMMA"""
-
-def p_target_atomic(p):
-    """target_atomic : L_PARENTHESIS targets R_PARENTHESIS
-                     | L_SQB target_tuple_seq R_SQB
-                     | L_PARENTHESIS R_PARENTHESIS
-                     | L_SQB R_SQB
-                     | IDENTIFIER
-    """
 # SIMPLE STATEMENTS
 # =================
 def p_assignment(p):
@@ -143,6 +113,13 @@ def p_assignment(p):
                   | single_target augmentation_assignment expressions
                   | target_assignment_chain expressions
     """
+    if len(p) == 6:  # Parenthesized assignment
+        p[0] = Node("assign", children=[p[2], p[5]])
+    elif len(p) == 4:  # Augmented assignment
+        p[0] = Node("aug_assign", children=[p[1], p[2], p[3]])
+    else:  # Chained assignment
+        p[0] = Node("assign_chain", children=[p[1], p[2]])
+
 
 # augassign
 def p_augmentation_assignment(p):
@@ -154,26 +131,39 @@ def p_augmentation_assignment(p):
                                | EXPONENTIATION_ASSIGNMENT
                                | FLOOR_DIVISION_ASSIGNMENT
     """
+    p[0] = Node("aug_operator", value=p[1])  # Store the operator as a value
 
-# return_stmt:
-#     | 'return' [star_expressions] 
+
 def p_return_stmt(p):
     """return_stmt : RETURN expressions
                    | RETURN
     """
+    if len(p) == 3:  # With expression
+        p[0] = Node("return", children=[p[2]])
+    else:  # Empty return
+        p[0] = Node("return")
 
+    
 def p_global_stmt(p):
     """global_stmt : GLOBAL namelist
     """
+    p[0] = Node("global", children=[p[2]])
+
 
 def p_del_stmt(p):
     """del_stmt : DEL namelist
     """
+    p[0] = Node("del", children=[p[2]])
+
 
 def p_namelist(p):
     """namelist : namelist COMMA IDENTIFIER
                 | IDENTIFIER
     """
+    if len(p) == 4:  # Multiple identifiers
+        p[0] = Node("namelist", children=p[1].children + [Node("identifier", value=p[3])])
+    else:  # Single identifier
+        p[0] = Node("namelist", children=[Node("identifier", value=p[1])])
 
 # COMPOUND STATEMENTS
 # ===================
@@ -184,6 +174,11 @@ def p_block(p):
     """block : NEWLINE INDENT statements DEDENT
              | simple_stmts
     """
+    if len(p) == 5:  # Indented block
+        p[0] = Node("block", children=p[3])
+    else:  # Simple statements
+        p[0] = Node("block", children=[p[1]])
+
 
 # Class definitions
 # -----------------
@@ -192,24 +187,35 @@ def p_class_def(p):
                  | CLASS IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block
                  | CLASS IDENTIFIER COLON block
     """
+    if len(p) == 8:  # Class with arguments
+        p[0] = Node("class_def", children=[Node("identifier", value=p[2]), p[4], p[7]])
+    elif len(p) == 7:  # Class with empty parentheses
+        p[0] = Node("class_def", children=[Node("identifier", value=p[2]), p[6]])
+    else:  # Class without parentheses
+        p[0] = Node("class_def", children=[Node("identifier", value=p[2]), p[4]])
+
 
 def p_function_def(p):
     """function_def : DEF IDENTIFIER L_PARENTHESIS parameters R_PARENTHESIS COLON block
                     | DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block
     """
+    if len(p) == 8:  # Function with parameters
+        p[0] = Node("function_def", children=[Node("identifier", value=p[2]), p[4], p[7]])
+    else:  # Function without parameters
+        p[0] = Node("function_def", children=[Node("identifier", value=p[2]), p[6]])
 
-# parameters:
-#     | slash_no_default param_no_default* param_with_default* [star_etc] 
-#     | slash_with_default param_with_default* [star_etc] 
-#     | param_no_default+ param_with_default* [star_etc] 
-#     | param_with_default+ [star_etc] 
-#     | star_etc 
-#TODO: Add default parameters and I don't know if slash is needed 
-#TODO: This needs to be changed
+
+
+# parameters
 def p_parameters(p):
     """parameters : parameters COMMA IDENTIFIER
                   | IDENTIFIER
     """
+    if len(p) == 4:  # Multiple parameters
+        p[0] = Node("parameters", children=p[1].children + [Node("identifier", value=p[3])])
+    else:  # Single parameter
+        p[0] = Node("parameters", children=[Node("identifier", value=p[1])])
+
 
 # If statement
 def p_if_stmt(p):
@@ -217,32 +223,43 @@ def p_if_stmt(p):
                | IF expression COLON block else_block
                | IF expression COLON block
     """
+    if len(p) == 6:  # If with elif or else block
+        p[0] = Node("if_stmt", children=[p[2], p[4], p[5]])
+    else:  # If without elif or else block
+        p[0] = Node("if_stmt", children=[p[2], p[4]])
 
 
-# elif_stmt:
+# elif_stmt
 def p_elif_stmt(p):
     """elif_stmt : ELIF expression COLON block elif_stmt
                  | ELIF expression COLON block else_block
                  | ELIF expression COLON block
     """
+    if len(p) == 6:  # Elif with next elif or else block
+        p[0] = Node("elif_stmt", children=[p[2], p[4], p[5]])
+    else:  # Elif without next elif or else block
+        p[0] = Node("elif_stmt", children=[p[2], p[4]])
+
 
 def p_else_block(p):
     """else_block : ELSE COLON block
     """
+    p[0] = Node("else_block", children=[p[3]])
 
 
 # while_stmt:
 def p_while_stmt(p):
     """while_stmt : WHILE expression COLON block
     """
+    p[0] = Node("while_stmt", children=[p[2], p[4]])
 
-# for_stmt:
-#     | 'for' star_targets 'in' ~ star_expressions
-# TODO: Add Range() function, and fix the IDENTIFIER, and expresions.
+
 def p_for_stmt(p):
     """for_stmt : FOR targets IN expressions COLON block
     """
+    p[0] = Node("for_stmt", children=[p[2], p[4], p[6]])
 
+    
 # EXPRESSIONS
 # ===================
 def p_expressions(p):
@@ -462,11 +479,6 @@ def p_kvpair_list(p):
                    | kvpair
     """
     
-    
-def p_empty(p):
-    'empty :'
-    pass
-
 # ========================= END OF THE GRAMMAR ===========================
 
 def p_error(token):
