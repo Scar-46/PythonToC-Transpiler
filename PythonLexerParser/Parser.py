@@ -331,7 +331,7 @@ def p_sum(p):
            | term
     """
     if len(p) == 4:
-        p[0] = Node('BinaryOp', value=p[2], children=[p[1], p[3]])
+        p[0] = Node('binary_operation', value=p[2], children=[p[1], p[3]])
     else:
         p[0] = p[1]
 
@@ -343,7 +343,7 @@ def p_term(p):
             | factor
     """
     if len(p) == 4:
-        p[0] = Node('BinaryOp', value=p[2], children=[p[1], p[3]])
+        p[0] = Node('binary_operation', value=p[2], children=[p[1], p[3]])
     else:
         p[0] = p[1]
 
@@ -353,7 +353,7 @@ def p_factor(p):
               | power
     """
     if len(p) == 3:
-        p[0] = Node('UnaryOp', value=p[1], children=[p[2]])
+        p[0] = Node('unary_operation', value=p[1], children=[p[2]])
     else:
         p[0] = p[1]
 
@@ -362,7 +362,7 @@ def p_power(p):
              | primary
     """
     if len(p) == 4:
-        p[0] = Node('BinaryOp', value='DOUBLE_STAR', children=[p[1], p[3]])
+        p[0] = Node('binary_operation', value='DOUBLE_STAR', children=[p[1], p[3]])
     else:
         p[0] = p[1]
 
