@@ -435,17 +435,12 @@ def p_atomic(p):
     # Literales
     if p[1] == 'TRUE' or p[1] == 'FALSE' or p[1] == 'NONE':
         p[0] = Node('Literal', value=p[1])
-    elif isinstance(p[1], str):
-        p[0] = Node('String', value=p[1])
-    elif isinstance(p[1], (int, float)):
-        p[0] = Node('Number', value=p[1])
-    # Nested nodes
-    elif isinstance(p[1], Node):
-        p[0] = p[1]
-    # Simple identifiers
-    else:
-        # Handle simple identifiers or other tokens
+    # Identifier
+    elif p[1] == 'IDENTIFIER':
         p[0] = Node('Identifier', value=p[1])
+    # nested, number, and strings
+    else:
+        p[0] = p[1]
 
 def p_number(p):
     """number : NUMBER
