@@ -175,12 +175,6 @@ def p_namelist(p):
     """namelist : namelist COMMA IDENTIFIER
                 | IDENTIFIER
     """
-    if len(p) == 4:
-        p[0] = p[1]
-        p[0].add_child(p[3])
-    else: 
-        p[0] = Node('NameList', children=[p[1]])
-
 
 # COMPOUND STATEMENTS
 # ===================
@@ -336,6 +330,10 @@ def p_sum(p):
            | sum MINUS term
            | term
     """
+    if len(p) == 4:
+        p[0] = Node('BinaryOp', value=p[2], children=[p[1], p[3]])
+    else:
+        p[0] = p[1]
 
 def p_term(p):
     """term : term STAR factor 
@@ -344,17 +342,29 @@ def p_term(p):
             | term PERCENT factor
             | factor
     """
+    if len(p) == 4:
+        p[0] = Node('BinaryOp', value=p[2], children=[p[1], p[3]])
+    else:
+        p[0] = p[1]
 
 def p_factor(p):
     """factor : PLUS factor 
               | MINUS factor 
               | power
     """
+    if len(p) == 3:
+        p[0] = Node('UnaryOp', value=p[1], children=[p[2]])
+    else:
+        p[0] = p[1]
 
 def p_power(p):
     """power : primary DOUBLE_STAR factor
              | primary
     """
+    if len(p) == 4:
+        p[0] = Node('BinaryOp', value='DOUBLE_STAR', children=[p[1], p[3]])
+    else:
+        p[0] = p[1]
 
 # PRIMARY ELEMENTS
 # =======================
@@ -369,16 +379,16 @@ def p_primary(p):
     """
     # Function call: primary ( arguments )
     if len(p) == 5 and p[2] == '(' and p[4] == ')':
-        p[0] = Node('FunctionCall')
+        p[0] = Node('function_call')
         p[0].add_child(p[1])
         p[0].add_child(p[3])
     # Attribute access: primary . IDENTIFIER
     elif len(p) == 4 and p[2] == '.':
-        p[0] = Node('AttributeAccess', value=p[3])
+        p[0] = Node('attribute_access', value=p[3])
         p[0].add_child(p[1])
     # Subscript/slice: primary [ slices ]
     elif len(p) == 5 and p[2] == '[' and p[4] == ']':
-        p[0] = Node('Subscript')
+        p[0] = Node('subscript')
         p[0].add_child(p[1])
         p[0].add_child(p[3])
     # Atomic case
@@ -391,9 +401,9 @@ def p_slices(p):
               | slice
     """
     if len(p) == 4:
-        p[0] = Node('Slices', children=[p[1], p[3]])
+        p[0] = Node('slices', children=[p[1], p[3]])
     else:
-        p[0] = Node('Slices', children=[p[1]])
+        p[0] = Node('slices', children=[p[1]])
 
 # slice:
 #     | [expression] ':' [expression] [':' [expression] ] 
@@ -417,7 +427,7 @@ def p_slice(p):
         if p[i] != 'COLON':
             children.append(p[i])
 
-    p[0] = Node('Slice', children=children)
+    p[0] = Node('slice', children=children)
 
 def p_atomic(p):
     """atomic : IDENTIFIER
@@ -434,10 +444,10 @@ def p_atomic(p):
     """
     # Literales
     if p[1] == 'TRUE' or p[1] == 'FALSE' or p[1] == 'NONE':
-        p[0] = Node('Literal', value=p[1])
+        p[0] = Node('literal', value=p[1])
     # Identifier
     elif p[1] == 'IDENTIFIER':
-        p[0] = Node('Identifier', value=p[1])
+        p[0] = Node('identifier', value=p[1])
     # nested, number, and strings
     else:
         p[0] = p[1]
@@ -449,18 +459,21 @@ def p_number(p):
               | HEX_NUMBER
               | OCT_NUMBER
     """
-    p[0] = Node("Number", value=p[1])
+    p[0] = Node("number", value=p[1])
 
 
 # FUNCTION CALL ARGUMENTS
 # =======================
 def p_argument(p):
-    """argument : expression"""
+    """argument : expression
+    """
+    p[0] = Node('argument', value=p[1])
 
 #TODO: Check how this should work may want to include keyword arguments
 def p_arguments(p):
     """arguments : expressions
     """
+    p[0] = Node('arguments', children=[p[1]])
 
 # LITERALS
 # ========
@@ -468,7 +481,7 @@ def p_strings(p):
     """strings : STRING
                | TRIPLE_STRING
     """
-    p[0] = Node("String", value=p[1])
+    p[0] = Node("string", value=p[1])
 
 # LIST, TUPLE, SET, AND DICTIONARY
 # =======================
@@ -476,6 +489,10 @@ def p_list(p):
     """list : L_SQB expressions R_SQB
             | L_SQB R_SQB
     """
+    if len(p) == 4:  
+        p[0] = Node('list', children=[p[2]])
+    else:
+        p[0] = Node('list')
 
 def p_tuple(p):
     """tuple : L_PARENTHESIS expression COMMA expressions R_PARENTHESIS
@@ -484,23 +501,23 @@ def p_tuple(p):
     """
     # L_PARENTHESIS expression COMMA expressions R_PARENTHESIS
     if len(p) == 6:
-        p[0] = Node('Tuple', children=[p[2], p[4]])
+        p[0] = Node('tuple', children=[p[2], p[4]])
     # L_PARENTHESIS expression COMMA R_PARENTHESIS
     elif len(p) == 5:
-        p[0] = Node('Tuple', children=[p[2]])
+        p[0] = Node('tuple', children=[p[2]])
     # L_PARENTHESIS R_PARENTHESIS
     else:
-        p[0] = Node('Tuple')
+        p[0] = Node('tuple')
 
 def p_group(p):
     """group : L_PARENTHESIS expression R_PARENTHESIS
     """
-    p[0] = Node('Group', children=[p[2]])
+    p[0] = Node('group', children=[p[2]])
 
 def p_set(p):
     """set : L_CB expressions R_CB
     """
-    p[0] = Node('Set', children=[p[2]])
+    p[0] = Node('set', children=[p[2]])
 
 # DICTIONARY
 def p_dict(p):
@@ -508,9 +525,9 @@ def p_dict(p):
             | L_CB R_CB
     """
     if len(p) == 4:  
-        p[0] = Node('Dictionary', children=[p[2]])
+        p[0] = Node('dictionary', children=[p[2]])
     else:
-        p[0] = Node('Dictionary')
+        p[0] = Node('dictionary')
 
 def p_kvpairs(p):
     """kvpairs : kvpair_list COMMA
@@ -521,7 +538,7 @@ def p_kvpairs(p):
 def p_kvpair(p):
     """kvpair : expression COLON expression
     """
-    p[0] = Node('KeyValuePair', children=[p[1], p[3]])
+    p[0] = Node('key_value_pair', children=[p[1], p[3]])
 
 def p_kvpair_list(p):
     """kvpair_list : kvpair_list COMMA kvpair
@@ -531,7 +548,7 @@ def p_kvpair_list(p):
         p[0] = p[1]
         p[0].add_child(p[3])
     else: 
-        p[0] = Node('KeyValuePairList', children=[p[1]])
+        p[0] = Node('key_value_pair_list', children=[p[1]])
     
     
 def p_empty(p):
