@@ -14,7 +14,8 @@ def main():
     code = read_file(sys.argv[1])
     parser = Parser()
     try:
-        parser.parse(code)
+        result = parser.parse(code)
+        print(result)
     except Exception as e:
         print(f"Unexpected Error during parsing: {e}")
     if error_logger.error_count() <= 0:

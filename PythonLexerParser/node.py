@@ -6,3 +6,9 @@ class Node:
 
     def add_child(self, child_node):
         self.children.append(child_node)
+
+    def __repr__(self):
+        msg = f"<Node type: {self.node_type}, value: {self.value}>"
+        for child in self.children:
+            msg += f"\n\t{child}"
+        return msg
