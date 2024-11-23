@@ -266,26 +266,51 @@ def p_expressions(p):
     """expressions : expressions COMMA expression
                    | expression
     """
+    if len(p) == 4:  # expressions , expression
+        p[0] = Node("expressions", children=[p[1], p[3]])
+    else:  # expression
+        p[0] = Node("expressions", children=[p[1]]) # TODO: Check this.
+
 
 def p_expression(p):
     """expression : disjunction IF disjunction ELSE expression
                   | disjunction
     """
+    if len(p) == 6:  # disjunction IF disjunction ELSE expression
+        p[0] = Node("expression", children=[p[1], p[3], p[5]])
+    else:  # disjunction
+        p[0] = p[1]
+
 
 def p_disjunction(p):
     """disjunction : disjunction OR conjunction
                    | conjunction 
     """
+    if len(p) == 4:  # disjunction OR conjunction
+        p[0] = Node("disjunction", children=[p[1], p[3]], value="OR")
+    else:  # conjunction
+        p[0] = p[1]
+
 
 def p_conjunction(p):
     """conjunction : conjunction AND inversion
                    | inversion
     """
+    if len(p) == 4:  # conjunction AND inversion
+        p[0] = Node("conjunction", children=[p[1], p[3]], value="AND")
+    else:  # inversion
+        p[0] = p[1]
+
 
 def p_inversion(p):
     """inversion : NOT inversion 
                  | comparison
     """
+    if len(p) == 3:  # NOT inversion
+        p[0] = Node("inversion", children=[p[2]], value="NOT")
+    else:  # comparison
+        p[0] = p[1]
+
 
 # COMPARISON OPERATORS
 # =======================
@@ -294,11 +319,22 @@ def p_comparison(p):
     """comparison : bitwise_or compare_op_list
                   | bitwise_or
     """
+    if len(p) == 3:  # bitwise_or compare_op_list
+        p[0] = Node("comparison", children=[p[1], p[2]])
+    else:  # bitwise_or
+        p[0] = p[1]
 
+
+# I don't know with this one TODO: Check this
 def p_compare_op_list(p):
     """compare_op_list : compare_op_list compare_op
                        | compare_op 
     """
+    if len(p) == 3:  # compare_op_list compare_op
+        p[0] = Node("compare_op_list", children=[p[1], p[2]])
+    else:  # compare_op
+        p[0] = Node("compare_op_list", children=[p[1]])
+
 
 #NOTE: This can be changed
 def p_compare_op(p):
@@ -313,6 +349,8 @@ def p_compare_op(p):
                   | IN bitwise_or 
                   | IS bitwise_or 
     """
+    p[0] = Node("compare_op", value=p[1], children=[p[2]])
+
 
 # BITWISE OPERATORS
 # =======================
@@ -321,23 +359,44 @@ def p_bitwise_or(p):
     """bitwise_or : bitwise_or PIPE bitwise_xor 
                   | bitwise_xor 
     """
+    if len(p) == 4:  # bitwise_or | bitwise_xor
+        p[0] = Node("bitwise_or", children=[p[1], p[3]], value="|")
+    else:  # bitwise_xor
+        p[0] = p[1]
+
 
 #TODO: XOR is not available in the tokens, should be added
 def p_bitwise_xor(p):
     """bitwise_xor : bitwise_xor CARET bitwise_and 
                    | bitwise_and
     """
+    if len(p) == 4:  # bitwise_xor ^ bitwise_and
+        p[0] = Node("bitwise_xor", children=[p[1], p[3]], value="^")
+    else:  # bitwise_and
+        p[0] = p[1]
+
 
 def p_bitwise_and(p):
     """bitwise_and : bitwise_and AMPERSAND shift_expr 
                    | shift_expr
     """
+    if len(p) == 4:  # bitwise_and & shift_expr
+        p[0] = Node("bitwise_and", children=[p[1], p[3]], value="&")
+    else:  # shift_expr
+        p[0] = p[1]
+
 
 def p_shift_expr(p):
     """shift_expr : shift_expr L_SHIFT sum
                   | shift_expr R_SHIFT sum
                   | sum
     """
+    if len(p) == 4:  # shift_expr << sum or shift_expr >> sum
+        operator = "<<" if p[2] == "<<" else ">>"
+        p[0] = Node("shift_expr", children=[p[1], p[3]], value=operator)
+    else:  # sum
+        p[0] = p[1]
+
 
 # ARITHMETIC OPERATORS
 # =======================
