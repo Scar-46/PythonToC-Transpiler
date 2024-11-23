@@ -107,6 +107,98 @@ def p_compound_stmt(p):
     p[0] = p[1]
 
 
+def p_target(p):
+    """target : primary DOT IDENTIFIER
+              | primary L_SQB slices R_SQB
+              | primary
+    """
+    # Attribute access
+    if len(p) == 4 and p[2] == 'DOT':
+        p[0] = Node('attribute_access', value=p[3])
+        p[0].add_child(p[1])
+    # Subscript access
+    elif len(p) == 5 and p[2] == 'L_SQB' and p[4] == 'R_SQB':
+        p[0] = Node('subscript', value=p[3])
+        p[0].add_child(p[1])
+    else:
+        p[0] = p[1]
+
+def p_single_target(p):
+    """single_target : single_subscript_attribute_target
+                     | L_PARENTHESIS single_target R_PARENTHESIS
+                     | IDENTIFIER
+    """
+    p[0] = p[1] if len(p) == 4 and p[1] == 'L_PARENTHESIS' and p[3] == 'R_PARENTHESIS' else p[1]
+
+def p_single_subscript_attribute_target(p):
+    """single_subscript_attribute_target : primary DOT IDENTIFIER
+                                         | primary L_SQB slices R_SQB
+    """
+    # Attribute access
+    if len(p) == 4 and p[2] == 'DOT':
+        p[0] = Node('attribute_access', value=p[3])
+        p[0].add_child(p[1])
+    # Subscript access
+    elif len(p) == 5 and p[2] == 'L_SQB' and p[4] == 'R_SQB':
+        p[0] = Node('subscript', value=p[3])
+        p[0].add_child(p[1])
+    else:
+        p[0] = p[1]
+
+def p_targets(p):
+    """targets : targets COMMA target
+               | target
+    """
+    if len(p) == 4:
+        p[0] = Node("target_list", children=p[1].children + [Node("target", value=p[3])])
+    else:
+        p[0] = Node("target_list", children=[Node("target", value=p[1])])
+
+def p_target_assigment_list(p):
+    """target_assigment_list : target_assigment_list COMMA single_target
+                             | single_target
+    """
+    if len(p) == 4:
+        p[0] = Node("target_list", children=p[1].children + [Node("target", value=p[3])])
+    else:
+        p[0] = Node("target_list", children=[Node("target", value=p[1])])
+
+def p_target_assignment_chain(p):
+    """target_assignment_chain : target_assignment_chain target_assigment_list ASSIGNMENT
+                               | target_assigment_list ASSIGNMENT
+    """
+    if len(p) == 4:
+        p[0] = p[2]
+        p[0].add_child(Node("target_assignment_chain", children=p[1].children))
+    else:
+        p[0] = p[1]
+
+def p_target_tuple_seq(p):
+    """target_tuple_seq : target_tuple_seq target
+                        | target COMMA
+    """
+    if len(p) == 3:
+        p[0] = Node("target_tuple_seq", children=p[1].children + [Node("target", value=p[2])])
+    else:
+        p[0] = Node("target_tuple_seq", children=[Node("target", value=p[1])])
+
+def p_target_atomic(p):
+    """target_atomic : L_PARENTHESIS targets R_PARENTHESIS
+                     | L_SQB target_tuple_seq R_SQB
+                     | L_PARENTHESIS R_PARENTHESIS
+                     | L_SQB R_SQB
+                     | IDENTIFIER
+    """
+    # Target list inside of parenthesis or square brackets
+    if len(p) == 4:
+        p[0] = p[2]
+    # Empty parenthesis or square brackets
+    elif len(p) == 3:
+        p[0] = Node("empty")
+    # Identifier
+    else:
+        p[0] = Node("target_atomic", value=p[1])
+
 # SIMPLE STATEMENTS
 # =================
 def p_assignment(p):
@@ -454,12 +546,12 @@ def p_primary(p):
                | atomic
     """
     # Function call: primary ( arguments )
-    if len(p) == 5 and p[2] == '(' and p[4] == ')':
+    if len(p) == 5 and p[2] == 'L_PARENTHESIS' and p[4] == 'R_PARENTHESIS':
         p[0] = Node('function_call')
         p[0].add_child(p[1])
         p[0].add_child(p[3])
     # Attribute access: primary . IDENTIFIER
-    elif len(p) == 4 and p[2] == '.':
+    elif len(p) == 4 and p[2] == 'DOT':
         p[0] = Node('attribute_access', value=p[3])
         p[0].add_child(p[1])
     # Subscript/slice: primary [ slices ]
@@ -625,14 +717,8 @@ def p_kvpair_list(p):
         p[0].add_child(p[3])
     else: 
         p[0] = Node('key_value_pair_list', children=[p[1]])
-    
-    
-def p_empty(p):
-    'empty :'
-    pass
 
 # ========================= END OF THE GRAMMAR ===========================
-
 def p_error(token):
     if token:
         error_msg = f"Syntax Error near '{token.value if token.value else token.type}'"
