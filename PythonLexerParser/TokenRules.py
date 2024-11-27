@@ -20,7 +20,6 @@ keywords = {
     'continue': 'CONTINUE',
     # Definitions
     'def': 'DEF',
-    'as': 'AS',
     'class': 'CLASS',
     'return': 'RETURN',
     # Boolean 

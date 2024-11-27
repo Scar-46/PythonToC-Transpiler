@@ -2,7 +2,8 @@ from TokenRules import tokens
 from Lexer import Lexer
 import ply.yacc as yacc
 from common import log_error
-import Node as Node
+from node import Node
+
 # Based on PEG grammar for Python
 # Python 3 grammar: https://docs.python.org/3/reference/grammar.html
 
@@ -40,6 +41,7 @@ def p_file(p):
     """file : statements ENDMARKER
             | ENDMARKER
     """
+    p[0] = p[1]
 
 # GENERAL STATEMENTS
 # ==================
@@ -64,7 +66,7 @@ def p_statement(p):
     """statement : compound_stmt
                  | simple_stmts
     """
-    p[0] = Node("statement", children=[p[1]])
+    p[0] = p[1]
     
 
 def p_simple_stmts(p):
@@ -75,8 +77,8 @@ def p_simple_stmts(p):
     if len(p) == 5:
         p[0] = p[1]
         p[0].add_child(p[3])
-    elif len(p) <= 3: # Ignore NEWLINE
-        p[0] = Node("simple_stmts", children=[p[1]])
+    elif len(p) <= 3:
+        p[0] = p[1]
 
 
 # SIMPLE STATEMENTS
@@ -90,10 +92,10 @@ def p_simple_stmt(p):
                    | CONTINUE 
                    | global_stmt
     """
-    if isinstance(p[1], Node):
+    if not isinstance(p[1], Node):
+        p[0] = Node('simple_stmt', value=p[1])
+    else:
         p[0] = p[1]
-    else: # Handling reserved keywords like PASS, BREAK, CONTINUE
-        p[0] = Node("simple_stmt", value=p[1])
 
 
 def p_compound_stmt(p):
@@ -105,6 +107,100 @@ def p_compound_stmt(p):
     """
     p[0] = p[1]
 
+
+def p_target(p):
+    """target : primary DOT IDENTIFIER
+              | primary L_SQB slices R_SQB
+              | primary
+    """
+    # Attribute access
+    if len(p) == 4 and p[2] == '.':
+        p[0] = Node('attribute_access', value=p[3])
+        p[0].add_child(p[1])
+    # Subscript access
+    elif len(p) == 5 and p[2] == '[' and p[4] == ']':
+        p[0] = Node('subscript', children=[p[1], p[3]])
+    else:
+        p[0] = p[1]
+
+def p_single_target(p):
+    """single_target : single_subscript_attribute_target
+                     | L_PARENTHESIS single_target R_PARENTHESIS
+                     | IDENTIFIER
+    """
+    if len(p) == 4 and p[1] == '(' and p[3] == ')' or isinstance(p[1], Node):
+        p[0] = p[1]
+    else:
+        p[0] = Node('identifier', value=p[1])
+
+def p_single_subscript_attribute_target(p):
+    """single_subscript_attribute_target : primary DOT IDENTIFIER
+                                         | primary L_SQB slices R_SQB
+    """
+    # Attribute access
+    if len(p) == 4 and p[2] == '.':
+        p[0] = Node('attribute_access', value=p[3])
+        p[0].add_child(p[1])
+    # Subscript access
+    elif len(p) == 5 and p[2] == '[' and p[4] == ']':
+        p[0] = Node('subscript', children=[p[1], p[3]])
+        p[0].add_child(p[1])
+    else:
+        p[0] = p[1]
+
+def p_targets(p):
+    """targets : targets COMMA target
+               | target
+    """
+    if len(p) == 4:
+        p[0] = Node("target_list", children=p[1].children + [p[3]])
+    else:
+        p[0] = Node("target_list", children=[p[1]])
+
+def p_target_assigment_list(p):
+    """target_assigment_list : target_assigment_list COMMA single_target
+                             | single_target
+    """
+    if len(p) == 4:
+        p[0] = Node("target_list", children=p[1].children + p[3])
+    else:
+        p[0] = Node("target_list", children=[p[1]])
+
+def p_target_assignment_chain(p):
+    """target_assignment_chain : target_assignment_chain target_assigment_list ASSIGNMENT
+                               | target_assigment_list ASSIGNMENT
+    """
+    if len(p) == 4:
+        p[0] = p[2]
+        p[0].add_child(Node("target_assignment_chain", children=p[1].children))
+    else:
+        p[0] = p[1]
+
+def p_target_tuple_seq(p):
+    """target_tuple_seq : target_tuple_seq target
+                        | target COMMA
+    """
+    if len(p) == 3:
+        p[0] = Node("target_tuple_seq", children=p[1].children + [p[2]])
+    else:
+        p[0] = Node("target_tuple_seq", children=[p[1]])
+
+def p_target_atomic(p):
+    """target_atomic : L_PARENTHESIS targets R_PARENTHESIS
+                     | L_SQB target_tuple_seq R_SQB
+                     | L_PARENTHESIS R_PARENTHESIS
+                     | L_SQB R_SQB
+                     | IDENTIFIER
+    """
+    # Target list inside of parenthesis or square brackets
+    if len(p) == 4:
+        p[0] = p[2]
+    # Empty parenthesis or square brackets
+    elif len(p) == 3:
+        p[0] = Node("empty")
+    # Identifier
+    else:
+        p[0] = Node("identifier", value=p[1])
 
 # SIMPLE STATEMENTS
 # =================
@@ -175,7 +271,7 @@ def p_block(p):
              | simple_stmts
     """
     if len(p) == 5:  # Indented block
-        p[0] = Node("block", children=p[3])
+        p[0] = Node("block", children=[p[3]])
     else:  # Simple statements
         p[0] = Node("block", children=[p[1]])
 
@@ -269,7 +365,8 @@ def p_expressions(p):
     if len(p) == 4:  # expressions , expression
         p[0] = Node("expressions", children=[p[1], p[3]])
     else:  # expression
-        p[0] = Node("expressions", children=[p[1]]) # TODO: Check this.
+        # p[0] = Node("expressions", children=[p[1]]) # TODO: Check this.
+        p[0] = p[1]
 
 
 def p_expression(p):
@@ -277,6 +374,7 @@ def p_expression(p):
                   | disjunction
     """
     if len(p) == 6:  # disjunction IF disjunction ELSE expression
+        # Ternary
         p[0] = Node("expression", children=[p[1], p[3], p[5]])
     else:  # disjunction
         p[0] = p[1]
@@ -287,7 +385,8 @@ def p_disjunction(p):
                    | conjunction 
     """
     if len(p) == 4:  # disjunction OR conjunction
-        p[0] = Node("disjunction", children=[p[1], p[3]], value="OR")
+        # p[0] = Node("disjunction", children=[p[1], p[3]], value="OR")
+        p[0] = Node("compare_op", children=[p[1], p[3]], value=p[2])
     else:  # conjunction
         p[0] = p[1]
 
@@ -297,7 +396,8 @@ def p_conjunction(p):
                    | inversion
     """
     if len(p) == 4:  # conjunction AND inversion
-        p[0] = Node("conjunction", children=[p[1], p[3]], value="AND")
+        # p[0] = Node("conjunction", children=[p[1], p[3]], value="AND")
+        p[0] = Node("compare_op", children=[p[1], p[3]], value=p[2])
     else:  # inversion
         p[0] = p[1]
 
@@ -307,7 +407,7 @@ def p_inversion(p):
                  | comparison
     """
     if len(p) == 3:  # NOT inversion
-        p[0] = Node("inversion", children=[p[2]], value="NOT")
+        p[0] = Node("inversion", children=[p[2]], value=p[1])
     else:  # comparison
         p[0] = p[1]
 
@@ -405,6 +505,10 @@ def p_sum(p):
            | sum MINUS term
            | term
     """
+    if len(p) == 4:
+        p[0] = Node('binary_operation', value=p[2], children=[p[1], p[3]])
+    else:
+        p[0] = p[1]
 
 def p_term(p):
     """term : term STAR factor 
@@ -413,17 +517,29 @@ def p_term(p):
             | term PERCENT factor
             | factor
     """
+    if len(p) == 4:
+        p[0] = Node('binary_operation', value=p[2], children=[p[1], p[3]])
+    else:
+        p[0] = p[1]
 
 def p_factor(p):
     """factor : PLUS factor 
               | MINUS factor 
               | power
     """
+    if len(p) == 3:
+        p[0] = Node('unary_operation', value=p[1], children=[p[2]])
+    else:
+        p[0] = p[1]
 
 def p_power(p):
     """power : primary DOUBLE_STAR factor
              | primary
     """
+    if len(p) == 4:
+        p[0] = Node('binary_operation', value='**', children=[p[1], p[3]])
+    else:
+        p[0] = p[1]
 
 # PRIMARY ELEMENTS
 # =======================
@@ -436,12 +552,30 @@ def p_primary(p):
                | primary DOT IDENTIFIER
                | atomic
     """
+    # Function call: primary ( arguments )
+    if len(p) == 5 and p[2] == '(' and p[4] == ')':
+        p[0] = Node('function_call')
+        p[0].add_child(p[1])
+        p[0].add_child(p[3])
+    # Attribute access: primary . IDENTIFIER
+    elif len(p) == 4 and p[2] == '.':
+        p[0] = Node('attribute_access', value=p[3])
+        p[0].add_child(p[1])
+    # Subscript/slice: primary [ slices ]
+    elif len(p) == 5 and p[2] == '[' and p[4] == ']':
+        p[0] = Node('subscript', children=[p[1], p[3]])
+    # Atomic case
+    else:
+        p[0] = p[1]
 
 # slices:
 def p_slices(p):
     """slices : slices COMMA slice
               | slice
     """
+    p[0] = p[1]
+    if len(p) == 4:
+        p[0].add_child(p[3])
 
 # slice:
 #     | [expression] ':' [expression] [':' [expression] ] 
@@ -458,6 +592,14 @@ def p_slice(p):
              | expression
              | COLON
     """
+    children = []
+    
+    for i in range(1, len(p)):
+        # Add NON-COLON elements
+        if p[i] != ':':
+            children.append(p[i])
+
+    p[0] = Node('slice', children=children)
 
 def p_atomic(p):
     """atomic : IDENTIFIER
@@ -472,6 +614,15 @@ def p_atomic(p):
               | dict
               | set
     """
+    # Literales
+    if p[1] == 'True' or p[1] == 'False' or p[1] == 'None':
+        p[0] = Node('literal', value=p[1])
+    # nested, number, and strings
+    elif isinstance(p[1], Node):
+        p[0] = p[1]
+    # Identifier
+    else:
+        p[0] = Node('identifier', value=p[1])
 
 def p_number(p):
     """number : NUMBER
@@ -480,15 +631,21 @@ def p_number(p):
               | HEX_NUMBER
               | OCT_NUMBER
     """
+    p[0] = Node("number", value=p[1])
+
+
 # FUNCTION CALL ARGUMENTS
 # =======================
 def p_argument(p):
-    """argument : expression"""
+    """argument : expression
+    """
+    p[0] = p[1]
 
 #TODO: Check how this should work may want to include keyword arguments
 def p_arguments(p):
     """arguments : expressions
     """
+    p[0] = Node('arguments', children=[p[1]])
 
 # LITERALS
 # ========
@@ -496,6 +653,7 @@ def p_strings(p):
     """strings : STRING
                | TRIPLE_STRING
     """
+    p[0] = Node("string", value=p[1])
 
 # LIST, TUPLE, SET, AND DICTIONARY
 # =======================
@@ -503,43 +661,68 @@ def p_list(p):
     """list : L_SQB expressions R_SQB
             | L_SQB R_SQB
     """
+    if len(p) == 4:  
+        p[0] = Node('list', children=[p[2]])
+    else:
+        p[0] = Node('list')
 
 def p_tuple(p):
     """tuple : L_PARENTHESIS expression COMMA expressions R_PARENTHESIS
              | L_PARENTHESIS expression COMMA R_PARENTHESIS
              | L_PARENTHESIS R_PARENTHESIS
     """
+    # L_PARENTHESIS expression COMMA expressions R_PARENTHESIS
+    if len(p) == 6:
+        p[0] = Node('tuple', children=[p[2], p[4]])
+    # L_PARENTHESIS expression COMMA R_PARENTHESIS
+    elif len(p) == 5:
+        p[0] = Node('tuple', children=[p[2]])
+    # L_PARENTHESIS R_PARENTHESIS
+    else:
+        p[0] = Node('tuple')
 
 def p_group(p):
     """group : L_PARENTHESIS expression R_PARENTHESIS
     """
+    p[0] = Node('group', children=[p[2]])
 
 def p_set(p):
     """set : L_CB expressions R_CB
     """
+    p[0] = Node('set', children=[p[2]])
 
 # DICTIONARY
 def p_dict(p):
     """dict : L_CB kvpairs R_CB
             | L_CB R_CB
     """
+    if len(p) == 4:  
+        p[0] = Node('dictionary', children=[p[2]])
+    else:
+        p[0] = Node('dictionary')
 
 def p_kvpairs(p):
     """kvpairs : kvpair_list COMMA
                | kvpair_list
     """
+    p[0] = p[1] 
 
 def p_kvpair(p):
     """kvpair : expression COLON expression
     """
+    p[0] = Node('key_value_pair', children=[p[1], p[3]])
 
 def p_kvpair_list(p):
     """kvpair_list : kvpair_list COMMA kvpair
                    | kvpair
     """
-    
-# ========================= END OF THE GRAMMAR ===========================
+    if len(p) == 4:
+        p[0] = p[1]
+        p[0].add_child(p[3])
+    else: 
+        p[0] = Node('key_value_pair_list', children=[p[1]])
 
+# ========================= END OF THE GRAMMAR ===========================
 def p_error(token):
     if token:
         error_msg = f"Syntax Error near '{token.value if token.value else token.type}'"
@@ -558,7 +741,7 @@ class Parser(object):
         result = None
         try:
             self._lexer.input(code)
-            result = self._parser.parse(lexer=self._lexer, debug=True)
+            result = self._parser.parse(lexer=self._lexer, debug=False)
         except Exception as e:
             # TODO: This should be unreachable
             print("Error: ", e)
