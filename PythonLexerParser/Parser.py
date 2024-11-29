@@ -3,6 +3,7 @@ from Lexer import Lexer
 import ply.yacc as yacc
 from common import log_error
 from node import Node
+from SymbolTable import SymbolTable
 
 # Based on PEG grammar for Python
 # Python 3 grammar: https://docs.python.org/3/reference/grammar.html
@@ -33,6 +34,7 @@ precedence = (
     ('right', 'ASSIGNMENT')
 )
 
+#sym_table = SymbolTable()
 
 # STARTING RULES
 # ==============
@@ -59,7 +61,7 @@ def p_statements(p):
             else: # Ignore NEWLINE
                 p[0] = p[1]
     else:  # Single statement
-        p[0] = Node("statements", children=[p[1]])
+        p[0] = p[1]
     
 
 def p_statement(p):
@@ -162,7 +164,7 @@ def p_target_assigment_list(p):
                              | single_target
     """
     if len(p) == 4:
-        p[0] = Node("target_list", children=p[1].children + p[3])
+        p[0] = Node("target_list", children=p[1].children + [p[3]])
     else:
         p[0] = Node("target_list", children=[p[1]])
 
@@ -215,7 +217,9 @@ def p_assignment(p):
         p[0] = Node("aug_assign", children=[p[1], p[2], p[3]])
     else:  # Chained assignment
         p[0] = Node("assign_chain", children=[p[1], p[2]])
-
+    
+    # Add variable to symbol table
+    #sym_table.add_symbol(name=p[2], symbol_type="variable", scope=0) # TODO: Fix Scope, and maybe type.
 
 # augassign
 def p_augmentation_assignment(p):
@@ -284,22 +288,26 @@ def p_class_def(p):
                  | CLASS IDENTIFIER COLON block
     """
     if len(p) == 8:  # Class with arguments
-        p[0] = Node("class_def", children=[Node("identifier", value=p[2]), p[4], p[7]])
+        p[0] = Node("class_def",  value=p[2], children=[p[4], p[7]])
     elif len(p) == 7:  # Class with empty parentheses
-        p[0] = Node("class_def", children=[Node("identifier", value=p[2]), p[6]])
+        p[0] = Node("class_def",  value=p[2], children=[p[6]])
     else:  # Class without parentheses
-        p[0] = Node("class_def", children=[Node("identifier", value=p[2]), p[4]])
+        p[0] = Node("class_def",  value=p[2], children=[p[4]])
 
+    # Add class to symbol table
+    #sym_table.add_symbol(name=p[2], symbol_type="class", scope=0) # TODO: Fix Scope.
 
 def p_function_def(p):
     """function_def : DEF IDENTIFIER L_PARENTHESIS parameters R_PARENTHESIS COLON block
                     | DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block
     """
     if len(p) == 8:  # Function with parameters
-        p[0] = Node("function_def", children=[Node("identifier", value=p[2]), p[4], p[7]])
+        p[0] = Node("function_def", value=p[2], children=[p[4], p[7]])
     else:  # Function without parameters
-        p[0] = Node("function_def", children=[Node("identifier", value=p[2]), p[6]])
+        p[0] = Node("function_def", value=p[2], children=[p[6]])
 
+    # Add function to symbol table
+    #sym_table.add_symbol(name=p[2], symbol_type="function", scope=0)
 
 
 # parameters

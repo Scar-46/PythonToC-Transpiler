@@ -7,8 +7,9 @@ class Node:
     def add_child(self, child_node):
         self.children.append(child_node)
 
-    def __repr__(self):
-        msg = f"<Node type: {self.node_type}, value: {self.value}>"
+    def __repr__(self, level=0):
+        indent = "  " * level  # Create an indentation based on the tree level
+        msg = f"{indent}<Node type: {self.node_type}, value: {self.value}>"
         for child in self.children:
-            msg += f"\n\t{child}"
+            msg += f"\n{child.__repr__(level + 1)}"
         return msg
