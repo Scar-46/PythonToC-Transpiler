@@ -21,6 +21,10 @@ class CodeGenerator():
     def error_visit(self, node):
         raise Exception(f"No visit_{node.node_type} method")
 
+    def visit_staments(self, node):
+        for child in node.children:
+            self.visit(child)
+
     def visit_function_def(self, node):
         self.emit(f"void {node.value}(")  # TODO: Fix type
         self.visit(node.children[0])  # Visit parameters
@@ -35,9 +39,7 @@ class CodeGenerator():
         self.emit(", ".join(params))
 
     def visit_block(self, node):
-        self.emit("    ")  # Indent block
         for stmt in node.children:
-            print(stmt.node_type)
             self.visit(stmt)
             self.emit("\n")
 
@@ -66,8 +68,7 @@ class CodeGenerator():
         target_nodes = node.children[0].children  # This is the target list, e.g., [n_1]
         value_node = node.children[1]  # The right-hand side, e.g., 1
 
-        # Check if there are multiple targets (for tuple-like assignments)
-        if len(target_nodes) > 1:
+        if len(target_nodes) > 1: #TODO: This could not work
             # Handle tuple unpacking (e.g., a, b, c = 1, 2, 3)
             self.emit("auto [")
             targets = [target_node.value for target_node in target_nodes]
@@ -78,14 +79,32 @@ class CodeGenerator():
             # Regular single assignment (like n_1 = 1)
             target = target_nodes[0].value  # Single target variable
             self.emit(f"{target} = ")
-            self.visit(value_node)
+            self.visit(value_node)        
 
-   # def visit_target_list(self, node):
-        
-
-    def visit_for_stmt(self, node):
-        target = node['children'][0]['value']
-        self.emit(f"for {target} in ")
-        self.visit(node['children'][1])  # Visit range or iterable
+    def visit_for_stmt(self, node): # TODO: This must be change
+        target = node.children[0].value
+        start_expr = node.children[1]  # Start expression (e.g., 0)
+        end_expr = node.children[2]    # End expression (e.g., n)
+        self.emit(f"for (int {target} = ")
+        self.visit(node.children[1])  # Visit range or iterable
         self.emit(":\n")
-        self.visit(node['children'][2])  # Visit loop body
+        self.visit(node.children[2])  # Visit loop body
+
+    def visit_function_call(self, node):
+        self.visit(node.children[0])  # Visit the function name (e.g., 'range')
+        self.emit("(")
+        self.visit(node.children[1])  # Visit the arguments
+        self.emit(")")
+
+    def visit_arguments(self, node):
+        for i, arg in enumerate(node.children):
+            self.visit(arg)  # Visit each argument (could be a number or identifier)
+            if i < len(node.children) - 1:
+                self.emit(", ")
+
+    def visit_expressions(self, node):
+        # Visit each expression in the list (e.g., range arguments)
+        for i, expr in enumerate(node.children):
+            self.visit(expr)
+            if i < len(node.children) - 1:
+                self.emit(", ")
