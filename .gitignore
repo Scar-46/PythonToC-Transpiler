@@ -163,7 +163,7 @@ cython_debug/
 
 #Specific files
 
-PythonLexerParser/parser.out
-PythonLexerParser/parsetab.py
-PythonLexerParser/out.txt
-PythonLexerParser/parser.out
+*/parser.out
+*/parsetab.py
+*/out.txt
+*/parser.out

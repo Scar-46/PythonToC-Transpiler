@@ -1,6 +1,6 @@
 import sys
 import pytest
-sys.path.insert(0, 'PythonLexerParser')
+sys.path.insert(0, 'Compiler\ICGenerator')
 from Lexer import Lexer, NEW_TOKEN
 
 # Helper function to assert that the lexer produces the expected tokens.

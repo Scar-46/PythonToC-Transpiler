@@ -34,8 +34,6 @@ precedence = (
     ('right', 'ASSIGNMENT')
 )
 
-#sym_table = SymbolTable()
-
 # STARTING RULES
 # ==============
 
@@ -218,8 +216,6 @@ def p_assignment(p):
     else:  # Chained assignment
         p[0] = Node("assign_chain", children=[p[1], p[2]])
     
-    # Add variable to symbol table
-    #sym_table.add_symbol(name=p[2], symbol_type="variable", scope=0) # TODO: Fix Scope, and maybe type.
 
 # augassign
 def p_augmentation_assignment(p):
@@ -294,8 +290,6 @@ def p_class_def(p):
     else:  # Class without parentheses
         p[0] = Node("class_def",  value=p[2], children=[p[4]])
 
-    # Add class to symbol table
-    #sym_table.add_symbol(name=p[2], symbol_type="class", scope=0) # TODO: Fix Scope.
 
 def p_function_def(p):
     """function_def : DEF IDENTIFIER L_PARENTHESIS parameters R_PARENTHESIS COLON block
@@ -306,8 +300,6 @@ def p_function_def(p):
     else:  # Function without parameters
         p[0] = Node("function_def", value=p[2], children=[p[6]])
 
-    # Add function to symbol table
-    #sym_table.add_symbol(name=p[2], symbol_type="function", scope=0)
 
 
 # parameters

@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0, 'PythonLexerParser')
+sys.path.insert(0, 'Compiler\ICGenerator')
 
 import pytest
 from Parser import Parser
@@ -72,6 +72,6 @@ def test_target_list_in_for(parser):
 
 # Test case for reading from a file
 def test_read_file(parser):
-    code = read_file("PythonLexerParser/Tests/sample.py")
+    code = read_file("Compiler/ICGenerator/Tests/sample.py")
     result = parse_code(parser, code)
     assert error_logger.error_count() == 0
