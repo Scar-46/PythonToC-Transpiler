@@ -270,9 +270,9 @@ def p_block(p):
              | simple_stmts
     """
     if len(p) == 5:  # Indented block
-        p[0] = Node("block", children=[p[3]])
+        p[0] = Node("block", children=p[3].children)
     else:  # Simple statements
-        p[0] = Node("block", children=[p[1]])
+        p[0] = Node("block", children=p[1].children)
 
 
 # Class definitions
