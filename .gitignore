@@ -167,3 +167,4 @@ cython_debug/
 */parsetab.py
 */out.txt
 */parser.out
+/.vscode
