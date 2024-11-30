@@ -19,12 +19,11 @@ def main():
     code = read_file(sys.argv[1])
     parser = Parser()
     generator = CodeGenerator()
-    try:
-        ast = parser.parse(code)
-        generator.visit(ast)
-        print(''.join(generator.code))
-    except Exception as e:
-        print(f"Unexpected Error during parsing: {e}")
+
+    ast = parser.parse(code)
+    generator.visit(ast)
+    print(''.join(generator.code))
+
     if error_logger.error_count() <= 0:
         exit_code = 0
         # TODO: make this message prettier

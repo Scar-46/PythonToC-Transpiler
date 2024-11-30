@@ -87,8 +87,8 @@ def p_simple_stmt(p):
                    | return_stmt
                    | PASS
                    | del_stmt
-                   | BREAK 
-                   | CONTINUE 
+                   | BREAK
+                   | CONTINUE
                    | global_stmt
     """
     if not isinstance(p[1], Node):
@@ -544,7 +544,7 @@ def p_power(p):
 # =======================
 
 # primary:
-def p_primary(p):
+def p_primary(p): #TODO: Simplify this
     """primary : primary L_PARENTHESIS arguments R_PARENTHESIS
                | primary L_PARENTHESIS R_PARENTHESIS
                | primary L_SQB slices R_SQB
@@ -552,10 +552,13 @@ def p_primary(p):
                | atomic
     """
     # Function call: primary ( arguments )
-    if len(p) == 5 and p[2] == '(' and p[4] == ')': #TODO: Fix function call
+    if len(p) == 5 and p[2] == '(' and p[4] == ')':
         p[0] = Node('function_call')
         p[0].add_child(p[1])
         p[0].add_child(p[3])
+    elif len(p) == 4 and p[2] == '(' and p[3] == ')':
+        p[0] = Node('function_call')
+        p[0].add_child(p[1])
     # Attribute access: primary . IDENTIFIER
     elif len(p) == 4 and p[2] == '.':
         p[0] = Node('attribute_access', value=p[3])

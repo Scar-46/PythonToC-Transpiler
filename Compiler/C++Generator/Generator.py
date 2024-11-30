@@ -3,9 +3,16 @@ sys.path.insert(0, 'Compiler/ICGenerator')
 
 from node import Node
 
-
-
 class CodeGenerator():
+
+    built_in_map = {
+        "print": "std::cout <<",
+        "len": "std::size",
+        "abs": "std::abs",
+        "min": "std::min",
+        "max": "std::max",
+    }
+
     def __init__(self):
         self.code = []
         self.indent_level = 0
@@ -31,10 +38,15 @@ class CodeGenerator():
 
     def visit_function_def(self, node):
         self.emit(f"auto {node.value}(")  # TODO: Fix type
-        self.visit(node.children[0])  # Visit parameters
-        self.emit(") {\n")
-        self.visit(node.children[1])  # Visit block
-        self.emit("}\n\n")
+        if node.children[0].node_type == "block":
+            self.emit(") {\n")
+            self.visit(node.children[0])  # Visit block
+            self.emit("}\n\n")
+        else:
+            self.visit(node.children[0])  # Visit parameters
+            self.emit(") {\n")
+            self.visit(node.children[1])  # Visit block
+            self.emit("}\n\n")
 
     def visit_parameters(self, node):
         params = []
@@ -183,16 +195,20 @@ class CodeGenerator():
         self.emit("}")
 
     def visit_function_call(self, node):
-        function_name = node.children[0].value  # The name of the function (e.g., "print")
-        arguments_node = node.children[1]      # The arguments to the function
-        if function_name == "print":
-            self.emit("std::cout << ")
-            self.visit(arguments_node)
+        function_name = node.children[0].value
+
+        # Check if the function is in the built-in map
+        if function_name in self.built_in_map:
+            self.emit(self.built_in_map[function_name])
+            if len(node.children) > 1:
+                self.visit(node.children[1])
             self.emit(";\n")
         else:
-            self.visit(node.children[0])  # Function name
+            # If not in the built-in map, handle like a regular function call
+            self.visit(node.children[0])
             self.emit("(")
-            self.visit(node.children[1])  # Arguments
+            if len(node.children) > 1:
+                self.visit(node.children[1])
             self.emit(")")
 
     def visit_arguments(self, node):
@@ -266,7 +282,6 @@ class CodeGenerator():
             self.visit(child)
             if i < len(node.children) -1:
                 self.emit(":")
-
 
     def visit_aug_assign(self, node):
         self.visit(node.children[0])
