@@ -55,6 +55,56 @@ class CodeGenerator():
         self.emit(f" {node.value} ")  # Add operator with spaces
         self.visit(node.children[1])  # Visit right operand
 
+    def visit_if_stmt(self, node):
+        condition = node.children[0]  # The `comparison` node
+        self.emit("if (")
+        self.visit(condition)  # Visit the comparison node to generate the condition
+        self.emit(") {")
+        self.emit("\n")
+
+        if len(node.children) > 1:
+            self.visit(node.children[1])
+        self.emit("}")
+
+        if len(node.children) > 2:  # Check if there's an `else` block
+            self.visit(node.children[2])
+
+    def visit_else_block(self, node):
+        # Emit the `else` block header
+        self.emit("\nelse {")
+        self.emit("\n")
+        
+        # Process the body of the `else` block
+        else_body = node.children[0]  # else block
+        self.visit(else_body)
+        
+        # Close the `else` block
+        self.emit("}")
+
+
+    #TODO: This must be simplify in the Parser
+    def visit_comparison(self, node):
+        left = node.children[0]  # Identifier or expression on the left
+        operator_node = node.children[1].children[0]  # Operator node in compare_op_list
+        right = operator_node.children[0]  # Expression on the right
+
+        # Emit the left operand
+        self.visit(left)
+
+        # Emit the operator
+        operator_map = {
+            "<": "<",
+            ">": ">",
+            "==": "==",
+            "!=": "!=",
+            "<=": "<=",
+            ">=": ">="
+        }
+        self.emit(f" {operator_map[operator_node.value]} ")
+
+        # Emit the right operand
+        self.visit(right)
+
     def visit_for_stmt(self, node):
         target = node.children[0].children[0].value  # `i` from target_list
 
@@ -87,7 +137,7 @@ class CodeGenerator():
         self.visit(node.children[0])  # Function name
         self.emit("(")
         self.visit(node.children[1])  # Arguments
-        self.emit(");")
+        self.emit(")")
 
     def visit_arguments(self, node):
         for i, arg in enumerate(node.children):
@@ -124,7 +174,7 @@ class CodeGenerator():
             self.visit(child)
         self.emit(")")
 
-    def visit_assign_chain(self, node):
+    def visit_assign_chain(self, node): #TODO: Maybe targer_list can be absorb.
         target_nodes = node.children[0].children
         value_node = node.children[1]
 
