@@ -576,18 +576,12 @@ def p_slices(p):
     if len(p) == 4:
         p[0].add_child(p[3])
 
-# slice:
-#     | [expression] ':' [expression] [':' [expression] ] 
-#     | named_expression 
-#TODO: This should be change
+
 def p_slice(p):
-    """slice : expression COLON expression COLON expression
-             | COLON expression COLON expression
-             | expression COLON COLON expression
-             | COLON expression COLON
-             | COLON COLON expression
-             | expression COLON COLON
-             | COLON COLON
+    """slice : expression slice
+             | COLON expression slice
+             | COLON expression
+             | COLON slice
              | expression
              | COLON
     """
@@ -740,7 +734,7 @@ class Parser(object):
         result = None
         try:
             self._lexer.input(code)
-            result = self._parser.parse(lexer=self._lexer, debug=False)
+            result = self._parser.parse(lexer=self._lexer, debug=True)
         except Exception as e:
             # TODO: This should be unreachable
             print("Error: ", e)
