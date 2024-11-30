@@ -734,7 +734,7 @@ class Parser(object):
         result = None
         try:
             self._lexer.input(code)
-            result = self._parser.parse(lexer=self._lexer, debug=True)
+            result = self._parser.parse(lexer=self._lexer, debug=False)
         except Exception as e:
             # TODO: This should be unreachable
             print("Error: ", e)
