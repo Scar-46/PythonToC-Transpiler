@@ -185,6 +185,13 @@ class CodeGenerator():
         arguments_node = node.children[1]      # The arguments to the function
         if function_name == "print":
             self.emit("std::cout << ")
+            self.visit(arguments_node)
+            self.emit(" << std::endl;\n")
+        else:
+            self.visit(node.children[0])  # Function name
+            self.emit("(")
+            self.visit(node.children[1])  # Arguments
+            self.emit(")")
 
     def visit_arguments(self, node):
         for i, arg in enumerate(node.children):
