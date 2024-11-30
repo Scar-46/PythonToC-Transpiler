@@ -385,7 +385,7 @@ def p_disjunction(p):
     """
     if len(p) == 4:  # disjunction OR conjunction
         # p[0] = Node("disjunction", children=[p[1], p[3]], value="OR")
-        p[0] = Node("compare_op", children=[p[1], p[3]], value=p[2])
+        p[0] = Node("logical_op", children=[p[1], p[3]], value=p[2])
     else:  # conjunction
         p[0] = p[1]
 
@@ -396,7 +396,7 @@ def p_conjunction(p):
     """
     if len(p) == 4:  # conjunction AND inversion
         # p[0] = Node("conjunction", children=[p[1], p[3]], value="AND")
-        p[0] = Node("compare_op", children=[p[1], p[3]], value=p[2])
+        p[0] = Node("logical_op", children=[p[1], p[3]], value=p[2])
     else:  # inversion
         p[0] = p[1]
 
@@ -552,7 +552,7 @@ def p_primary(p):
                | atomic
     """
     # Function call: primary ( arguments )
-    if len(p) == 5 and p[2] == '(' and p[4] == ')':
+    if len(p) == 5 and p[2] == '(' and p[4] == ')': #TODO: Fix function call
         p[0] = Node('function_call')
         p[0].add_child(p[1])
         p[0].add_child(p[3])

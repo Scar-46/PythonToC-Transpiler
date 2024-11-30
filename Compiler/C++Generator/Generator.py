@@ -37,8 +37,10 @@ class CodeGenerator():
     def visit_parameters(self, node):
         params = []
         for param in node.children:
-            params.append(f"auto {param.value}")  # TODO: Fix type
+            if param.value != "self":  # Ignore 'self'
+                params.append(f"auto {param.value}")  # TODO: Fix type (you might want to add type inference here)
         self.emit(", ".join(params))
+
 
     def visit_block(self, node):
         for stmt in node.children:
@@ -56,11 +58,9 @@ class CodeGenerator():
         self.visit(node.children[1])  # Visit right operand
 
     def visit_if_stmt(self, node):
-        condition = node.children[0]  # The `comparison` node
         self.emit("if (")
-        self.visit(condition)  # Visit the comparison node to generate the condition
-        self.emit(") {")
-        self.emit("\n")
+        self.visit(node.children[0])  # Visit the comparison node to generate the condition
+        self.emit(") {\n")
 
         if len(node.children) > 1:
             self.visit(node.children[1])
@@ -81,17 +81,13 @@ class CodeGenerator():
         # Close the `else` block
         self.emit("}")
 
-
     #TODO: This must be simplify in the Parser
     def visit_comparison(self, node):
         left = node.children[0]  # Identifier or expression on the left
         operator_node = node.children[1].children[0]  # Operator node in compare_op_list
         right = operator_node.children[0]  # Expression on the right
 
-        # Emit the left operand
         self.visit(left)
-
-        # Emit the operator
         operator_map = {
             "<": "<",
             ">": ">",
@@ -102,7 +98,6 @@ class CodeGenerator():
         }
         self.emit(f" {operator_map[operator_node.value]} ")
 
-        # Emit the right operand
         self.visit(right)
 
     def visit_for_stmt(self, node):
@@ -123,14 +118,11 @@ class CodeGenerator():
             start = range_args[0].value
             stop = range_args[1].value
             step = range_args[2].value
-        else:
-            raise ValueError("Unsupported range() format in for loop")
 
         self.emit(f"for (int {target} = {start}; {target} < {stop}; {target} += {step}) {{")
         self.emit("\n")
 
-        # Emit the loop body
-        self.visit(node.children[2])  # Visit the loop body
+        self.visit(node.children[2])
         self.emit("}")
 
     def visit_function_call(self, node):
@@ -174,7 +166,8 @@ class CodeGenerator():
             self.visit(child)
         self.emit(")")
 
-    def visit_assign_chain(self, node): #TODO: Maybe targer_list can be absorb.
+    #------------------------ ASSIGMENT ------------------------
+    def visit_assign_chain(self, node):
         target_nodes = node.children[0].children
         value_node = node.children[1]
 
