@@ -3,6 +3,8 @@ sys.path.insert(0, 'Compiler/ICGenerator')
 
 from node import Node
 
+
+
 class CodeGenerator():
     def __init__(self):
         self.code = []
@@ -186,7 +188,7 @@ class CodeGenerator():
         if function_name == "print":
             self.emit("std::cout << ")
             self.visit(arguments_node)
-            self.emit(" << std::endl;\n")
+            self.emit(";\n")
         else:
             self.visit(node.children[0])  # Function name
             self.emit("(")
@@ -259,8 +261,11 @@ class CodeGenerator():
         self.visit(slice_node)
         self.emit("]")
         
-    def visit_slice(self, node):
-        self.visit(node.children[0])
+    def visit_slice(self, node): #TODO: This must be change for C++ style
+        for i, child in enumerate(node.children):
+            self.visit(child)
+            if i < len(node.children) -1:
+                self.emit(":")
 
 
     def visit_aug_assign(self, node):
