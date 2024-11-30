@@ -119,21 +119,12 @@ class CodeGenerator():
 
     #TODO: This must be simplify in the Parser
     def visit_comparison(self, node):
-        left = node.children[0]  # Identifier or expression on the left
-        operator_node = node.children[1].children[0]  # Operator node in compare_op_list
-        right = operator_node.children[0]  # Expression on the right
+        left = node.children[0]  # Left
+        operator_node = node.children[1].children[0]  # Operator
+        right = operator_node.children[0]  # Right
 
         self.visit(left)
-        operator_map = {
-            "<": "<",
-            ">": ">",
-            "==": "==",
-            "!=": "!=",
-            "<=": "<=",
-            ">=": ">="
-        }
-        self.emit(f" {operator_map[operator_node.value]} ")
-
+        self.emit(f" {operator_node.value} ")
         self.visit(right)
 
     def visit_logical_op(self, node):
@@ -190,10 +181,10 @@ class CodeGenerator():
         self.emit("}")
 
     def visit_function_call(self, node):
-        self.visit(node.children[0])  # Function name
-        self.emit("(")
-        self.visit(node.children[1])  # Arguments
-        self.emit(")")
+        function_name = node.children[0].value  # The name of the function (e.g., "print")
+        arguments_node = node.children[1]      # The arguments to the function
+        if function_name == "print":
+            self.emit("std::cout << ")
 
     def visit_arguments(self, node):
         for i, arg in enumerate(node.children):
@@ -236,32 +227,34 @@ class CodeGenerator():
 
     #------------------------ ASSIGMENT ------------------------
     def visit_assign_chain(self, node):
-        target_nodes = node.children[0].children
+        target_list_node = node.children[0]
         value_node = node.children[1]
-
-        if len(target_nodes) > 1:
-            self.emit("auto [")
-            targets = []
-            for target_node in target_nodes:
-                if target_node.node_type == 'attribute_access':
-                    # Handle the attribute access on the left-hand side
-                    self.emit(f"{target_node.value} = ")
-                else:
-                    targets.append(target_node.value)
-            if targets:
-                self.emit(", ".join(targets) + "] = ")
-        else:
-            target_node = target_nodes[0]
-            if target_node.node_type == 'attribute_access':
-                self.visit_attribute_access(target_node)
-                self.emit(" = ")
-            else:
-                target = target_node.value
-                self.emit("auto ")
-                self.emit(f"{target} = ")
-
+        
+        if target_list_node.children[0].node_type == "identifier":
+            self.emit("auto ")
+        self.visit(target_list_node)
+        self.emit(" = ")
         self.visit(value_node)
         self.emit(";\n")
+
+    def visit_target_list(self, node):
+        for i, child in enumerate(node.children):
+            self.visit(child)
+            if i < len(node.children) -1:
+                self.emit(", ")
+
+    def visit_subscript(self, node):
+        identifier_node = node.children[0]
+        slice_node = node.children[1]
+        
+        self.visit(identifier_node)
+        self.emit("[")
+        self.visit(slice_node)
+        self.emit("]")
+        
+    def visit_slice(self, node):
+        self.visit(node.children[0])
+
 
     def visit_aug_assign(self, node):
         self.visit(node.children[0])
