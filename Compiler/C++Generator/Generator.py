@@ -16,10 +16,17 @@ class CodeGenerator():
     def __init__(self):
         self.code = []
         self.indent_level = 0
+        self.indent = False
 
-    def emit(self, code_str):
-        indent = '    ' * self.indent_level
-        self.code.append(f"{indent}{code_str}")
+    def emit(self, code_str, add_newline=False):
+
+        if self.indent:
+            indent = '    ' * self.indent_level
+            self.code.append(f"\n{indent}{code_str}")
+        else:
+            self.code.append(f"{code_str}")
+        self.indent = add_newline
+
     def get_code(self):
         return ''.join(self.code)
 
@@ -37,38 +44,39 @@ class CodeGenerator():
             self.visit(child)
 
     def visit_function_def(self, node):
-        self.emit(f"auto {node.value}(")  # TODO: Fix type
+        self.emit(f"auto {node.value}(", add_newline=False)
         if node.children[0].node_type == "block":
-            self.emit(") {\n")
+            self.emit(") {", add_newline=True)
             self.visit(node.children[0])  # Visit block
-            self.emit("}\n\n")
+            self.emit("}", add_newline=True)
         else:
             self.visit(node.children[0])  # Visit parameters
-            self.emit(") {\n")
+            self.emit(") {", add_newline=True)
             self.visit(node.children[1])  # Visit block
-            self.emit("}\n\n")
+            self.emit("}", add_newline=True)
 
     def visit_parameters(self, node):
         params = []
         for param in node.children:
             if param.value != "self":  # Ignore 'self'
                 params.append(f"auto {param.value}")  # TODO: Fix type (you might want to add type inference here)
-        self.emit(", ".join(params))
+        self.emit(", ".join(params), add_newline=False)
 
 
     def visit_block(self, node):
+        self.indent_level += 1
         for stmt in node.children:
             self.visit(stmt)
-            self.emit("\n")
+        self.indent_level -= 1
 
     def visit_return(self, node):
-        self.emit("return ")
+        self.emit("return ", add_newline=False)
         self.visit(node.children[0])  # Visit expression
-        self.emit(";")
+        self.emit(";", add_newline=True)
 
     def visit_binary_operation(self, node):
         self.visit(node.children[0])  # Visit left operand
-        self.emit(f" {node.value} ")  # Add operator with spaces
+        self.emit(f" {node.value} ", add_newline=False)  # Add operator with spaces
         self.visit(node.children[1])  # Visit right operand
 
     #------------------------ CLASS ------------------------
@@ -78,8 +86,8 @@ class CodeGenerator():
             inheritance = f" : public {node.children[0].value}"
 
         # Start class definition with inheritance (if any)
-        self.emit(f"class {node.value}{inheritance} {{")
-        self.emit("\npublic:\n")
+        self.emit(f"class {node.value}{inheritance} {{", add_newline=True)
+        self.emit("public:", add_newline=True)
         if len(node.children) > 1:
             self.visit(node.children[1])
         else:
@@ -87,33 +95,33 @@ class CodeGenerator():
 
     def visit_attribute_access(self, node):
         if node.children[0].value == "self":
-            self.emit("this")
-            self.emit(f"->{node.value}")
+            self.emit("this", add_newline=False)
+            self.emit(f"->{node.value}", add_newline=False)
         else:
             self.visit(node.children[0])
-            self.emit(f".{node.value}")
+            self.emit(f".{node.value}", add_newline=False)
 
     #------------------------ IF ------------------------
     def visit_if_stmt(self, node):
-        self.emit("if (")
-        self.visit(node.children[0])  # Visit the comparison node to generate the condition
-        self.emit(") {\n")
+        self.emit("if (", add_newline=False)
+        self.visit(node.children[0])  # Condition
+        self.emit(") {", add_newline=True)
 
         if len(node.children) > 1:
-            self.visit(node.children[1])
-        self.emit("}")
+            self.visit(node.children[1])  # If block
+        self.emit("}",add_newline=True)
 
-        if len(node.children) > 2:  # Check if there's an `else` block
+        if len(node.children) > 2:  # Else or elif
             self.visit(node.children[2])
 
     def visit_elif_stmt(self, node):
-        self.emit("\nelse if (")
+        self.emit("else if (", add_newline=False)
         self.visit(node.children[0])
-        self.emit(") {\n")
+        self.emit(") {", add_newline=True)
         
         if len(node.children) > 1:
             self.visit(node.children[1])
-        self.emit("}")
+        self.emit("}", add_newline=True)
 
         if len(node.children) > 2:  # Check if there's an `else` block
             self.visit(node.children[2])
@@ -121,15 +129,13 @@ class CodeGenerator():
 
     def visit_else_block(self, node):
         # Emit the `else` block header
-        self.emit("\nelse {")
-        self.emit("\n")
-        
+        self.emit("else {", add_newline=True)        
         # Process the body of the `else` block
         else_body = node.children[0]  # else block
         self.visit(else_body)
         
         # Close the `else` block
-        self.emit("}")
+        self.emit("}", add_newline=True)
 
     #TODO: This must be simplify in the Parser
     def visit_comparison(self, node):
@@ -138,7 +144,7 @@ class CodeGenerator():
         right = operator_node.children[0]  # Right
 
         self.visit(left)
-        self.emit(f" {operator_node.value} ")
+        self.emit(f" {operator_node.value} ", add_newline=False)
         self.visit(right)
 
     def visit_logical_op(self, node):
@@ -147,26 +153,26 @@ class CodeGenerator():
         elif node.value == "or":
             operator = "||"
 
-        self.emit("(")
+        self.emit("(", add_newline=False)
         self.visit(node.children[0])
 
-        self.emit(f" {operator} ")
+        self.emit(f" {operator} ", add_newline=False)
 
         self.visit(node.children[1])
-        self.emit(")")
+        self.emit(")",add_newline=False)
 
 
     #------------------------ WHILE ------------------------
     def visit_while_stmt(self, node):
-        self.emit("while ")
+        self.emit("while ", add_newline=False)
         self.visit(node.children[0])  # Visit the condition group
-        self.emit(" {\n")
+        self.emit(" {", add_newline=True)
         block_node = node.children[1]
         self.visit(block_node)
-        self.emit("}\n")
+        self.emit("}", add_newline=True)
 
     def visit_simple_stmt(self, node):
-        self.emit(f" {node.value};")
+        self.emit(f"{node.value};", add_newline=True)
 
     #------------------------ FOR ------------------------
     def visit_for_stmt(self, node):
@@ -188,104 +194,100 @@ class CodeGenerator():
             stop = range_args[1].value
             step = range_args[2].value
 
-        self.emit(f"for (int {target} = {start}; {target} < {stop}; {target} += {step}) {{")
-        self.emit("\n")
-
+        self.emit(f"for (int {target} = {start}; {target} < {stop}; {target} += {step}) {{", add_newline=True)
         self.visit(node.children[2])
-        self.emit("}")
+        self.emit("}", add_newline=True)
 
-    def visit_function_call(self, node):
+    def visit_function_call(self, node): #TODO: Fix ";"
         function_name = node.children[0].value
 
-        # Check if the function is in the built-in map
         if function_name in self.built_in_map:
-            self.emit(self.built_in_map[function_name])
+            self.emit(self.built_in_map[function_name], add_newline=False)
             if len(node.children) > 1:
                 self.visit(node.children[1])
-            self.emit(";\n")
+            self.emit(";", add_newline=True)
         else:
-            # If not in the built-in map, handle like a regular function call
             self.visit(node.children[0])
-            self.emit("(")
+            self.emit("(", add_newline=False)
             if len(node.children) > 1:
                 self.visit(node.children[1])
-            self.emit(")")
+            self.emit(")", add_newline=False)
 
     def visit_arguments(self, node):
         for i, arg in enumerate(node.children):
             self.visit(arg)
             if i < len(node.children) - 1:
-                self.emit(", ")
+                self.emit(", ", add_newline=False)
 
     def visit_expressions(self, node):
         # Visit each expression in the list (e.g., range arguments)
         for i, expr in enumerate(node.children):
             self.visit(expr)
             if i < len(node.children) - 1:
-                self.emit(", ")
+                self.emit(", ", add_newline=False)
 
     ###################### Tuple methods ######################
     def visit_tuple(self, node):
-        self.emit("std::make_tuple(")
+        self.emit("std::make_tuple(", add_newline=False)
         for i, child in enumerate(node.children):
             self.visit(child)
             if i < len(node.children) - 1:
-                self.emit(", ")
-        self.emit(")")
+                self.emit(", ", add_newline=False)
+        self.emit(")", add_newline=False)
 
     ###################### Atomic methods ######################
     def visit_identifier(self, node):
-        self.emit(node.value)
+        self.emit(node.value, add_newline=False)
 
     def visit_number(self, node):
-        self.emit(str(node.value))
+        self.emit(str(node.value), add_newline=False)
     
     def visit_string(self, node):
         escaped_string = node.value.replace('"', '\\"')  # Escape double quotes
-        self.emit(f"\"{escaped_string}\"")  # Emit as a double-quoted C++ string
+        self.emit(f"\"{escaped_string}\"", add_newline=False)  # Emit as a double-quoted C++ string
 
     def visit_group(self, node):
-        self.emit("(")
+        self.emit("(", add_newline=False)
         for child in node.children:
             self.visit(child)
-        self.emit(")")
+        self.emit(")", add_newline=False)
 
     #------------------------ ASSIGMENT ------------------------
     def visit_assign_chain(self, node):
         target_list_node = node.children[0]
         value_node = node.children[1]
-        
+
         if target_list_node.children[0].node_type == "identifier":
-            self.emit("auto ")
+            self.emit("auto ", add_newline=False)
         self.visit(target_list_node)
-        self.emit(" = ")
+        self.emit(" = ", add_newline=False)
         self.visit(value_node)
-        self.emit(";\n")
+        self.emit(";", add_newline=True)
 
     def visit_target_list(self, node):
         for i, child in enumerate(node.children):
             self.visit(child)
             if i < len(node.children) -1:
-                self.emit(", ")
+                self.emit(", ", add_newline=False)
 
     def visit_subscript(self, node):
         identifier_node = node.children[0]
         slice_node = node.children[1]
         
         self.visit(identifier_node)
-        self.emit("[")
+        self.emit("[", add_newline=False)
         self.visit(slice_node)
-        self.emit("]")
+        self.emit("]", add_newline=False)
         
     def visit_slice(self, node): #TODO: This must be change for C++ style
         for i, child in enumerate(node.children):
             self.visit(child)
             if i < len(node.children) -1:
-                self.emit(":")
+                self.emit(":", add_newline=False)
 
     def visit_aug_assign(self, node):
         self.visit(node.children[0])
-        self.emit(f" {node.children[1].value} ")
+        self.emit(f" {node.children[1].value} ", add_newline=False)
         self.visit(node.children[2])
-        self.emit(";\n")
+        self.emit(";", add_newline=True)
 
