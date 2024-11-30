@@ -58,6 +58,28 @@ class CodeGenerator():
         self.visit(node.children[1])  # Visit right operand
 
     #------------------------ CLASS ------------------------
+    def visit_class_def(self, node): #TODO: Check how to traslate _init_
+        inheritance = ""
+        if len(node.children) > 1 and node.children[0].node_type == 'identifier':
+            inheritance = f" : public {node.children[0].value}"
+
+        # Start class definition with inheritance (if any)
+        self.emit(f"class {node.value}{inheritance} {{")
+        self.emit("\npublic:\n")
+        if len(node.children) > 1:
+            self.visit(node.children[1])
+        else:
+            self.visit(node.children[0])
+
+    def visit_attribute_access(self, node):
+        if node.children[0].value == "self":
+            self.emit("this")
+            self.emit(f"->{node.value}")
+        else:
+            self.visit(node.children[0])
+            self.emit(f".{node.value}")
+
+    #------------------------ IF ------------------------
     def visit_if_stmt(self, node):
         self.emit("if (")
         self.visit(node.children[0])  # Visit the comparison node to generate the condition
@@ -114,6 +136,34 @@ class CodeGenerator():
 
         self.visit(right)
 
+    def visit_logical_op(self, node):
+        if node.value == "and":
+            operator = "&&"
+        elif node.value == "or":
+            operator = "||"
+
+        self.emit("(")
+        self.visit(node.children[0])
+
+        self.emit(f" {operator} ")
+
+        self.visit(node.children[1])
+        self.emit(")")
+
+
+    #------------------------ WHILE ------------------------
+    def visit_while_stmt(self, node):
+        self.emit("while ")
+        self.visit(node.children[0])  # Visit the condition group
+        self.emit(" {\n")
+        block_node = node.children[1]
+        self.visit(block_node)
+        self.emit("}\n")
+
+    def visit_simple_stmt(self, node):
+        self.emit(f" {node.value};")
+
+    #------------------------ FOR ------------------------
     def visit_for_stmt(self, node):
         target = node.children[0].children[0].value  # `i` from target_list
 
