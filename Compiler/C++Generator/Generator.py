@@ -223,6 +223,10 @@ class CodeGenerator():
 
     def visit_number(self, node):
         self.emit(str(node.value))
+    
+    def visit_string(self, node):
+        escaped_string = node.value.replace('"', '\\"')  # Escape double quotes
+        self.emit(f"\"{escaped_string}\"")  # Emit as a double-quoted C++ string
 
     def visit_group(self, node):
         self.emit("(")
@@ -237,11 +241,31 @@ class CodeGenerator():
 
         if len(target_nodes) > 1:
             self.emit("auto [")
-            targets = [target_node.value for target_node in target_nodes]
-            self.emit(", ".join(targets) + "] = ")
+            targets = []
+            for target_node in target_nodes:
+                if target_node.node_type == 'attribute_access':
+                    # Handle the attribute access on the left-hand side
+                    self.emit(f"{target_node.value} = ")
+                else:
+                    targets.append(target_node.value)
+            if targets:
+                self.emit(", ".join(targets) + "] = ")
         else:
-            target = target_nodes[0].value
-            self.emit("auto ")
-            self.emit(f"{target} = ")
+            target_node = target_nodes[0]
+            if target_node.node_type == 'attribute_access':
+                self.visit_attribute_access(target_node)
+                self.emit(" = ")
+            else:
+                target = target_node.value
+                self.emit("auto ")
+                self.emit(f"{target} = ")
+
         self.visit(value_node)
-        self.emit(";") # TODO: Check where the ; should go.
+        self.emit(";\n")
+
+    def visit_aug_assign(self, node):
+        self.visit(node.children[0])
+        self.emit(f" {node.children[1].value} ")
+        self.visit(node.children[2])
+        self.emit(";\n")
+
