@@ -57,6 +57,7 @@ class CodeGenerator():
         self.emit(f" {node.value} ")  # Add operator with spaces
         self.visit(node.children[1])  # Visit right operand
 
+    #------------------------ CLASS ------------------------
     def visit_if_stmt(self, node):
         self.emit("if (")
         self.visit(node.children[0])  # Visit the comparison node to generate the condition
@@ -68,6 +69,19 @@ class CodeGenerator():
 
         if len(node.children) > 2:  # Check if there's an `else` block
             self.visit(node.children[2])
+
+    def visit_elif_stmt(self, node):
+        self.emit("\nelse if (")
+        self.visit(node.children[0])
+        self.emit(") {\n")
+        
+        if len(node.children) > 1:
+            self.visit(node.children[1])
+        self.emit("}")
+
+        if len(node.children) > 2:  # Check if there's an `else` block
+            self.visit(node.children[2])
+
 
     def visit_else_block(self, node):
         # Emit the `else` block header
