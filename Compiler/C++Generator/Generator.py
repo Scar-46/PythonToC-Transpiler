@@ -226,7 +226,7 @@ class CodeGenerator():
             if i < len(node.children) - 1:
                 self.emit(", ", add_newline=False)
 
-    ###################### Tuple methods ######################
+    ###################### Structures methods ######################
     def visit_tuple(self, node):
         self.emit("std::make_tuple(", add_newline=False)
         for i, child in enumerate(node.children):
@@ -234,6 +234,30 @@ class CodeGenerator():
             if i < len(node.children) - 1:
                 self.emit(", ", add_newline=False)
         self.emit(")", add_newline=False)
+
+    def visit_dictionary(self, node):
+        self.emit("{", add_newline=True)
+        for child in node.children:
+            self.visit(child)
+        self.emit("}", add_newline=False)
+
+    def visit_key_value_pair_list(self, node):
+        self.emit("{", add_newline=True)
+        self.indent_level += 1
+        for i, child in enumerate(node.children):
+            if child.node_type == "key_value_pair":
+                self.emit("{", add_newline=False)
+                key, value = child.children
+                self.visit(key)  # Visit the key (which is a string node)
+                self.emit(": ", add_newline=False)  # Add the colon separator
+                self.visit(value)  # Visit the value (which is a string node)
+                self.emit("}", add_newline=False)
+                if i < len(node.children) - 1:
+                    self.emit(", ", add_newline=True)  # Separate pairs with commas
+        self.indent_level -= 1
+        self.emit("}", add_newline=True)
+
+
 
     ###################### Atomic methods ######################
     def visit_identifier(self, node):
