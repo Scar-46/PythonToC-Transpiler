@@ -87,12 +87,12 @@ class CodeGenerator():
 
         # Start class definition with inheritance (if any)
         self.emit(f"class {node.value}{inheritance} {{", add_newline=True)
-        self.emit("    public:", add_newline=True)
+        self.emit("public:", add_newline=True)
         if len(node.children) > 1:
             self.visit(node.children[1])
         else:
             self.visit(node.children[0])
-        self.emit("}", add_newline=True)
+        self.emit("};", add_newline=True)
 
     def visit_attribute_access(self, node):
         if node.children[0].value == "self":
@@ -236,14 +236,13 @@ class CodeGenerator():
                 self.emit(", ", add_newline=False)
         self.emit(")", add_newline=False)
 
-    def visit_dictionary(self, node):
+    def visit_dictionary(self, node): # TODO:Add std::map if needed
         self.emit("{", add_newline=True)
         for child in node.children:
             self.visit(child)
         self.emit("}", add_newline=False)
 
     def visit_key_value_pair_list(self, node):
-        self.emit("{", add_newline=True)
         self.indent_level += 1
         for i, child in enumerate(node.children):
             if child.node_type == "key_value_pair":
@@ -252,11 +251,11 @@ class CodeGenerator():
                 self.visit(key)  # Visit the key (which is a string node)
                 self.emit(": ", add_newline=False)  # Add the colon separator
                 self.visit(value)  # Visit the value (which is a string node)
-                self.emit("}", add_newline=False)
                 if i < len(node.children) - 1:
-                    self.emit(", ", add_newline=True)  # Separate pairs with commas
+                    self.emit("}, ", add_newline=True)  # Separate pairs with commas
+                else:
+                    self.emit("}", add_newline=True)
         self.indent_level -= 1
-        self.emit("}", add_newline=True)
 
 
 
