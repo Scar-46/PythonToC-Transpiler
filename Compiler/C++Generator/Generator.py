@@ -59,7 +59,7 @@ class CodeGenerator():
         params = []
         for param in node.children:
             if param.value != "self":  # Ignore 'self'
-                params.append(f"auto {param.value}")  # TODO: Fix type (you might want to add type inference here)
+                params.append(f"auto {param.value}")  # TODO: Fix type (add type inference here)
         self.emit(", ".join(params), add_newline=False)
 
 
@@ -141,7 +141,7 @@ class CodeGenerator():
     #TODO: This must be simplify in the Parser
     def visit_comparison(self, node):
         left = node.children[0]  # Left
-        operator_node = node.children[1].children[0]  # Operator
+        operator_node = node.children[1]  # Operator
         right = operator_node.children[0]  # Right
 
         self.visit(left)
@@ -177,10 +177,10 @@ class CodeGenerator():
 
     #------------------------ FOR ------------------------
     def visit_for_stmt(self, node):
-        target = node.children[0].children[0].value  # `i` from target_list
+        target = node.children[0].value  # `i` from target_list
 
         range_call = node.children[1]  # function_call
-        range_args = range_call.children[1].children[0].children
+        range_args = range_call.children[1].children
 
         if len(range_args) == 1:  # range(stop)
             start = "0"
@@ -199,7 +199,7 @@ class CodeGenerator():
         self.visit(node.children[2])
         self.emit("}", add_newline=True)
 
-    def visit_function_call(self, node): #TODO: Fix ";"
+    def visit_function_call(self, node): #TODO: Fix ";" (Can be fix adding node in both cases in simple_stmt), also needs to change the order of declaration of functions if needed
         function_name = node.children[0].value
 
         if function_name in self.built_in_map:
@@ -257,7 +257,8 @@ class CodeGenerator():
                     self.emit("}", add_newline=True)
         self.indent_level -= 1
 
-
+    def visit_list(self, node):
+        print("In progress")
 
     ###################### Atomic methods ######################
     def visit_identifier(self, node):
@@ -277,7 +278,7 @@ class CodeGenerator():
         self.emit(")", add_newline=False)
 
     #------------------------ ASSIGMENT ------------------------
-    def visit_assign_chain(self, node):
+    def visit_assign_chain(self, node): #TODO: This needs to be in c++ style
         target_list_node = node.children[0]
         value_node = node.children[1]
 
