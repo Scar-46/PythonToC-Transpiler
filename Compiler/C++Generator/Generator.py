@@ -87,7 +87,7 @@ class CodeGenerator():
 
         # Start class definition with inheritance (if any)
         self.emit(f"class {node.value}{inheritance} {{", add_newline=True)
-        self.emit("public:", add_newline=True)
+        self.emit("    public:", add_newline=True)
         if len(node.children) > 1:
             self.visit(node.children[1])
         else:
@@ -257,12 +257,16 @@ class CodeGenerator():
         target_list_node = node.children[0]
         value_node = node.children[1]
 
-        if target_list_node.children[0].node_type == "identifier":
-            self.emit("auto ", add_newline=False)
         self.visit(target_list_node)
-        self.emit(" = ", add_newline=False)
         self.visit(value_node)
         self.emit(";", add_newline=True)
+
+    def visit_target_chain(self, node): # TODO:Check if identifier already exist
+        self.emit("auto ", add_newline=False)
+        for target_list_node in node.children:
+            self.visit(target_list_node)
+            self.emit(" = ", add_newline=False)
+            
 
     def visit_target_list(self, node):
         for i, child in enumerate(node.children):

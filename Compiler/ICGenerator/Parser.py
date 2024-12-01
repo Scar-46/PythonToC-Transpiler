@@ -14,7 +14,7 @@ precedence = (
     ('left', 'AND'),
     ('left', 'NOT'),
 
-    ('left', 'LESSER', 'LESSER_EQUAL', 'GREATER', 'GREATER_EQUAL', 'EQUALITY', 'NOT'),
+    ('left', 'LESSER', 'LESSER_EQUAL', 'GREATER', 'GREATER_EQUAL', 'EQUALITY'),
 
     ('left', 'PIPE'),               # Bitwise OR: |
     ('left', 'CARET'),              # Bitwise XOR: ^
@@ -106,106 +106,30 @@ def p_compound_stmt(p):
     """
     p[0] = p[1]
 
-
-def p_target(p):
-    """target : primary DOT IDENTIFIER
-              | primary L_SQB slices R_SQB
-              | primary
-    """
-    # Attribute access
-    if len(p) == 4 and p[2] == '.':
-        p[0] = Node('attribute_access', value=p[3])
-        p[0].add_child(p[1])
-    # Subscript access
-    elif len(p) == 5 and p[2] == '[' and p[4] == ']':
-        p[0] = Node('subscript', children=[p[1], p[3]])
-    else:
-        p[0] = p[1]
-
-def p_single_target(p):
-    """single_target : single_subscript_attribute_target
-                     | L_PARENTHESIS single_target R_PARENTHESIS
-                     | IDENTIFIER
-    """
-    if len(p) == 4 and p[1] == '(' and p[3] == ')' or isinstance(p[1], Node):
-        p[0] = p[1]
-    else:
-        p[0] = Node('identifier', value=p[1])
-
-def p_single_subscript_attribute_target(p):
-    """single_subscript_attribute_target : primary DOT IDENTIFIER
-                                         | primary L_SQB slices R_SQB
-    """
-    # Attribute access
-    if len(p) == 4 and p[2] == '.':
-        p[0] = Node('attribute_access', value=p[3])
-        p[0].add_child(p[1])
-    # Subscript access
-    elif len(p) == 5 and p[2] == '[' and p[4] == ']':
-        p[0] = Node('subscript', children=[p[1], p[3]])
-        p[0].add_child(p[1])
-    else:
-        p[0] = p[1]
-
 def p_targets(p):
-    """targets : targets COMMA target
-               | target
+    """targets : targets COMMA primary
+               | primary
     """
     if len(p) == 4:
         p[0] = Node("target_list", children=p[1].children + [p[3]])
     else:
         p[0] = Node("target_list", children=[p[1]])
 
-def p_target_assigment_list(p):
-    """target_assigment_list : target_assigment_list COMMA single_target
-                             | single_target
-    """
-    if len(p) == 4:
-        p[0] = Node("target_list", children=p[1].children + [p[3]])
-    else:
-        p[0] = Node("target_list", children=[p[1]])
 
 def p_target_assignment_chain(p):
-    """target_assignment_chain : target_assignment_chain target_assigment_list ASSIGNMENT
-                               | target_assigment_list ASSIGNMENT
+    """target_assignment_chain : target_assignment_chain targets ASSIGNMENT 
+                               | targets ASSIGNMENT
     """
     if len(p) == 4:
-        p[0] = p[2]
-        p[0].add_child(Node("target_assignment_chain", children=p[1].children))
-    else:
-        p[0] = p[1]
-
-def p_target_tuple_seq(p):
-    """target_tuple_seq : target_tuple_seq target
-                        | target COMMA
-    """
-    if len(p) == 3:
-        p[0] = Node("target_tuple_seq", children=p[1].children + [p[2]])
-    else:
-        p[0] = Node("target_tuple_seq", children=[p[1]])
-
-def p_target_atomic(p):
-    """target_atomic : L_PARENTHESIS targets R_PARENTHESIS
-                     | L_SQB target_tuple_seq R_SQB
-                     | L_PARENTHESIS R_PARENTHESIS
-                     | L_SQB R_SQB
-                     | IDENTIFIER
-    """
-    # Target list inside of parenthesis or square brackets
-    if len(p) == 4:
-        p[0] = p[2]
-    # Empty parenthesis or square brackets
+        p[0] = Node("target_chain", children=p[1].children + [p[2]])
     elif len(p) == 3:
-        p[0] = Node("empty")
-    # Identifier
-    else:
-        p[0] = Node("identifier", value=p[1])
+        p[0] = Node("target_chain", children=[p[1]])
 
 # SIMPLE STATEMENTS
 # =================
 def p_assignment(p):
-    """assignment : L_PARENTHESIS single_target R_PARENTHESIS ASSIGNMENT expressions
-                  | single_target augmentation_assignment expressions
+    """assignment : L_PARENTHESIS primary R_PARENTHESIS ASSIGNMENT expressions
+                  | primary augmentation_assignment expressions
                   | target_assignment_chain expressions
     """
     if len(p) == 6:  # Parenthesized assignment
@@ -582,7 +506,6 @@ def p_slices(p):
 
 def p_slice(p):
     """slice : expression slice
-             | COLON expression slice
              | COLON expression
              | COLON slice
              | expression
