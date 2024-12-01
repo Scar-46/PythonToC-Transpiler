@@ -92,6 +92,7 @@ class CodeGenerator():
             self.visit(node.children[1])
         else:
             self.visit(node.children[0])
+        self.emit("}", add_newline=True)
 
     def visit_attribute_access(self, node):
         if node.children[0].value == "self":
