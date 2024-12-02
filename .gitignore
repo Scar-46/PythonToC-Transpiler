@@ -163,13 +163,9 @@ cython_debug/
 
 #Specific files
 
-*/parser.out
-*/parsetab.py
-*/out.txt
-*/parser.out
+*parser.out
+*parsetab.py
+*out.txt
 *.dot
-/.vscode
-Compiler/ICGenerator/parser.out
-Compiler/ICGenerator/parsetab.py
-Compiler/ICGenerator/parsetab.py
-Compiler/ICGenerator/parsetab.py
+.vscode/launch.json
+.vscode/tasks.json

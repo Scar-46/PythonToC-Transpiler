@@ -34,6 +34,8 @@ precedence = (
     ('right', 'ASSIGNMENT')
 )
 
+symbol_table = SymbolTable()
+
 # STARTING RULES
 # ==============
 
@@ -42,6 +44,7 @@ def p_file(p):
             | ENDMARKER
     """
     p[0] = p[1]
+
 
 # GENERAL STATEMENTS
 # ==================
@@ -111,9 +114,12 @@ def p_targets(p):
                | primary
     """
     if len(p) == 4:
-        p[0] = Node("target_list", children=p[1].children + [p[3]])
+        if p[1].node_type == "target_list":
+            p[0] = Node("target_list", children=p[1].children + [p[3]])
+        else:
+            p[0] = Node("target_list", children=[p[1]])
     else:
-        p[0] = Node("target_list", children=[p[1]])
+        p[0]= p[1]
 
 
 def p_target_assignment_chain(p):
@@ -132,6 +138,7 @@ def p_assignment(p):
                   | primary augmentation_assignment expressions
                   | target_assignment_chain expressions
     """
+
     if len(p) == 6:  # Parenthesized assignment
         p[0] = Node("assign", children=[p[2], p[5]])
     elif len(p) == 4:  # Augmented assignment
@@ -189,7 +196,7 @@ def p_namelist(p):
 
 # Common elements
 # ---------------
-def p_block(p):
+def p_block(p): #TODO: This can be simplify
     """block : NEWLINE INDENT statements DEDENT
              | simple_stmts
     """
@@ -202,11 +209,11 @@ def p_block(p):
 # Class definitions
 # -----------------
 def p_class_def(p):
-    """class_def : CLASS IDENTIFIER L_PARENTHESIS argument R_PARENTHESIS COLON block  
+    """class_def : CLASS IDENTIFIER L_PARENTHESIS expression R_PARENTHESIS COLON block  
                  | CLASS IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block
                  | CLASS IDENTIFIER COLON block
     """
-    if len(p) == 8:  # Class with arguments
+    if len(p) == 8:  # Class with expressions
         p[0] = Node("class_def",  value=p[2], children=[p[4], p[7]])
     elif len(p) == 7:  # Class with empty parentheses
         p[0] = Node("class_def",  value=p[2], children=[p[6]])
@@ -218,14 +225,13 @@ def p_function_def(p):
     """function_def : DEF IDENTIFIER L_PARENTHESIS parameters R_PARENTHESIS COLON block
                     | DEF IDENTIFIER L_PARENTHESIS R_PARENTHESIS COLON block
     """
+    
     if len(p) == 8:  # Function with parameters
         p[0] = Node("function_def", value=p[2], children=[p[4], p[7]])
     else:  # Function without parameters
         p[0] = Node("function_def", value=p[2], children=[p[6]])
 
 
-
-# parameters
 def p_parameters(p):
     """parameters : parameters COMMA IDENTIFIER
                   | IDENTIFIER
@@ -234,6 +240,7 @@ def p_parameters(p):
         p[0] = Node("parameters", children=p[1].children + [Node("identifier", value=p[3])])
     else:  # Single parameter
         p[0] = Node("parameters", children=[Node("identifier", value=p[1])])
+
 
 
 # If statement
@@ -286,9 +293,11 @@ def p_expressions(p):
                    | expression
     """
     if len(p) == 4:  # expressions , expression
-        p[0] = Node("expressions", children=[p[1], p[3]])
+        if p[1].node_type == "expressions":
+            p[0] = Node("expressions", children=p[1].children + [p[3]])
+        else:
+            p[0] = Node("expressions", children=[p[1], p[3]])
     else:  # expression
-        # p[0] = Node("expressions", children=[p[1]]) # TODO: Check this.
         p[0] = p[1]
 
 
@@ -298,7 +307,7 @@ def p_expression(p):
     """
     if len(p) == 6:  # disjunction IF disjunction ELSE expression
         # Ternary
-        p[0] = Node("expression", children=[p[1], p[3], p[5]])
+        p[0] = Node("ternary", children=[p[1], p[3], p[5]])
     else:  # disjunction
         p[0] = p[1]
 
@@ -348,15 +357,17 @@ def p_comparison(p):
         p[0] = p[1]
 
 
-# I don't know with this one TODO: Check this
 def p_compare_op_list(p):
     """compare_op_list : compare_op_list compare_op
                        | compare_op 
     """
     if len(p) == 3:  # compare_op_list compare_op
-        p[0] = Node("compare_op_list", children=[p[1], p[2]])
+        if p[1].node_type == "compare_op_list":
+            p[0] = Node("compare_op_list", children=p[1].children + [p[2]])
+        else:
+            p[0] = Node("compare_op_list", children=[p[1], p[2]])
     else:  # compare_op
-        p[0] = Node("compare_op_list", children=[p[1]])
+        p[0] = p[1]
 
 
 #NOTE: This can be changed
@@ -388,7 +399,6 @@ def p_bitwise_or(p):
         p[0] = p[1]
 
 
-#TODO: XOR is not available in the tokens, should be added
 def p_bitwise_xor(p):
     """bitwise_xor : bitwise_xor CARET bitwise_and 
                    | bitwise_and
@@ -429,7 +439,7 @@ def p_sum(p):
            | term
     """
     if len(p) == 4:
-        p[0] = Node('binary_operation', value=p[2], children=[p[1], p[3]])
+        p[0] = Node("binary_operation", value=p[2], children=[p[1], p[3]])
     else:
         p[0] = p[1]
 
@@ -441,7 +451,7 @@ def p_term(p):
             | factor
     """
     if len(p) == 4:
-        p[0] = Node('binary_operation', value=p[2], children=[p[1], p[3]])
+        p[0] = Node("binary_operation", value=p[2], children=[p[1], p[3]])
     else:
         p[0] = p[1]
 
@@ -451,7 +461,7 @@ def p_factor(p):
               | power
     """
     if len(p) == 3:
-        p[0] = Node('unary_operation', value=p[1], children=[p[2]])
+        p[0] = Node("unary_operation", value=p[1], children=[p[2]])
     else:
         p[0] = p[1]
 
@@ -460,7 +470,7 @@ def p_power(p):
              | primary
     """
     if len(p) == 4:
-        p[0] = Node('binary_operation', value='**', children=[p[1], p[3]])
+        p[0] = Node("binary_operation", value='**', children=[p[1], p[3]])
     else:
         p[0] = p[1]
 
@@ -469,28 +479,21 @@ def p_power(p):
 
 # primary:
 def p_primary(p): #TODO: Simplify this
-    """primary : primary L_PARENTHESIS arguments R_PARENTHESIS
+    """primary : primary L_PARENTHESIS expressions R_PARENTHESIS
                | primary L_PARENTHESIS R_PARENTHESIS
                | primary L_SQB slices R_SQB
                | primary DOT IDENTIFIER
                | atomic
     """
-    # Function call: primary ( arguments )
+    # Function call: primary ( expressions )
     if len(p) == 5 and p[2] == '(' and p[4] == ')':
-        p[0] = Node('function_call')
-        p[0].add_child(p[1])
-        p[0].add_child(p[3])
+        p[0] = Node("function_call", children=[p[1], p[3]])
     elif len(p) == 4 and p[2] == '(' and p[3] == ')':
-        p[0] = Node('function_call')
-        p[0].add_child(p[1])
-    # Attribute access: primary . IDENTIFIER
+        p[0] = Node("function_call", children=[p[1]])
     elif len(p) == 4 and p[2] == '.':
-        p[0] = Node('attribute_access', value=p[3])
-        p[0].add_child(p[1])
-    # Subscript/slice: primary [ slices ]
+        p[0] = Node("attribute_access", children=[p[1]], value=p[3])
     elif len(p) == 5 and p[2] == '[' and p[4] == ']':
-        p[0] = Node('subscript', children=[p[1], p[3]])
-    # Atomic case
+        p[0] = Node("subscript", children=[p[1], p[3]])
     else:
         p[0] = p[1]
 
@@ -542,6 +545,7 @@ def p_atomic(p):
     # Identifier
     else:
         p[0] = Node('identifier', value=p[1])
+        
 
 def p_number(p):
     """number : NUMBER
@@ -551,20 +555,6 @@ def p_number(p):
               | OCT_NUMBER
     """
     p[0] = Node("number", value=p[1])
-
-
-# FUNCTION CALL ARGUMENTS
-# =======================
-def p_argument(p):
-    """argument : expression
-    """
-    p[0] = p[1]
-
-#TODO: Check how this should work may want to include keyword arguments
-def p_arguments(p):
-    """arguments : expressions
-    """
-    p[0] = Node('arguments', children=[p[1]])
 
 # LITERALS
 # ========
@@ -621,25 +611,22 @@ def p_dict(p):
         p[0] = Node('dictionary')
 
 def p_kvpairs(p):
-    """kvpairs : kvpair_list COMMA
-               | kvpair_list
+    """kvpairs : kvpairs COMMA kvpair
+               | kvpair
     """
-    p[0] = p[1] 
+    if len(p) == 4:
+        if p[1].node_type == "kvpairs":
+            p[0] = Node("kvpairs", children=p[1].children + [p[3]])
+        else:
+            p[0] = Node("kvpairs", children=[p[1], p[3]])
+    else: 
+        p[0] = p[1]
 
 def p_kvpair(p):
     """kvpair : expression COLON expression
     """
     p[0] = Node('key_value_pair', children=[p[1], p[3]])
 
-def p_kvpair_list(p):
-    """kvpair_list : kvpair_list COMMA kvpair
-                   | kvpair
-    """
-    if len(p) == 4:
-        p[0] = p[1]
-        p[0].add_child(p[3])
-    else: 
-        p[0] = Node('key_value_pair_list', children=[p[1]])
 
 # ========================= END OF THE GRAMMAR ===========================
 def p_error(token):
