@@ -5,7 +5,7 @@ CC=gcc
 XC=g++
 DEFS=
 CSTD=-std=gnu11
-XSTD=-std=gnu++17
+XSTD=-std=gnu++2a
 FLAG=
 FLAGS=$(strip -Wall -Wextra $(FLAG) $(DEFS))
 FLAGC=$(FLAGS) $(CSTD)
