@@ -217,7 +217,7 @@ class CodeGenerator():
         code_strs.append(self.emit("}", add_newline=True))
         return ''.join(code_strs)
 
-    def visit_function_call(self, node):
+    def visit_function_call(self, node): #TODO: Needs to add a way to know when to add ; (Maybe adding stament node)
         code_strs = []
         function_name = node.children[0].value
 
