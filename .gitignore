@@ -166,5 +166,6 @@ cython_debug/
 *parser.out
 *parsetab.py
 *out.txt
+*.dot
 .vscode/launch.json
 .vscode/tasks.json
