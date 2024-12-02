@@ -28,9 +28,9 @@ class SymbolTable:
         declarations = ""
         for var, details in variables.items():
             if details["type"] == "function":
-                declarations += f"\n{indent}auto {var}();"
+                declarations += f"\n{indent}var {var}();"
             else:
-                declarations += f"\n{indent}auto {var};"
+                declarations += f"\n{indent}var {var};"
         return declarations
 
     def get_symbol(self, name):

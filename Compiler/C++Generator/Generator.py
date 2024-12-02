@@ -43,13 +43,12 @@ class CodeGenerator():
         temp_code = []
         for child in node.children:
            temp_code.append(self.visit(child))
-
         code.append(self.symbol_table.exit_and_declare(self.indent_level) + "\n")
         code.extend(temp_code)
         return ''.join(code)
     
     def visit_function_def(self, node):
-        code = [self.emit(f"auto {node.value}(", add_newline=False)]
+        code = [self.emit(f"var {node.value}(", add_newline=False)]
         temp_code = []
         self.symbol_table.add_symbol(node.value, symbol_type="function")
         self.symbol_table.enter_scope()
@@ -70,7 +69,7 @@ class CodeGenerator():
         params = []
         for param in node.children:
             if param.value != "self":  # Ignore 'self'
-                params.append(f"auto {param.value}")  # TODO: Fix type (add type inference here)
+                params.append(f"var {param.value}")  # TODO: Fix type (add type inference here)
         return self.emit(", ".join(params), add_newline=False)
 
     def visit_block(self, node):
@@ -315,8 +314,6 @@ class CodeGenerator():
     def visit_target_chain(self, node):  # TODO: Simplify
         code_strs = []
         for target_list_node in node.children:
-            if target_list_node.node_type == "identifier":
-                self.symbol_table.add_symbol(target_list_node.value, symbol_type="variable")
             code_strs.append(self.visit(target_list_node))
             code_strs.append(self.emit(" = ", add_newline=False))
         return ''.join(code_strs)
@@ -324,6 +321,8 @@ class CodeGenerator():
     def visit_target_list(self, node):
         code_strs = []
         for i, child in enumerate(node.children):
+            if child.node_type == "identifier":
+                self.symbol_table.add_symbol(child.value, symbol_type="variable")
             code_strs.append(self.visit(child))
             if i < len(node.children) - 1:
                 code_strs.append(self.emit(", ", add_newline=False))

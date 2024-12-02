@@ -51,9 +51,6 @@ b = {
     "list": list(), 
 }
 
-c = [1, 2, 3]
-c[1:2] = 3
- 
 def while_func(n): 
     while (n > 0): 
         print(n) 
