@@ -508,13 +508,9 @@ def p_primary(p): #TODO: Simplify this
         p[0] = Node("attribute_access", children=[p[1]], value=p[3])
     elif len(p) == 5 and p[2] == '[' and p[4] == ']':
         if (p[3].node_type == 'expression'):
-            slices = Node(
-                'slices', 
-                children=[Node('slice', children=p[3])]
-            )
+            slices = Node('slices', children=[Node('slice', children=p[3])])
         else:
             slices = p[3]
-
         p[0] = Node("subscript", children=[p[1], slices])
     else:
         p[0] = p[1]
@@ -676,6 +672,5 @@ class Parser(object):
             self._lexer.input(code)
             result = self._parser.parse(lexer=self._lexer, debug=False)
         except Exception as e:
-            # TODO: This should be unreachable
             print("Error: ", e)
         return result

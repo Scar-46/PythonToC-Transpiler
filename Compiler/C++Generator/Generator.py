@@ -48,7 +48,7 @@ class CodeGenerator():
         code.extend(temp_code)
         return ''.join(code)
     
-    def visit_function_def(self, node): #TODO: Simplify code identation
+    def visit_function_def(self, node):
         code = [self.emit(f"auto {node.value}(", add_newline=False)]
         temp_code = []
         self.symbol_table.add_symbol(node.value, symbol_type="function")
@@ -72,7 +72,6 @@ class CodeGenerator():
             if param.value != "self":  # Ignore 'self'
                 params.append(f"auto {param.value}")  # TODO: Fix type (add type inference here)
         return self.emit(", ".join(params), add_newline=False)
-
 
     def visit_block(self, node):
         self.indent_level += 1
