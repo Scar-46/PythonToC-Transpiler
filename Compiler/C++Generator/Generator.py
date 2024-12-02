@@ -69,7 +69,6 @@ class CodeGenerator():
         code_strs = []
         for stmt in node.children:
             code_strs.append(self.visit(stmt))
-            code_strs.append(self.emit(";", add_newline=True))
         self.indent_level -= 1
         return ''.join(code_strs)
 
@@ -106,8 +105,7 @@ class CodeGenerator():
         code_strs = []
         if node.children[0].value == "self":
             self.symbol_table.add_symbol_over(node.value, symbol_type="variable")
-            code_strs.append(self.emit("this", add_newline=False))
-            code_strs.append(self.emit(f"->{node.value}", add_newline=False))
+            code_strs.append(self.emit(f"this->{node.value}", add_newline=False))
         else:
             code_strs.append(self.visit(node.children[0]))
             code_strs.append(self.emit(f".{node.value}", add_newline=False))
@@ -177,7 +175,13 @@ class CodeGenerator():
         return ''.join(code_strs)
 
     def visit_simple_stmt(self, node):
-        return self.emit(f"{node.value};", add_newline=True)
+        code_strs = []
+        if len(node.children) == 0:
+            code_strs.append(self.emit(f"{node.value};", add_newline=True))
+        else:
+            code_strs.append(self.visit(node.children[0]))
+            code_strs.append(self.emit(";", add_newline=True))
+        return ''.join(code_strs)
 
     #------------------------ FOR ------------------------
     def visit_for_stmt(self, node):

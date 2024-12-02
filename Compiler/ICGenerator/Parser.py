@@ -94,7 +94,7 @@ def p_simple_stmt(p):
     if not isinstance(p[1], Node):
         p[0] = Node('simple_stmt', value=p[1])
     else:
-        p[0] = p[1]
+        p[0] = Node('simple_stmt', children=[p[1]])
 
 
 def p_compound_stmt(p):
