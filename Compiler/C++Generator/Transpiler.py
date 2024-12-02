@@ -21,8 +21,7 @@ def main():
     generator = CodeGenerator()
 
     ast = parser.parse(code)
-    generator.visit(ast)
-    print(''.join(generator.code))
+    print(generator.visit(ast))
 
     if error_logger.error_count() <= 0:
         exit_code = 0
