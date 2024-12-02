@@ -54,11 +54,11 @@ def p_statements(p):
     """
     if len(p) == 3:
             if isinstance(p[2], Node):
-                p[0] = Node("staments", children=p[1].children + [p[2]])
+                p[0] = Node("statements", children=p[1].children + [p[2]])
             else: # Ignore NEWLINE
                 p[0] = p[1]
     else:  # Single statement
-        p[0] = Node("staments", children=[p[1]])
+        p[0] = Node("statements", children=[p[1]])
     
 
 def p_statement(p):

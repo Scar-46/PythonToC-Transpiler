@@ -18,7 +18,6 @@ class CodeGenerator():
         self.indent_level = 0
         self.indent = False
         self.symbol_table = SymbolTable()
-
     def emit(self, code_str, add_newline=False):
         indent = '    ' * self.indent_level if self.indent else ''
         result = f"\n{indent}{code_str}" if self.indent else f"{indent}{code_str}"
@@ -33,13 +32,29 @@ class CodeGenerator():
     def error_visit(self, node):
         raise Exception(f"No visit_{node.node_type} method")
 
-    ###################### Staments methods ######################
-    def visit_staments(self, node):
+    ###################### Statements methods ######################
+    def visit_statements(self, node):
         temp_code = []
+        global_statements = []
         for child in node.children:
-           temp_code.append(self.visit(child))
+            # Check if the statement is global
+            if child.node_type not in {"function_def", "class_def"}:
+                self.indent_level +=1
+                global_statements.append(self.visit(child))
+                self.indent_level -=1
+            else:
+                temp_code.append(self.visit(child))
+        # Add declarations at the top
         code_strs = [self.symbol_table.exit_and_declare(self.indent_level) + "\n"]
         code_strs.extend(temp_code)
+        # Generate the main function at the end
+        if global_statements:
+            code_strs.append(self.emit("int main() {"))
+            self.indent_level += 1
+            code_strs.extend(global_statements)
+            self.indent_level -= 1
+            self.emit("", add_newline=True)
+            code_strs.append(self.emit("}"))
         return ''.join(code_strs)
     
     def visit_function_def(self, node):
@@ -185,7 +200,7 @@ class CodeGenerator():
 
     #------------------------ FOR ------------------------
     def visit_for_stmt(self, node):
-        target = node.children[0].value  # `i` from target_list
+        target = node.children[0].children[0].value  # `i` from target_list
         range_call = node.children[1]  # function_call
         range_args = range_call.children[1].children
 
@@ -254,7 +269,8 @@ class CodeGenerator():
             if i < len(node.children[0].children) - 1:
                 code_strs.append(self.emit(",", add_newline=True))
         self.indent_level -= 1
-        code_strs.append(self.emit("\n}", add_newline=False))
+        self.emit("", add_newline=True)
+        code_strs.append(self.emit("}", add_newline=False))
         return ''.join(code_strs)
 
     def visit_key_value_pair(self, node):
@@ -264,6 +280,18 @@ class CodeGenerator():
         code_strs.append(self.visit(node.children[1]))  # Value
         code_strs.append(self.emit("}", add_newline=False))
         return ''.join(code_strs)
+    
+    def visit_list(self, node):
+        code_strs = [self.emit("{", add_newline=False)]
+        
+        for i, child in enumerate(node.children):
+            if i > 0:
+                code_strs.append(self.emit(", ", add_newline=False))
+            code_strs.append(self.visit(child))
+        
+        code_strs.append(self.emit("}", add_newline=False))
+        return ''.join(code_strs)
+
 
     ###################### Atomic Methods ######################
     def visit_identifier(self, node):
