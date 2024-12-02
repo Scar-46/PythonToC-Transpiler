@@ -1,6 +1,6 @@
 class SymbolTable:
     def __init__(self):
-        self.scopes = [{}]  # Initialize with a global scope
+        self.scopes = [{}]
 
     def enter_scope(self):
         self.scopes.append({})
@@ -15,12 +15,14 @@ class SymbolTable:
         for scope in reversed(self.scopes):
             if name in scope:
                 return scope[name]
-        raise KeyError(f"Symbol '{name}' not found.")
+        return None
 
-    def add_symbol(self, name, symbol_type):
+    def add_symbol(self, name, symbol_type): #TODO: This should not add if it is already in the table
         current_scope = self.scopes[-1]
-        if name in current_scope:
-            raise ValueError(f"Error: The symbol '{name}' is already defined in the current scope.")
+        current_scope[name] = {"type": symbol_type}
+
+    def add_symbol_over(self, name, symbol_type):
+        current_scope = self.scopes[-2]
         current_scope[name] = {"type": symbol_type}
 
     def get_symbol(self, name):

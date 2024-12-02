@@ -2,6 +2,7 @@ import sys
 sys.path.insert(0, 'Compiler/ICGenerator')
 
 from node import Node
+from SymbolTable import SymbolTable
 
 class CodeGenerator():
 
@@ -17,14 +18,11 @@ class CodeGenerator():
         self.code = []
         self.indent_level = 0
         self.indent = False
+        self.symbol_table = SymbolTable()
 
     def emit(self, code_str, add_newline=False):
-
-        if self.indent:
-            indent = '    ' * self.indent_level
-            self.code.append(f"\n{indent}{code_str}")
-        else:
-            self.code.append(f"{code_str}")
+        indent = '    ' * self.indent_level if self.indent else ''
+        self.code.append(f"\n{indent}{code_str}" if self.indent else f"{indent}{code_str}")
         self.indent = add_newline
 
     def get_code(self):
@@ -45,6 +43,8 @@ class CodeGenerator():
 
     def visit_function_def(self, node):
         self.emit(f"auto {node.value}(", add_newline=False)
+        self.symbol_table.add_symbol(node.value, symbol_type="function")
+        self.symbol_table.enter_scope()
         if node.children[0].node_type == "block":
             self.emit(") {", add_newline=True)
             self.visit(node.children[0])  # Visit block
@@ -54,11 +54,13 @@ class CodeGenerator():
             self.emit(") {", add_newline=True)
             self.visit(node.children[1])  # Visit block
             self.emit("}", add_newline=True)
+        self.symbol_table.exit_scope()
 
     def visit_parameters(self, node):
         params = []
         for param in node.children:
             if param.value != "self":  # Ignore 'self'
+                self.symbol_table.add_symbol(param.value, symbol_type="parameter")
                 params.append(f"auto {param.value}")  # TODO: Fix type (add type inference here)
         self.emit(", ".join(params), add_newline=False)
 
@@ -87,15 +89,19 @@ class CodeGenerator():
 
         # Start class definition with inheritance (if any)
         self.emit(f"class {node.value}{inheritance} {{", add_newline=True)
+        self.symbol_table.add_symbol(node.value, symbol_type="class")
+        self.symbol_table.enter_scope()
         self.emit("public:", add_newline=True)
         if len(node.children) > 1:
             self.visit(node.children[1])
         else:
             self.visit(node.children[0])
         self.emit("};", add_newline=True)
+        self.symbol_table.exit_scope()
 
     def visit_attribute_access(self, node):
         if node.children[0].value == "self":
+            self.symbol_table.add_symbol_over(node.value, symbol_type="variable")
             self.emit("this", add_newline=False)
             self.emit(f"->{node.value}", add_newline=False)
         else:
@@ -236,26 +242,25 @@ class CodeGenerator():
                 self.emit(", ", add_newline=False)
         self.emit(")", add_newline=False)
 
-    def visit_dictionary(self, node): # TODO:Add std::map if needed
-        self.emit("{", add_newline=True)
-        for child in node.children:
+    def visit_dictionary(self, node):
+        self.emit("std::map<auto, auto> {", add_newline=True)
+        self.indent_level += 1
+        for i, child in enumerate(node.children[0].children):
             self.visit(child)
+            if i < len(node.children[0].children) - 1:
+                self.emit(",", add_newline=True)
+        self.indent_level -= 1
+        self.emit("\n}", add_newline=False)
+
+    def visit_key_value_pair(self, node):
+        self.emit("{", add_newline=False)
+        key = node.children[0]
+        value = node.children[1]
+        self.visit(key)
+        self.emit(", ", add_newline=False)
+        self.visit(value)
         self.emit("}", add_newline=False)
 
-    def visit_key_value_pair_list(self, node):
-        self.indent_level += 1
-        for i, child in enumerate(node.children):
-            if child.node_type == "key_value_pair":
-                self.emit("{", add_newline=False)
-                key, value = child.children
-                self.visit(key)  # Visit the key (which is a string node)
-                self.emit(": ", add_newline=False)  # Add the colon separator
-                self.visit(value)  # Visit the value (which is a string node)
-                if i < len(node.children) - 1:
-                    self.emit("}, ", add_newline=True)  # Separate pairs with commas
-                else:
-                    self.emit("}", add_newline=True)
-        self.indent_level -= 1
 
     def visit_list(self, node):
         print("In progress")
@@ -287,12 +292,12 @@ class CodeGenerator():
         self.emit(";", add_newline=True)
 
     def visit_target_chain(self, node): # TODO:Check if identifier already exist
-        self.emit("auto ", add_newline=False)
+        
         for target_list_node in node.children:
+            self.symbol_table.add_symbol(target_list_node.value, symbol_type="variable")
             self.visit(target_list_node)
             self.emit(" = ", add_newline=False)
             
-
     def visit_target_list(self, node):
         for i, child in enumerate(node.children):
             self.visit(child)

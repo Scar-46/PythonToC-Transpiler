@@ -3,7 +3,6 @@ from Lexer import Lexer
 import ply.yacc as yacc
 from common import log_error
 from node import Node
-from SymbolTable import SymbolTable
 
 # Based on PEG grammar for Python
 # Python 3 grammar: https://docs.python.org/3/reference/grammar.html
@@ -33,8 +32,6 @@ precedence = (
 
     ('right', 'ASSIGNMENT')
 )
-
-symbol_table = SymbolTable()
 
 # STARTING RULES
 # ==============
@@ -502,9 +499,13 @@ def p_slices(p):
     """slices : slices COMMA slice
               | slice
     """
-    p[0] = p[1]
     if len(p) == 4:
-        p[0].add_child(p[3])
+        if p[1].node_type == "slices":
+            p[0] = Node("slices", children=p[1].children + [p[3]])
+        else:
+            p[0] = Node("slices", children=[p[1], p[3]])
+    else: 
+        p[0] = p[1]
 
 
 def p_slice(p):
