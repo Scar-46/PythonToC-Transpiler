@@ -49,7 +49,10 @@ b = {
     "set": set(), 
     1: "1", 
     "list": list(), 
-} 
+}
+
+c = [1, 2, 3]
+c[1:2] = 3
  
 def while_func(n): 
     while (n > 0): 
