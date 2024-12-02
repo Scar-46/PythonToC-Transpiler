@@ -482,6 +482,7 @@ def p_primary(p): #TODO: Simplify this
     """primary : primary L_PARENTHESIS expressions R_PARENTHESIS
                | primary L_PARENTHESIS R_PARENTHESIS
                | primary L_SQB slices R_SQB
+               | primary L_SQB expression R_SQB
                | primary DOT IDENTIFIER
                | atomic
     """
@@ -493,7 +494,15 @@ def p_primary(p): #TODO: Simplify this
     elif len(p) == 4 and p[2] == '.':
         p[0] = Node("attribute_access", children=[p[1]], value=p[3])
     elif len(p) == 5 and p[2] == '[' and p[4] == ']':
-        p[0] = Node("subscript", children=[p[1], p[3]])
+        if (p[3].node_type == 'expression'):
+            slices = Node(
+                'slices', 
+                children=[Node('slice', children=p[3])]
+            )
+        else:
+            slices = p[3]
+
+        p[0] = Node("subscript", children=[p[1], slices])
     else:
         p[0] = p[1]
 
@@ -511,7 +520,6 @@ def p_slice(p):
     """slice : expression slice
              | COLON expression
              | COLON slice
-             | expression
              | COLON
     """
     children = []
@@ -612,15 +620,17 @@ def p_dict(p):
 
 def p_kvpairs(p):
     """kvpairs : kvpairs COMMA kvpair
+               | kvpairs COMMA
                | kvpair
     """
     if len(p) == 4:
-        if p[1].node_type == "kvpairs":
-            p[0] = Node("kvpairs", children=p[1].children + [p[3]])
-        else:
-            p[0] = Node("kvpairs", children=[p[1], p[3]])
+        kvpairs = p[1].children + [p[3]]
+    elif len(p) == 3:
+        kvpairs = p[1].children
     else: 
-        p[0] = p[1]
+        kvpairs = [p[1]]
+
+    p[0] = Node("kvpairs", children=kvpairs)
 
 def p_kvpair(p):
     """kvpair : expression COLON expression
