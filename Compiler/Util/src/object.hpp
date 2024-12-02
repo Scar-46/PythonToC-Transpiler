@@ -3,13 +3,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
-#include <variant>
-#include <vector>
-#include <unordered_map>
 #include <utility>
-#include <type_traits>
-
-#include "./factory.hpp"
 
 #define implicit
 
@@ -19,6 +13,28 @@ using ObjectPtr = std::shared_ptr<Object>;
 class Object {
  public:
   virtual ~Object() = default;
+
+  // Default implementation for operators
+  virtual ObjectPtr add(const Object& other) const {
+    throw std::runtime_error("Addition not supported for this type");
+  }
+
+  virtual ObjectPtr subtract(const Object& other) const {
+    throw std::runtime_error("Subtraction not supported for this type");
+  }
+
+  virtual ObjectPtr multiply(const Object& other) const {
+    throw std::runtime_error("Multiplication not supported for this type");
+  }
+
+  virtual ObjectPtr divide(const Object& other) const {
+    throw std::runtime_error("Division not supported for this type");
+  }
+
+  // Compares pointers by default
+  virtual bool equals(const Object& other) const {
+    return this == &other;
+  }
 
   // Methods to be implmentaed by all classes
   virtual void print(std::ostream& os) const = 0;
@@ -35,6 +51,7 @@ class BaseObject : public Object {
     explicit BaseObject(ValueType value) : value(std::move(value)) {}
     ~BaseObject() override = default;
 
+
     // Default implementation of print
     inline void print(std::ostream& os) const override {
       #ifdef DEBUG
@@ -50,6 +67,12 @@ class BaseObject : public Object {
     }
 };
 
+// Boolean class
+class Boolean : public BaseObject<Boolean, bool> {
+ public:
+  explicit Boolean(bool value) : BaseObject(value) {}
+};
+
 // Double class
 class Double : public BaseObject<Double, double> {
  public:
@@ -57,9 +80,9 @@ class Double : public BaseObject<Double, double> {
 };
 
 // Integer class
-class Integer : public BaseObject<Integer, int> {
+class Integer : public BaseObject<Integer, int32_t> {
  public:
-  explicit Integer(int value) : BaseObject(value) {}
+  explicit Integer(int32_t value) : BaseObject(value) {}
 };
 
 // String class

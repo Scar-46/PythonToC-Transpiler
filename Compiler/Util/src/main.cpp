@@ -6,8 +6,11 @@
 int main() {
   var string = "Hello world";
   var integer = 123;
+  var duble = 12.7;
+  var boolean = false;
 
-  std::vector<var> variables = std::vector<var>({string, integer});
+
+  std::vector<var> variables = std::vector<var>({string, integer, duble, boolean});
 
   for (auto variable : variables) {
     std::cout << variable << std::endl;
@@ -21,4 +24,4 @@ int main() {
   }
 }
 
-# templates, list, tuple, dict, add
+// templates, list, tuple, dict, add
