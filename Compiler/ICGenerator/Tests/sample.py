@@ -87,7 +87,8 @@ hi = hola = "hola" + " mundo" + "!"
 print(hi) 
 print(hola) 
  
- 
+for x, idx in range(2,n): 
+    bala, tro = video = game = "hey"
  
 def hello(): 
     print("hello") 
