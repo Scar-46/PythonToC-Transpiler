@@ -111,25 +111,36 @@ def p_compound_stmt(p):
 
 def p_targets(p):
     """targets : targets COMMA primary
-               | primary
+               | primary COMMA primary
     """
-    if len(p) == 4:
-        if p[1].node_type == "target_list":
-            p[0] = Node("target_list", children=p[1].children + [p[3]])
-        else:
-            p[0] = Node("target_list", children=[p[1]])
+    if p[1].node_type == "target_list":
+        targets=p[1].children + [p[3]]
     else:
-        p[0]= p[1]
+        targets=[p[1], p[3]]
 
+    p[0] = Node("target_list", children=targets)
 
 def p_target_assignment_chain(p):
-    """target_assignment_chain : target_assignment_chain targets ASSIGNMENT 
+    """target_assignment_chain : target_assignment_chain targets ASSIGNMENT
+                               | target_assignment_chain primary ASSIGNMENT
                                | targets ASSIGNMENT
+                               | primary ASSIGNMENT
     """
     if len(p) == 4:
-        p[0] = Node("target_chain", children=p[1].children + [p[2]])
+        targets = p[1].children
+
+        if p[2].node_type == "target_list":
+            targets += [p[2]]
+        else:
+            targets += [Node('target_list', children=[p[2]])]
+
     elif len(p) == 3:
-        p[0] = Node("target_chain", children=[p[1]])
+        if p[1].node_type == "target_list":
+            targets = [p[1]]
+        else:
+            targets = [Node('target_list', children=[p[1]])]
+
+    p[0] = Node("target_chain", children=targets)
 
 # SIMPLE STATEMENTS
 # =================
@@ -282,10 +293,15 @@ def p_while_stmt(p):
 
 def p_for_stmt(p):
     """for_stmt : FOR targets IN expressions COLON block
+                  | FOR primary IN expressions COLON block
     """
-    p[0] = Node("for_stmt", children=[p[2], p[4], p[6]])
+    if p[2].node_type == "target_list":
+        target_list = p[2]
+    else:
+        target_list = Node("target_list", children=[p[2]])
 
-    
+    p[0] = Node("for_stmt", children=[target_list, p[4], p[6]])
+
 # EXPRESSIONS
 # ===================
 def p_expressions(p):
