@@ -174,5 +174,5 @@ cython_debug/
 **/*.dot
 
 # Transpiler output
-/Output
+/Compiler/Output
 /Compiler/Util/bin
