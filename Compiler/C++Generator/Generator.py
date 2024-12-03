@@ -1,7 +1,4 @@
-import sys
-sys.path.insert(0, 'Compiler/ICGenerator')
-
-from node import Node
+from ICGenerator.node import Node
 from SymbolTable import SymbolTable
 
 class CodeGenerator():
