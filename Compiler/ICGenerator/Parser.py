@@ -245,23 +245,18 @@ def p_parameters(p):
                   | parameter
     """
     if len(p) == 4:  # Multiple parameters
-        if p[1].node_type == "parameters":
-            p[0] = Node("parameters", children=p[1].children + [p[3]])
-        else:
-            p[0] = Node("parameters", children=[p[1], p[3]])
-    else:  # parameter
-        p[0] = p[1]
+        p[0] = Node("parameters", children=p[1].children + [p[3]])
+    else:
+        p[0] = Node("parameters", children=[p[1]])
 
-
-def p_parmeter(p):
+def p_parameter(p):
     """parameter  : IDENTIFIER ASSIGNMENT expression 
                   | IDENTIFIER
     """
-    if len(p) == 4:  # If with elif or else block
+    if len(p) == 4: # If with elif or else block
         p[0] = Node("default", children=[Node('identifier', value=p[1]), p[3]])
-    else:  # If without elif or else block
-        p[0] = Node("identifier", children=[p[2], p[4]])
-
+    else: # If without elif or else block
+        p[0] = Node("identifier", value=p[1])
 
 # If statement
 def p_if_stmt(p):
