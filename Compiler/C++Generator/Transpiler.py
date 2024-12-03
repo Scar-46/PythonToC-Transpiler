@@ -1,12 +1,21 @@
 import sys
 import os
+import inspect
 
-sys.path.insert(0, 'Compiler/ICGenerator')
-from Parser import Parser
-from common import error_logger
+# Use ICGenerator module by adding the parent directory to path
+sys.path.insert(
+    1, os.path.realpath( # Full path of
+        os.path.dirname( # Parent directory of
+            os.path.dirname( # Current directory of file
+                os.path.abspath(inspect.getfile(inspect.currentframe()))
+            )
+        )
+    )
+)
 
+from ICGenerator.Parser import Parser
+from ICGenerator.common import error_logger
 from Generator import CodeGenerator
-
 
 def read_file(file_name):
     try:
