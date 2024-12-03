@@ -1,4 +1,6 @@
-from ICGenerator.node import Node
+import sys
+sys.path.insert(0, 'Compiler/ICGenerator')
+from node import Node
 from SymbolTable import SymbolTable
 
 class CodeGenerator():
@@ -15,6 +17,7 @@ class CodeGenerator():
         self.indent_level = 0
         self.indent = False
         self.symbol_table = SymbolTable()
+
     def emit(self, code_str, add_newline=False):
         indent = '    ' * self.indent_level if self.indent else ''
         result = f"\n{indent}{code_str}" if self.indent else f"{indent}{code_str}"
@@ -56,9 +59,9 @@ class CodeGenerator():
         return ''.join(code_strs)
     
     def visit_function_def(self, node):
-        self.symbol_table.add_symbol(node.value, symbol_type="function")
+        self.symbol_table.add_symbol("se_" + node.value, symbol_type="function")
         self.symbol_table.enter_scope()
-        code_strs = [self.emit(f"var {node.value}(", add_newline=False)]
+        code_strs = [self.emit(f"var se_{node.value}(", add_newline=False)]
         temp_code = []
         block_index = 0 if node.children[0].node_type == "block" else 1
         if block_index == 1:
@@ -74,17 +77,13 @@ class CodeGenerator():
         code_strs = []
         for param in node.children:
             if param.value != "self":  # Ignore 'self'
-                if param.value == "default":
-                    code_strs.append(self.emit("var "))
-                    code_strs.append(self.visit(param))
-                else:
-                    code_strs.append(f"var {param.value}")
+                code_strs.append(self.emit("var ") + self.visit(param))
         return self.emit(", ".join(code_strs), add_newline=False)
     
     def visit_default(self, node):
-        param_name = self.visit(node.children[0])
-        default_value = self.visit(node.children[1])
-        return f"var {param_name} = {default_value}"
+        code_strs = [self.visit(node.children[0])]
+        code_strs.append(" = " + self.visit(node.children[1]))
+        return ''.join(code_strs)
 
 
     def visit_block(self, node):
@@ -108,7 +107,7 @@ class CodeGenerator():
 
 #------------------------ CLASS ------------------------ 
     def visit_class_def(self, node):  # TODO: Check how to translate _init_
-        self.symbol_table.add_symbol(node.value, symbol_type="class")
+        self.symbol_table.add_symbol("se_" + node.value, symbol_type="class")
         self.symbol_table.enter_scope()
         # Add inheritance if needed
         inheritance = (f" : public {node.children[0].value}" 
@@ -321,7 +320,7 @@ class CodeGenerator():
 
 #//////////////////////// Atomic Methods ////////////////////////
     def visit_identifier(self, node):
-        return self.emit(node.value, add_newline=False)
+        return self.emit("se_" + node.value, add_newline=False)
 
     def visit_number(self, node):
         return self.emit(str(node.value), add_newline=False)
@@ -354,7 +353,7 @@ class CodeGenerator():
         code_strs = []
         for i, child in enumerate(node.children):
             if child.node_type == "identifier":
-                self.symbol_table.add_symbol(child.value, symbol_type="variable")
+                self.symbol_table.add_symbol("se_" + child.value, symbol_type="variable")
             code_strs.append(self.visit(child))
             if i < len(node.children) - 1:
                 code_strs.append(self.emit(", ", add_newline=False))

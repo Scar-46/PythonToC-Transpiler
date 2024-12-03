@@ -1,8 +1,9 @@
 import sys
 import os
 
-from ICGenerator.Parser import Parser
-from ICGenerator.common import error_logger
+sys.path.insert(0, 'Compiler/ICGenerator')
+from Parser import Parser
+from common import error_logger
 
 from Generator import CodeGenerator
 
