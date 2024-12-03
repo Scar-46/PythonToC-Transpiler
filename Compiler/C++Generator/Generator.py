@@ -45,11 +45,11 @@ class CodeGenerator():
             else:
                 temp_code.append(self.visit(child))
         # Add declarations at the top
-        code_strs = [self.symbol_table.exit_and_declare(self.indent_level) + "\n"] # TODO: Variables can have reserved words, must be change.
+        code_strs = [self.symbol_table.exit_and_declare(self.indent_level) + "\n"]
         code_strs.extend(temp_code)
         # Generate the main function at the end
         if global_statements:
-            code_strs.append(self.emit("int main() {"))
+            code_strs.append(self.emit("int main(){"))
             self.indent_level += 1
             code_strs.extend(global_statements)
             self.emit("", add_newline=True)
@@ -66,7 +66,7 @@ class CodeGenerator():
         block_index = 0 if node.children[0].node_type == "block" else 1
         if block_index == 1:
             code_strs.append(self.visit(node.children[0]))  # Visit parameters
-        code_strs.append(self.emit(") {", add_newline=True))
+        code_strs.append(self.emit("){", add_newline=True))
         temp_code.append(self.visit(node.children[block_index]))  # Visit block
         temp_code.append(self.emit("}", add_newline=True))
         code_strs.append(self.symbol_table.exit_and_declare(self.indent_level + 1))
@@ -78,13 +78,12 @@ class CodeGenerator():
         for param in node.children:
             if param.value != "self":  # Ignore 'self'
                 code_strs.append(self.emit("var ") + self.visit(param))
-        return self.emit(", ".join(code_strs), add_newline=False)
+        return ', '.join(code_strs)
     
     def visit_default(self, node):
         code_strs = [self.visit(node.children[0])]
         code_strs.append(" = " + self.visit(node.children[1]))
         return ''.join(code_strs)
-
 
     def visit_block(self, node):
         self.indent_level += 1
@@ -135,9 +134,9 @@ class CodeGenerator():
 
 #------------------------ IF ------------------------
     def visit_if_stmt(self, node):
-        code_strs = [self.emit("if (", add_newline=False)]
+        code_strs = [self.emit("if(", add_newline=False)]
         code_strs.append(self.visit(node.children[0]))  # Condition
-        code_strs.append(self.emit(") {", add_newline=True))
+        code_strs.append(self.emit("){", add_newline=True))
 
         if len(node.children) > 1:  # If block
             code_strs.append(self.visit(node.children[1]))
@@ -149,9 +148,9 @@ class CodeGenerator():
         return ''.join(code_strs)
 
     def visit_elif_stmt(self, node):
-        code_strs = [self.emit("else if (", add_newline=False)]
+        code_strs = [self.emit("else if(", add_newline=False)]
         code_strs.append(self.visit(node.children[0]))  # Condition
-        code_strs.append(self.emit(") {", add_newline=True))
+        code_strs.append(self.emit("){", add_newline=True))
 
         if len(node.children) > 1:  # Elif block
             code_strs.append(self.visit(node.children[1]))
@@ -162,9 +161,8 @@ class CodeGenerator():
 
         return ''.join(code_strs)
 
-
     def visit_else_block(self, node):
-        code_strs = [self.emit("else {", add_newline=True)]
+        code_strs = [self.emit("else{", add_newline=True)]
         code_strs.append(self.visit(node.children[0]))  # Else block body
         code_strs.append(self.emit("}", add_newline=True))
         return ''.join(code_strs)
@@ -189,9 +187,9 @@ class CodeGenerator():
 
 #------------------------ WHILE ------------------------
     def visit_while_stmt(self, node):
-        code_strs = [self.emit("while ", add_newline=False)]
+        code_strs = [self.emit("while(", add_newline=False)]
         code_strs.append(self.visit(node.children[0]))  # Visit the condition group
-        code_strs.append(self.emit(" {", add_newline=True))
+        code_strs.append(self.emit("){", add_newline=True))
         code_strs.append(self.visit(node.children[1]))  # Block node
         code_strs.append(self.emit("}", add_newline=True))
         return ''.join(code_strs)
@@ -219,12 +217,12 @@ class CodeGenerator():
         elif len(range_args) == 3:  # range(start, stop, step)
             start, stop, step = range_args[0].value, range_args[1].value, range_args[2].value
 
-        code_strs = [self.emit(f"for (int {target} = {start}; {target} < {stop}; {target} += {step}) {{", add_newline=True)]
+        code_strs = [self.emit(f"for (int {target} = {start}; {target} < {stop}; {target} += {step}){{", add_newline=True)]
         code_strs.append(self.visit(node.children[2]))  # Body of the loop
         code_strs.append(self.emit("}", add_newline=True))
         return ''.join(code_strs)
 
-    def visit_function_call(self, node): #TODO: Needs to add a way to know when to add ; (Maybe adding stament node)
+    def visit_function_call(self, node):
         code_strs = []
         function_name = node.children[0].value
 

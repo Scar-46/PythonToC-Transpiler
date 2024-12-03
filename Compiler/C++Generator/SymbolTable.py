@@ -34,7 +34,6 @@ class SymbolTable:
         return declarations
 
     def get_symbol(self, name):
-
         return self.lookup(name)
 
     def print_table(self):
