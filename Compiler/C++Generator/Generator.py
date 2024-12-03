@@ -32,7 +32,7 @@ class CodeGenerator():
     def error_visit(self, node):
         raise Exception(f"No visit_{node.node_type} method")
 
-    ###################### Statements methods ######################
+#//////////////////////// Statements methods ////////////////////////
     def visit_statements(self, node):
         temp_code = []
         global_statements = []
@@ -45,15 +45,16 @@ class CodeGenerator():
             else:
                 temp_code.append(self.visit(child))
         # Add declarations at the top
-        code_strs = [self.symbol_table.exit_and_declare(self.indent_level) + "\n"]
+        code_strs = [self.symbol_table.exit_and_declare(self.indent_level) + "\n"] # TODO: Variables can have reserved words, must be change.
         code_strs.extend(temp_code)
         # Generate the main function at the end
         if global_statements:
             code_strs.append(self.emit("int main() {"))
             self.indent_level += 1
             code_strs.extend(global_statements)
-            self.indent_level -= 1
             self.emit("", add_newline=True)
+            code_strs.append(self.emit("return 0;", add_newline=True))
+            self.indent_level -= 1
             code_strs.append(self.emit("}"))
         return ''.join(code_strs)
     
@@ -76,7 +77,7 @@ class CodeGenerator():
         code_strs = []
         for param in node.children:
             if param.value != "self":  # Ignore 'self'
-                code_strs.append(f"var {param.value}")  # TODO: Fix type (add type inference here)
+                code_strs.append(f"var {param.value}")
         return self.emit(", ".join(code_strs), add_newline=False)
 
     def visit_block(self, node):
@@ -98,7 +99,7 @@ class CodeGenerator():
         code_strs.append(self.visit(node.children[1]))  # Visit right operand
         return ''.join(code_strs)
 
-    #------------------------ CLASS ------------------------ 
+#------------------------ CLASS ------------------------ 
     def visit_class_def(self, node):  # TODO: Check how to translate _init_
         self.symbol_table.add_symbol(node.value, symbol_type="class")
         self.symbol_table.enter_scope()
@@ -126,7 +127,7 @@ class CodeGenerator():
             code_strs.append(self.emit(f".{node.value}", add_newline=False))
         return ''.join(code_strs)
 
-    #------------------------ IF ------------------------
+#------------------------ IF ------------------------
     def visit_if_stmt(self, node):
         code_strs = [self.emit("if (", add_newline=False)]
         code_strs.append(self.visit(node.children[0]))  # Condition
@@ -162,7 +163,7 @@ class CodeGenerator():
         code_strs.append(self.emit("}", add_newline=True))
         return ''.join(code_strs)
 
-    # ------------------------ Comparison ------------------------
+# ------------------------ Comparison ------------------------
     def visit_comparison(self, node):
         code_strs = [self.visit(node.children[0])]  # Left operand
         operator_node = node.children[1]
@@ -170,7 +171,7 @@ class CodeGenerator():
         code_strs.append(self.visit(operator_node.children[0]))  # Right operand
         return ''.join(code_strs)
 
-    # ------------------------ Logical Operation ------------------------
+# ------------------------ Logical Operation ------------------------
     def visit_logical_op(self, node):
         operator = "&&" if node.value == "and" else "||"
         code_strs = [self.emit("(", add_newline=False)]
@@ -180,7 +181,7 @@ class CodeGenerator():
         code_strs.append(self.emit(")", add_newline=False))
         return ''.join(code_strs)
 
-    #------------------------ WHILE ------------------------
+#------------------------ WHILE ------------------------
     def visit_while_stmt(self, node):
         code_strs = [self.emit("while ", add_newline=False)]
         code_strs.append(self.visit(node.children[0]))  # Visit the condition group
@@ -198,8 +199,8 @@ class CodeGenerator():
             code_strs.append(self.emit(";", add_newline=True))
         return ''.join(code_strs)
 
-    #------------------------ FOR ------------------------
-    def visit_for_stmt(self, node):
+#------------------------ FOR ------------------------
+    def visit_for_stmt(self, node): #TODO: Multiple types of for must be supported
         target = node.children[0].children[0].value  # `i` from target_list
         range_call = node.children[1]  # function_call
         range_args = range_call.children[1].children
@@ -233,7 +234,7 @@ class CodeGenerator():
             code_strs.append(self.emit(")", add_newline=False))
         return ''.join(code_strs)
 
-# ------------------------ ARGUMENTS ------------------------
+# ------------------------ Arguments ------------------------
     def visit_arguments(self, node):
         code_strs = []
         for i, arg in enumerate(node.children):
@@ -242,7 +243,7 @@ class CodeGenerator():
                 code_strs.append(self.emit(", ", add_newline=False))
         return ''.join(code_strs)
 
-# ------------------------ EXPRESSIONS ------------------------
+# ------------------------ Expressions ------------------------
     def visit_expressions(self, node):
         code_strs = []
         for i, expr in enumerate(node.children):
@@ -250,8 +251,15 @@ class CodeGenerator():
             if i < len(node.children) - 1:
                 code_strs.append(self.emit(", ", add_newline=False))
         return ''.join(code_strs)
+    
+    def visit_unary_operation(self, node):
+        operator = node.value
+        operand_code = self.visit(node.children[0])
+        return self.emit(f"{operator}{operand_code}", add_newline=False)
 
-###################### Structures Methods ######################
+#//////////////////////// Structures Methods ////////////////////////
+
+# ------------------------ Tuple ------------------------
     def visit_tuple(self, node):
         code_strs = [self.emit("std::make_tuple(", add_newline=False)]
         for i, child in enumerate(node.children):
@@ -261,6 +269,7 @@ class CodeGenerator():
         code_strs.append(self.emit(")", add_newline=False))
         return ''.join(code_strs)
 
+# ------------------------ Dictionary ------------------------
     def visit_dictionary(self, node):
         code_strs = [self.emit("std::map<auto, auto> {", add_newline=True)]
         self.indent_level += 1
@@ -281,6 +290,7 @@ class CodeGenerator():
         code_strs.append(self.emit("}", add_newline=False))
         return ''.join(code_strs)
     
+# ------------------------ List ------------------------
     def visit_list(self, node):
         code_strs = [self.emit("{", add_newline=False)]
         
@@ -291,9 +301,18 @@ class CodeGenerator():
         
         code_strs.append(self.emit("}", add_newline=False))
         return ''.join(code_strs)
+    
+# ------------------------ Set ------------------------
+    def visit_set(self, node):
+        code_strs = [self.emit("{", add_newline=False)]
+        for i, child in enumerate(node.children):
+            if i > 0:
+                code_strs.append(self.emit(", ", add_newline=False))
+            code_strs.append(self.visit(child))
+        code_strs.append(self.emit("}", add_newline=False))
+        return ''.join(code_strs)
 
-
-    ###################### Atomic Methods ######################
+#//////////////////////// Atomic Methods ////////////////////////
     def visit_identifier(self, node):
         return self.emit(node.value, add_newline=False)
 
