@@ -1,3 +1,5 @@
+# === Templated ==
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -161,13 +163,16 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-#Specific files
-
-*parser.out
-*parsetab.py
-*out.txt
-*.dot
+# === Specific files ==
+# VSCode workspace
 .vscode/launch.json
 .vscode/tasks.json
+
+# Parser output
+**/parser.out
+**/parsetab.py
+**/*.dot
+
+# Transpiler output
 /Output
 /Compiler/Util/bin
