@@ -241,14 +241,26 @@ def p_function_def(p):
 
 
 def p_parameters(p):
-    """parameters : parameters COMMA IDENTIFIER
-                  | IDENTIFIER
+    """parameters : parameters COMMA parameter
+                  | parameter
     """
     if len(p) == 4:  # Multiple parameters
-        p[0] = Node("parameters", children=p[1].children + [Node("identifier", value=p[3])])
-    else:  # Single parameter
-        p[0] = Node("parameters", children=[Node("identifier", value=p[1])])
+        if p[1].node_type == "parameters":
+            p[0] = Node("parameters", children=p[1].children + [p[3]])
+        else:
+            p[0] = Node("parameters", children=[p[1], p[3]])
+    else:  # parameter
+        p[0] = p[1]
 
+
+def p_parmeter(p):
+    """parameter  : IDENTIFIER ASSIGNMENT expression 
+                  | IDENTIFIER
+    """
+    if len(p) == 4:  # If with elif or else block
+        p[0] = Node("default", children=[Node('identifier', value=p[1]), p[3]])
+    else:  # If without elif or else block
+        p[0] = Node("identifier", children=[p[2], p[4]])
 
 
 # If statement
@@ -670,7 +682,7 @@ class Parser(object):
         result = None
         try:
             self._lexer.input(code)
-            result = self._parser.parse(lexer=self._lexer, debug=False)
+            result = self._parser.parse(lexer=self._lexer, debug=True)
         except Exception as e:
             print("Error: ", e)
         return result

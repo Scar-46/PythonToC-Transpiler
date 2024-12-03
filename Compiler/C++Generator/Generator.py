@@ -77,8 +77,18 @@ class CodeGenerator():
         code_strs = []
         for param in node.children:
             if param.value != "self":  # Ignore 'self'
-                code_strs.append(f"var {param.value}")
+                if param.value == "default":
+                    code_strs.append(self.emit("var "))
+                    code_strs.append(self.visit(param))
+                else:
+                    code_strs.append(f"var {param.value}")
         return self.emit(", ".join(code_strs), add_newline=False)
+    
+    def visit_default(self, node):
+        param_name = self.visit(node.children[0])
+        default_value = self.visit(node.children[1])
+        return f"var {param_name} = {default_value}"
+
 
     def visit_block(self, node):
         self.indent_level += 1
