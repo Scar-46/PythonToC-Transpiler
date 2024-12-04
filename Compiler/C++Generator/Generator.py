@@ -45,7 +45,8 @@ class CodeGenerator():
             else:
                 temp_code.append(self.visit(child))
         # Add declarations at the top
-        code_strs = [self.symbol_table.exit_and_declare(self.indent_level) + "\n"]
+        code_strs = ["#include \"./util.hpp\""]
+        code_strs.append(self.symbol_table.exit_and_declare(self.indent_level) + "\n")
         code_strs.extend(temp_code)
         # Generate the main function at the end
         if global_statements:
@@ -59,15 +60,30 @@ class CodeGenerator():
         return ''.join(code_strs)
     
     def visit_function_def(self, node):
-        self.symbol_table.add_symbol("se_" + node.value, symbol_type="function")
+        # Check for a constructor
+        function_name = node.value
+        is_constructor = function_name == "__init__"
+        
+        if is_constructor:
+            function_name = self.symbol_table.get_class()[3:]  # Remove leading "class_"
+        else:
+            self.symbol_table.add_symbol(f"se_{function_name}", symbol_type="function")
+        code_strs = []
+        # Normal function
         self.symbol_table.enter_scope()
-        code_strs = [self.emit(f"var se_{node.value}(", add_newline=False)]
+        if not is_constructor:
+            code_strs.append(self.emit("var "))
+        code_strs.append(self.emit(f"se_{function_name}(", add_newline=False))
         temp_code = []
         block_index = 0 if node.children[0].node_type == "block" else 1
         if block_index == 1:
             code_strs.append(self.visit(node.children[0]))  # Visit parameters
         code_strs.append(self.emit("){", add_newline=True))
         temp_code.append(self.visit(node.children[block_index]))  # Visit block
+        self.indent_level += 1
+        if not is_constructor:
+            temp_code.append(self.emit("return var();", add_newline=True))
+        self.indent_level -= 1
         temp_code.append(self.emit("}", add_newline=True))
         code_strs.append(self.symbol_table.exit_and_declare(self.indent_level + 1))
         code_strs.extend(temp_code)
@@ -105,13 +121,14 @@ class CodeGenerator():
         return ''.join(code_strs)
 
 #------------------------ CLASS ------------------------ 
-    def visit_class_def(self, node):  # TODO: Check how to translate _init_
+    def visit_class_def(self, node):  # TODO: Fix inheritance in constructor
         self.symbol_table.add_symbol("se_" + node.value, symbol_type="class")
+        self.symbol_table.add_class("se_" + node.value)
         self.symbol_table.enter_scope()
         # Add inheritance if needed
-        inheritance = (f" : public {node.children[0].value}" 
+        inheritance = (f" : public se_{node.children[0].value}" 
             if len(node.children) > 1 and node.children[0].node_type == "identifier" else "")
-        code_strs = [self.emit(f"class {node.value}{inheritance} {{", add_newline=True)]
+        code_strs = [self.emit(f"class se_{node.value}{inheritance} {{", add_newline=True)]
         code_strs.append(self.emit("public:", add_newline=True))
         temp_code = []
         # Visit class body
@@ -119,6 +136,7 @@ class CodeGenerator():
         temp_code.append(self.visit(node.children[body_index]))
         temp_code.append(self.emit("};", add_newline=True))
         code_strs.append(self.symbol_table.exit_and_declare(self.indent_level + 1))
+        self.symbol_table.pop_class()
         code_strs.extend(temp_code)
         return ''.join(code_strs)
 

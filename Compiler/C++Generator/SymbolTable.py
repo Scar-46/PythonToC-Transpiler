@@ -1,6 +1,7 @@
 class SymbolTable:
     def __init__(self):
         self.scopes = [{}]
+        self.class_name = []
 
     def enter_scope(self):
         self.scopes.append({})
@@ -11,6 +12,15 @@ class SymbolTable:
         else:
             raise RuntimeError("Cannot exit the global scope.")
 
+    def add_class(self, name):
+        self.class_name.append(name)
+
+    def get_class(self):
+        return self.class_name[-1]
+
+    def pop_class(self):
+        return self.class_name.pop()
+    
     def add_symbol(self, name, symbol_type):
         for scope in reversed(self.scopes):
             if name in scope:
@@ -28,8 +38,10 @@ class SymbolTable:
         declarations = ""
         for var, details in variables.items():
             if details["type"] == "function":
-                declarations += f"\n{indent}var {var}();"
-            else:
+                #declarations += f"\n{indent}var {var}();"
+                #TODO: This needs to get the parameters
+                declarations +=""
+            elif details["type"] == "variable":
                 declarations += f"\n{indent}var {var};"
         return declarations
 
