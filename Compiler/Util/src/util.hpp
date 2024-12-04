@@ -1,5 +1,6 @@
-#pragma once
 // Copyright (c) 2024 Syntax Errors.
+#pragma once
+
 #include <string>
 #include <iostream>
 

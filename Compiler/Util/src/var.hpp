@@ -1,7 +1,8 @@
 #pragma once
-// Copyright (c) 2024 Syntax Errors.
-#include <typeindex>
 
+// Copyright (c) 2024 Syntax Errors.
+#include <compare>
+#include <typeindex>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -9,8 +10,8 @@
 
 #include "./object.hpp"
 
-class List;
 class var {
+ private:
   ObjectPtr value;
 
  public:
@@ -24,9 +25,7 @@ class var {
   implicit var(const std::string& value) : value(std::make_shared<String>(value)) {}
   implicit var(const char* value) : value(std::make_shared<String>(std::string(value))) {}
   explicit var(bool value) : value(std::make_shared<Boolean>(value)) {}
-
-  // Specialized constructor for List
-  explicit var(const List& value) : value(std::static_pointer_cast<Object>(std::make_shared<List>(value))) {}
+  explicit var(ObjectPtr obj) : value(std::move(obj)) {}
 
   // Copy constructor and assignment
   var(const var& other) : value(other.value ? other.value->clone() : nullptr) {}
@@ -37,39 +36,7 @@ class var {
     return *this;
   }
 
-  // Specialized assignment
-  var& operator=(const List& list2) {
-    this->value = std::static_pointer_cast<Object>(std::make_shared<List>(list2));
-    return *this;
-  }
-
-  // Assignment for common types
-  var& operator=(int32_t value) {
-    this->value = std::make_shared<Integer>(value);
-    return *this;
-  }
-
-  var& operator=(double value) {
-    this->value = std::make_shared<Double>(value);
-    return *this;
-  }
-
-  var& operator=(bool value) {
-    this->value = std::make_shared<Boolean>(value);
-    return *this;
-  }
-
-  var& operator=(const std::string& value) {
-    this->value = std::make_shared<String>(value);
-    return *this;
-  }
-
-  var& operator=(const char* value) {
-    this->value = std::make_shared<String>(std::string(value));
-    return *this;
-  }
-
-  // Move constructor and move assignment
+  // Move constructor and assignment
   var(var&& other) noexcept : value(std::move(other.value)) {}
   var& operator=(var&& other) noexcept {
     if (this != &other) {
@@ -77,6 +44,59 @@ class var {
       other.value = nullptr;
     }
     return *this;
+  }
+
+  explicit operator bool() const {
+    return static_cast<bool>(value);
+  }
+
+  var operator==(const var& other) const {
+    return value->equals(*other.value);
+  }
+
+  var operator+(const var& other) const {
+    if (!value || !other.value) {
+      throw std::runtime_error("Addition not supported for null values");
+    }
+    return var(value->add(*other.value));
+  }
+
+  var operator-(const var& other) const {
+    if (!value || !other.value) {
+      throw std::runtime_error("Substraction not supported for null values");
+    }
+    return var(value->subtract(*other.value));
+  }
+
+  var operator*(const var& other) const {
+    if (!value || !other.value) {
+      throw std::runtime_error("Multiplication not supported for null values");
+    }
+    return var(value->subtract(*other.value));
+  }
+
+  var operator/(const var& other) const {
+    if (!value || !other.value) {
+      throw std::runtime_error("Division not supported for null values");
+    }
+    return var(value->subtract(*other.value));
+  }
+
+  std::strong_ordering operator<=>(const var& other) const {
+    if (value->equals(*other.value)) return std::strong_ordering::equal;
+    if (value->less(*other.value)) return std::strong_ordering::less;
+    if (value->greater(*other.value)) return std::strong_ordering::greater;
+    throw std::runtime_error("Invalid comparison");
+  }
+
+  // Access
+  ObjectPtr operator->() {
+    return value;
+  }
+
+  template<typename ObjectType>
+  std::shared_ptr<ObjectType> as() {
+    return std::dynamic_pointer_cast<ObjectType>(value);
   }
 
   // Print for output
