@@ -9,6 +9,7 @@
 
 #include "./object.hpp"
 
+class List;
 class var {
   ObjectPtr value;
 
@@ -24,6 +25,9 @@ class var {
   implicit var(const char* value) : value(std::make_shared<String>(std::string(value))) {}
   explicit var(bool value) : value(std::make_shared<Boolean>(value)) {}
 
+  // Specialized constructor for List
+  explicit var(const List& value) : value(std::static_pointer_cast<Object>(std::make_shared<List>(value))) {}
+
   // Copy constructor and assignment
   var(const var& other) : value(other.value ? other.value->clone() : nullptr) {}
   var& operator=(const var& other) {
@@ -33,7 +37,12 @@ class var {
     return *this;
   }
 
-  // Spoecialized assignment
+  // Specialized assignment
+  var& operator=(const List& list2) {
+    this->value = std::static_pointer_cast<Object>(std::make_shared<List>(list2));
+    return *this;
+  }
+
   // Assignment for common types
   var& operator=(int32_t value) {
     this->value = std::make_shared<Integer>(value);
