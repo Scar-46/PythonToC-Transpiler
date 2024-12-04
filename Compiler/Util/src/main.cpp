@@ -5,7 +5,7 @@
 
 int main() {
   var string = "Hello world";
-  var integer = 123;
+  var integer = Integer(123);
   var duble = 12.7;
   var boolean = false;
 
@@ -19,9 +19,14 @@ int main() {
   integer = "I do not want to do this";
   std::cout << integer << std::endl;
 
-  for (auto variable : variables) {
-    std::cout << variable << std::endl;
-  }
+  var one = 1;
+  var twoPointTree = 2.3;
+  var result = twoPointTree + twoPointTree;
+  var test = one + integer;
+  std::cout << "Result: " << result << std::endl;
+  std::cout << "Test: " << test << std::endl;
+  return 0;
+  // std::cout << integer + duble << std::endl;
 }
 
 // templates, list, tuple, dict, add

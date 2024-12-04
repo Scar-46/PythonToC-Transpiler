@@ -6,6 +6,7 @@
 #include <utility>
 
 #define implicit
+#define unused [[maybe_unused]]
 
 class Object;
 using ObjectPtr = std::shared_ptr<Object>;
@@ -15,19 +16,19 @@ class Object {
   virtual ~Object() = default;
 
   // Arithmetic operators
-  virtual ObjectPtr add(const Object& other) const {
+  virtual ObjectPtr add(unused const Object& other) const {
     throw std::runtime_error("Addition not supported for this type");
   }
 
-  virtual ObjectPtr subtract(const Object& other) const {
+  virtual ObjectPtr subtract(unused const Object& other) const {
     throw std::runtime_error("Subtraction not supported for this type");
   }
 
-  virtual ObjectPtr multiply(const Object& other) const {
+  virtual ObjectPtr multiply(unused const Object& other) const {
     throw std::runtime_error("Multiplication not supported for this type");
   }
 
-  virtual ObjectPtr divide(const Object& other) const {
+  virtual ObjectPtr divide(unused const Object& other) const {
     throw std::runtime_error("Division not supported for this type");
   }
 
@@ -36,11 +37,11 @@ class Object {
     return this == &other;
   }
 
-  virtual bool lessThan(const Object& other) const {
+  virtual bool lessThan(unused const Object& other) const {
     throw std::runtime_error("Comparison not supported for this type");
   }
 
-  virtual bool greaterThan(const Object& other) const {
+  virtual bool greaterThan(unused const Object& other) const {
     throw std::runtime_error("Comparison not supported for this type");
   }
 
@@ -53,11 +54,11 @@ class Object {
   }
 
   // Shift operations
-  virtual std::shared_ptr<Object> shiftLeft(const Object& other) const {
+  virtual std::shared_ptr<Object> shiftLeft(unused const Object& other) const {
     throw std::runtime_error("Shift left not supported for this type");
   }
 
-  virtual std::shared_ptr<Object> shiftRight(const Object& other) const {
+  virtual std::shared_ptr<Object> shiftRight(unused const Object& other) const {
     throw std::runtime_error("Shift right not supported for this type");
   }
 
@@ -65,21 +66,25 @@ class Object {
   virtual void print(std::ostream& os) const = 0;
   virtual ObjectPtr clone() const = 0;
 
-  virtual bool isSaqmeType(const Object& other) const {
+  virtual bool isSameType(const Object& other) const {
     return typeid(*this) == typeid(other);
   }
 };
 
-#define DEFINE_OPERATOR(Operation, OpSymbol, MethodName)                \
-  std::shared_ptr<Object> MethodName(const Object& other) const override { \
-    auto otherObj = dynamic_cast<const Derived*>(&other);             \
-    if (otherObj) {                                                    \
-      return std::make_shared<Derived>(value OpSymbol otherObj->value); \
-    }                                                                   \
-    return MethodNameHelper(other);                                     \
-  }                                                                     \
-  virtual std::shared_ptr<Object> MethodNameHelper(const Object& other) const { \
-    throw std::runtime_error(#Operation " not supported for different types"); \
+
+
+#define DEFINE_OPERATOR(OP_NAME, OP_SYMBOL, ERROR_MESSAGE) \
+  ObjectPtr OP_NAME(unused const Object& other) const override { \
+      auto otherObj = dynamic_cast<const Derived*>(&other); \
+      if (otherObj) { \
+          return std::make_shared<Derived>(value OP_SYMBOL otherObj->getValue()); \
+      } else { \
+          return OP_NAME##Helper(other); \
+      } \
+  } \
+  \
+  virtual ObjectPtr OP_NAME##Helper(unused const Object& other) const { \
+      throw std::runtime_error(#ERROR_MESSAGE " not supported for different types"); \
   }
 
 // Base template class for Object
@@ -91,6 +96,7 @@ class BaseObject : public Object {
  public:
     explicit BaseObject(ValueType value) : value(std::move(value)) {}
     ~BaseObject() override = default;
+    inline const ValueType& getValue() const { return value; }
 
 
     // Default implementation of print
@@ -108,21 +114,8 @@ class BaseObject : public Object {
     }
 
     // Define arithmetic operators
-    DEFINE_OPERATOR(Addition, +, add)
-    // DEFINE_OPERATOR(Subtraction, -, subtract)
-    // DEFINE_OPERATOR(Multiplication, *, multiply)
-    // DEFINE_OPERATOR(Division, /, divide)
-
-    // Define comparison operators
-    // DEFINE_OPERATOR(Equal, ==, equal)
-    // DEFINE_OPERATOR(LessThan, <, lessThan)
-    // DEFINE_OPERATOR(GreaterThan, >, greaterThan)
-    // DEFINE_OPERATOR(LessThanOrEqual, <=, lessThanOrEqual)
-    // DEFINE_OPERATOR(GreaterThan, >=, greaterThanOrEqual)
-
-    // Shift operations
-    // DEFINE_OPERATOR(ShiftLeft, <<,  shiftLeft)
-    // DEFINE_OPERATOR(ShiftRight, >>, shiftRight)
+    DEFINE_OPERATOR(add, +, 'Addition')
+    // DEFINE_OPERATOR(subtract, -, 'Substraction')
 };
 
 // Boolean class
@@ -141,70 +134,19 @@ class Double : public BaseObject<Double, double> {
 class Integer : public BaseObject<Integer, int32_t> {
  public:
   explicit Integer(int32_t value) : BaseObject(value) {}
-
-  std::shared_ptr<Object> addHelper(const Object& other) const override {
-    if (auto otherInt = dynamic_cast<const Integer*>(&other)) {
-      return std::make_shared<Integer>(value + otherInt->value);
-    }
-    if (auto otherDouble = dynamic_cast<const Double*>(&other)) {
-      return std::make_shared<Double>(value + otherDouble->value);
-    }
-    throw std::runtime_error("Addition not supported between Integer and given type");
+  ObjectPtr addHelper(unused const Object& other) const override {
+    std::cout << "Addhelper for Integer" << std::endl;
+    return std::make_shared<Integer>(100);
   }
-
-  std::shared_ptr<Object> addHelper(const Object& other) const override {
-    if (auto otherInt = dynamic_cast<const Integer*>(&other)) {
-      return std::make_shared<Integer>(value + otherInt->value);
-    }
-    if (auto otherDouble = dynamic_cast<const Double*>(&other)) {
-      return std::make_shared<Double>(value + otherDouble->value);
-    }
-    throw std::runtime_error("Addition not supported between Integer and given type");
-  }
-
-  // std::shared_ptr<Object> susbtractHelper(const Object& other) const override {
-  //   if (auto otherInt = dynamic_cast<const Integer*>(&other)) {
-  //     return std::make_shared<Integer>(value - otherInt->value);
-  //   }
-  //   if (auto otherDouble = dynamic_cast<const Double*>(&other)) {
-  //     return std::make_shared<Double>(value - otherDouble->value);
-  //   }
-  //   throw std::runtime_error("Substraction not supported between Integer and given type");
-  // }
-
-  // std::shared_ptr<Object> multiplyHelper(const Object& other) const override {
-  //   if (auto otherInt = dynamic_cast<const Integer*>(&other)) {
-  //     return std::make_shared<Integer>(value * otherInt->value);
-  //   }
-  //   if (auto otherDouble = dynamic_cast<const Double*>(&other)) {
-  //     return std::make_shared<Double>(value * otherDouble->value);
-  //   }
-  //   throw std::runtime_error("Multipliation not supported between Integer and given type");
-  // }
-
-  // std::shared_ptr<Object> divideHelper(const Object& other) const override {
-  //   if (auto otherInt = dynamic_cast<const Integer*>(&other)) {
-  //     return std::make_shared<Integer>(value / otherInt->value);
-  //   }
-  //   if (auto otherDouble = dynamic_cast<const Double*>(&other)) {
-  //     return std::make_shared<Double>(value / otherDouble->value);
-  //   }
-  //   throw std::runtime_error("Division not supported between Integer and given type");
-  // }
-
-  // std::shared_ptr<Object> equalHelper(const Object& other) const override {
-  //   if (auto otherInt = dynamic_cast<const Integer*>(&other)) {
-  //     return std::make_shared<Integer>(value == otherInt->value);
-  //   }
-  //   if (auto otherDouble = dynamic_cast<const Double*>(&other)) {
-  //     return std::make_shared<Double>(value == otherDouble->value);
-  //   }
-  //   throw std::runtime_error("Division not supported between Integer and given type");
-  // }
 };
 
 // String class
 class String : public BaseObject<String, std::string> {
  public:
   explicit String(std::string value) : BaseObject(std::move(value)) {}
+
+  // Override subtract to throw an error or provide custom behavior
+  ObjectPtr subtract(unused const Object& other) const override {
+    throw std::runtime_error("Subtraction not supported for strings");
+  }
 };
