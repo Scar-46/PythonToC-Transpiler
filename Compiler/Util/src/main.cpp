@@ -3,6 +3,14 @@
 
 #include "./util.hpp"
 
+void checkReference(unused const Object& op1, unused const Object& op2) {
+  std::cout << "Can be passed as object references" << std::endl;
+}
+
+void checkPointer(unused const ObjectPtr& op1, unused const ObjectPtr& op2) {
+  std::cout << "Can be passed as object pointers" << std::endl;
+}
+
 // Dummy class
 class List : public Object {
  public:
@@ -69,6 +77,9 @@ int main() {
   if (newString == "New string") {
     std::cout << "Can compare strings to const char*" << std::endl;
   }
+
+  checkReference(one, one);
+  checkPointer(one, one);
   return 0;
   // std::cout << integer + duble << std::endl;
 }
