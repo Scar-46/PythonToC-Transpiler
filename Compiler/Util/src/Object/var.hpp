@@ -8,7 +8,11 @@
 #include <string>
 #include <utility>
 
-#include "../Object/object.hpp"
+#include "./object.hpp"
+#include "./Boolean/Boolean.hpp"
+#include "./Double/Double.hpp"
+#include "./Integer/Integer.hpp"
+#include "./String/String.hpp"
 
 class var {
  private:
@@ -130,10 +134,6 @@ class var {
       throw std::runtime_error("Subscript not supported for null values");
     }
     return var(value->subscript(*other.value));
-  }
-
-  var test() {
-    return var();
   }
 
   // Print for output
