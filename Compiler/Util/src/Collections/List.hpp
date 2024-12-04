@@ -1,7 +1,7 @@
 #pragma once
 // Copyright (c) 2024 Syntax Errors.
-#include "./object.hpp"
-#include "./var.hpp"
+#include "./Object/object.hpp"
+#include "./Object/var.hpp"
 
 class List : public Object {
  private:
@@ -21,9 +21,22 @@ class List : public Object {
   List() = default;
   List(std::initializer_list<var> initList) : elements(initList) {}
 
+  // Overload the + operator to concatenate two lists
+  List operator+(const List& other) const {
+    List result = *this; // Start with a copy of the current list
+    result.elements.insert(result.elements.end(), other.elements.begin(), other.elements.end());
+    return result;
+  }
+
   // ------------------ Overrides ------------------
   // Override the add method to handle list addition
   ObjectPtr add(const Object& other) const override {
+    auto otherList = dynamic_cast<const List*>(&other);
+     if (!otherList) {
+        throw std::invalid_argument("add method requires a List");
+    }
+    List result = *this + *otherList;
+    return std::make_shared<List>(result);
   }
 
   // Override the add method to handle list subtraction
@@ -108,18 +121,12 @@ void insert(int pos, const var& element) {
   size_t size() const {
     return elements.size();
   }
+
   // ------------------ Operator Overloading ------------------
   
   // Overload the [] operator to access elements by index
   var operator[](int index) const {
     return elements[normalizeIndex(index)];
-  }
-
-  // Overload the + operator to concatenate two lists
-  List operator+(const List& other) const {
-    List result = *this; // Start with a copy of the current list
-    result.elements.insert(result.elements.end(), other.elements.begin(), other.elements.end());
-    return result;
   }
 
   // ------------------ Iterator ------------------
