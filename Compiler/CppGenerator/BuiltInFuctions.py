@@ -1,14 +1,14 @@
 BUILTIN_FUNCTIONS = {
     # I/O Functions
-    "print": lambda args: f"std::cout << {' << '.join(args)} << std::endl",
+    "print": lambda args: f"std::cout << {''.join(f"{arg} << \" \" <<" for arg in args)} std::endl",
     "input": lambda args: "std::cin >> " + args[0] if args else "std::cin",
 
     # Sequence and Container Functions
-    "len": lambda args: f"{args[0]}.size()",
-    "sum": lambda args: f"std::accumulate({args[0]}.begin(), {args[0]}.end(), 0)",
-    "min": lambda args: f"*std::min_element({args[0]}.begin(), {args[0]}.end())",
-    "max": lambda args: f"*std::max_element({args[0]}.begin(), {args[0]}.end())",
-    "sorted": lambda args: f"std::sort({args[0]}.begin(), {args[0]}.end())",
+    "len": lambda args: f"std::size({args[0]})",
+    "sum": lambda args: f"std::accumulate(std::begin({args[0]}), std::end({args[0]}), 0)",
+    "min": lambda args: f"*std::min_element(std::begin({args[0]}), std::end({args[0]}))",
+    "max": lambda args: f"*std::max_element(std::begin({args[0]}), std::end({args[0]}))",
+    "sorted": lambda args: f"std::sort(std::begin({args[0]}), std::end({args[0]}))",
 
     # Mathematical Functions
     "abs": lambda args: f"std::abs({args[0]})",

@@ -1,1 +1,1 @@
-print("Hey")
+sum("Hey", "Charles")
