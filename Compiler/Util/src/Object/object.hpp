@@ -3,6 +3,7 @@
 
 #include <compare>
 #include <iostream>
+#include <iterator>
 #include <memory>
 #include <string>
 #include <utility>
@@ -71,6 +72,30 @@ class Object {
 
   virtual bool isSameType(const Object& other) const {
     return typeid(*this) == typeid(other);
+  }
+
+  // Iterator types
+  using iterator = std::string::iterator;
+  using const_iterator = std::string::const_iterator;
+
+  // Default iteration behavior (non-iterable object)
+  virtual iterator begin() {
+    throw std::runtime_error("This object does not support iteration");
+  }
+  virtual iterator end() {
+    throw std::runtime_error("This object does not support iteration");
+  }
+  virtual const_iterator begin() const {
+    throw std::runtime_error("This object does not support iteration");
+  }
+  virtual const_iterator end() const {
+    throw std::runtime_error("This object does not support iteration");
+  }
+  virtual const_iterator cbegin() const {
+    throw std::runtime_error("This object does not support iteration");
+  }
+  virtual const_iterator cend() const {
+    throw std::runtime_error("This object does not support iteration");
   }
 };
 

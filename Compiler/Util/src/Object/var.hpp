@@ -136,6 +136,35 @@ class var {
     return var(value->subscript(*other.value));
   }
 
+  // Iteration methods
+  Object::iterator begin() {
+    if (!value) {
+      throw std::runtime_error("Cannot iterate over null var");
+    }
+    return value->begin();
+  }
+
+  Object::iterator end() {
+    if (!value) {
+      throw std::runtime_error("Cannot iterate over null var");
+    }
+    return value->end();
+  }
+
+  Object::const_iterator begin() const {
+    if (!value) {
+      throw std::runtime_error("Cannot iterate over null var");
+    }
+    return value->begin();
+  }
+
+  Object::const_iterator end() const {
+    if (!value) {
+      throw std::runtime_error("Cannot iterate over null var");
+    }
+    return value->end();
+  }
+
   // Print for output
   friend std::ostream& operator<<(std::ostream& os, const var& variable) {
     if (variable.value) {

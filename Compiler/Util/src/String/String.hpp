@@ -10,6 +10,9 @@
 
 // String class
 class String : public BaseObject<String, std::string> {
+ private:
+  using BaseObject::value;
+
  public:
   explicit String(std::string value) : BaseObject(std::move(value)) {}
 
@@ -44,4 +47,12 @@ class String : public BaseObject<String, std::string> {
     }
     throw std::runtime_error("Cannot Index with non integer type");
   }
+
+  // Override iteration methods
+  iterator begin() override { return value.begin(); }
+  iterator end() override { return value.end(); }
+  const_iterator begin() const override { return value.begin(); }
+  const_iterator end() const override { return value.end(); }
+  const_iterator cbegin() const override { return value.cbegin(); }
+  const_iterator cend() const override { return value.cend(); }
 };

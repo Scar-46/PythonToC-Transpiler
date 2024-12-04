@@ -84,8 +84,12 @@ int main() {
     std::cout << "Can check for value" << std::endl;
   }
   std::cout << "'" << string[Integer(0)] << "' is the first letter of '" << string << "'" << std::endl;
+
+  for (auto& item : string) {
+    std::cout << item << " ";
+  }
+  std::cout << std::endl;
   return 0;
-  // std::cout << integer + duble << std::endl;
 }
 
 // templates, list, tuple, dict, add
