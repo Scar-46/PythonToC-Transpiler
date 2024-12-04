@@ -51,7 +51,7 @@ class List : public Object {
               os << ", ";
           }
       }
-      os << "]";
+      os << "] \n";
   }
 
   // Override clone to copy the list
@@ -85,11 +85,6 @@ class List : public Object {
       elements.insert(elements.begin() + pos, element);
   }
 
-  // Overload the [] operator to access elements by index
-  var operator[](int index) const {
-      return elements[normalizeIndex(index)];
-  }
-
   List slice(int start = 0, int end = -1, int step = 1) const {
       if (step == 0) {
           throw std::invalid_argument("Step cannot be zero");
@@ -111,6 +106,19 @@ class List : public Object {
   
   size_t size() const {
     return elements.size();
+  }
+  // ------------------ Operator Overloading ------------------
+  
+  // Overload the [] operator to access elements by index
+  var operator[](int index) const {
+      return elements[normalizeIndex(index)];
+  }
+
+  // Overload the + operator to concatenate two lists
+  List operator+(const List& other) const {
+    List result = *this; // Start with a copy of the current list
+    result.elements.insert(result.elements.end(), other.elements.begin(), other.elements.end());
+    return result;
   }
 
   // ------------------ Iterator ------------------
