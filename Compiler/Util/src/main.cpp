@@ -79,7 +79,10 @@ int main() {
   }
 
   checkReference(one, one);
-  checkPointer(one, one);
+  checkPointer(static_cast<ObjectPtr&>(one), static_cast<ObjectPtr&>(one));
+  if (one) {
+    std::cout << "Can check for value" << std::endl;
+  }
   return 0;
   // std::cout << integer + duble << std::endl;
 }
