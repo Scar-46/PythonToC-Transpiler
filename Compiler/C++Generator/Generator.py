@@ -66,8 +66,6 @@ class CodeGenerator():
         
         if is_constructor:
             function_name = self.symbol_table.get_class()[3:]  # Remove leading "class_"
-        else:
-            self.symbol_table.add_symbol(f"se_{function_name}", symbol_type="function")
         code_strs = []
         # Normal function
         self.symbol_table.enter_scope()
@@ -75,13 +73,16 @@ class CodeGenerator():
             code_strs.append(self.emit("var "))
         code_strs.append(self.emit(f"se_{function_name}(", add_newline=False))
         temp_code = []
+        parameters = ""
         block_index = 0 if node.children[0].node_type == "block" else 1
         if block_index == 1:
-            code_strs.append(self.visit(node.children[0]))  # Visit parameters
+            parameters = self.visit(node.children[0]) # Visit parameters
+            code_strs.append(parameters)
         code_strs.append(self.emit("){", add_newline=True))
         temp_code.append(self.visit(node.children[block_index]))  # Visit block
         self.indent_level += 1
         if not is_constructor:
+            self.symbol_table.add_symbol_over(f"se_{function_name}", symbol_type="function", params=parameters)
             temp_code.append(self.emit("return var();", add_newline=True))
         self.indent_level -= 1
         temp_code.append(self.emit("}", add_newline=True))
@@ -353,12 +354,12 @@ class CodeGenerator():
         return ''.join(code_strs)
     
 # ------------------------ ASSIGNMENT ------------------------
-    def visit_assign_chain(self, node):  # TODO: Needs adjustment for C++ style
+    def visit_assign_chain(self, node):
         code_strs = [self.visit(node.children[0])]  # Target list
         code_strs.append(self.visit(node.children[1]))  # Value
         return ''.join(code_strs)
 
-    def visit_target_chain(self, node):  # TODO: Simplify
+    def visit_target_chain(self, node):
         code_strs = []
         for target_list_node in node.children:
             code_strs.append(self.visit(target_list_node))

@@ -28,19 +28,20 @@ class SymbolTable:
         current_scope = self.scopes[-1]
         current_scope[name] = {"type": symbol_type}
 
-    def add_symbol_over(self, name, symbol_type):
+    def add_symbol_over(self, name, symbol_type, params=None):
         current_scope = self.scopes[-2]
-        current_scope[name] = {"type": symbol_type}
+        if symbol_type == "function":
+            current_scope[name] = {"type": symbol_type, "parameters": params}
+        else:
+            current_scope[name] = {"type": symbol_type}
 
     def exit_and_declare(self, indent_level):
         variables = self.scopes.pop()
         indent = '    ' * (indent_level)
         declarations = ""
         for var, details in variables.items():
-            if details["type"] == "function":
-                #declarations += f"\n{indent}var {var}();"
-                #TODO: This needs to get the parameters
-                declarations +=""
+            if details["type"] == "function" and len(self.class_name) == 0:
+                declarations += f"\n{indent}var {var}({details["parameters"]});"
             elif details["type"] == "variable":
                 declarations += f"\n{indent}var {var};"
         return declarations
