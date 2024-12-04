@@ -83,9 +83,10 @@ class var {
   }
 
   std::strong_ordering operator<=>(const var& other) const {
-    if (static_cast<bool>(value->equals(*other.value))) return std::strong_ordering::equal;
-    if (static_cast<bool>(value->less(*other.value))) return std::strong_ordering::less;
-    if (static_cast<bool>(value->greater(*other.value))) return std::strong_ordering::greater;
+    if (value->equals(*other.value)) return std::strong_ordering::equal;
+    if (value->less(*other.value)) return std::strong_ordering::less;
+    if (value->greater(*other.value)) return std::strong_ordering::greater;
+    throw std::runtime_error("Invalid comparison");
   }
 
 

@@ -164,6 +164,19 @@ class String : public BaseObject<String, std::string> {
       throw std::runtime_error(#ERROR_MESSAGE " not supported for different types"); \
   }
 
+#define DEFINE_COMPARISON_OPERATOR(OP_NAME, OP_SYMBOL, ERROR_MESSAGE) \
+  bool OP_NAME(const Object& other) const override { \
+    auto otherObj = dynamic_cast<const Derived*>(&other); \
+    if (otherObj) { \
+      return value OP_SYMBOL otherObj->getValue(); \
+    } \
+    return OP_NAME##Helper(other); \
+  } \
+  \
+  virtual bool OP_NAME##Helper(unused const Object& other) const { \
+      throw std::runtime_error(#ERROR_MESSAGE " not supported for different types"); \
+  }
+
 // Base template class for numeric Object
 template <typename Derived, typename ValueType>
 class BaseNumeric : public Object {
@@ -197,30 +210,10 @@ class BaseNumeric : public Object {
   DEFINE_OPERATOR(subtract, -, 'Subtraction')
   DEFINE_OPERATOR(multiply, *, 'Multiplication')
   DEFINE_OPERATOR(divide, /, 'Division')
-  
-  bool equals(const Object& other) const override {
-    auto otherObj = dynamic_cast<const Derived*>(&other);
-    if (otherObj) {
-      return this->value == otherObj->getValue();
-    }
-    return false;
-  }
 
-  bool less(const Object& other) const override {
-    auto otherObj = dynamic_cast<const Derived*>(&other);
-    if (otherObj) {
-      return this->value < otherObj->getValue();
-    }
-    return false;
-  }
-
-  bool greater(const Object& other) const override {
-    auto otherObj = dynamic_cast<const Derived*>(&other);
-    if (otherObj) {
-      return this->value > otherObj->getValue();
-    }
-    return false;
-  }
+  DEFINE_COMPARISON_OPERATOR(equals, ==, 'Equality')
+  DEFINE_COMPARISON_OPERATOR(less, <, 'Less than')
+  DEFINE_COMPARISON_OPERATOR(greater, >, 'Greater than')
 };
 
 // Double class
@@ -244,25 +237,26 @@ class Double : public BaseNumeric<Double, double> {
     return divideWithInteger(other);
   }
 
-  // ObjectPtr equalsHelper(const Object& other) const override {
-  //   return equalsWithInteger(other);
-  // }
+  bool equalsHelper(const Object& other) const override {
+    return equalsWithInteger(other);
+  }
 
-  // ObjectPtr lessHelper(const Object& other) const override {
-  //   return lessWithInteger(other);
-  // }
+  bool lessHelper(const Object& other) const override {
+    return lessWithInteger(other);
+  }
 
-  // ObjectPtr greaterHelper(const Object& other) const override {
-  //   return greaterWithInteger(other);
-  // }
+  bool greaterHelper(const Object& other) const override {
+    return greaterWithInteger(other);
+  }
 
   ObjectPtr addWithInteger(const Object& other) const;
   ObjectPtr subtractWithInteger(const Object& other) const;
   ObjectPtr multiplyWithInteger(const Object& other) const;
   ObjectPtr divideWithInteger(const Object& other) const;
-  // ObjectPtr equalsWithInteger(const Object& other) const;
-  // ObjectPtr lessWithInteger(const Object& other) const;
-  // ObjectPtr greaterWithInteger(const Object& other) const;
+
+  bool equalsWithInteger(const Object& other) const;
+  bool lessWithInteger(const Object& other) const;
+  bool greaterWithInteger(const Object& other) const;
 };
 
 // Integer class
@@ -295,37 +289,37 @@ class Integer : public BaseNumeric<Integer, int32_t> {
     throw std::runtime_error("Integer does not support multiplication with given type");
   }
 
-//   ObjectPtr divideHelper(const Object& other) const override {
-//     auto otherObj = dynamic_cast<const Double*>(&other);
-//     if (otherObj) {
-//       return std::make_shared<Integer>(value + otherObj->getValue());
-//     }
-//     throw std::runtime_error("Integer does not support division with given type");
-//   }
+  ObjectPtr divideHelper(const Object& other) const override {
+    auto otherObj = dynamic_cast<const Double*>(&other);
+    if (otherObj) {
+      return std::make_shared<Integer>(value + otherObj->getValue());
+    }
+    throw std::runtime_error("Integer does not support division with given type");
+  }
 
-//   ObjectPtr equalsHelper(const Object& other) const override {
-//     auto otherObj = dynamic_cast<const Double*>(&other);
-//     if (otherObj) {
-//       return std::make_shared<Integer>(value == otherObj->getValue());
-//     }
-//     throw std::runtime_error("Integer does not support comparison with given type");
-//   }
+  bool equalsHelper(const Object& other) const override {
+    auto otherObj = dynamic_cast<const Double*>(&other);
+    if (otherObj) {
+      return value == otherObj->getValue();
+    }
+    throw std::runtime_error("Integer does not support comparison with given type");
+  }
 
-//   ObjectPtr lessHelper(const Object& other) const override {
-//     auto otherObj = dynamic_cast<const Double*>(&other);
-//     if (otherObj) {
-//       return std::make_shared<Integer>(value < otherObj->getValue());
-//     }
-//     throw std::runtime_error("Integer does not support comparison with given type");
-//   }
+  bool lessHelper(const Object& other) const override {
+    auto otherObj = dynamic_cast<const Double*>(&other);
+    if (otherObj) {
+      return value < otherObj->getValue();
+    }
+    throw std::runtime_error("Integer does not support comparison with given type");
+  }
 
-//   ObjectPtr greaterHelper(const Object& other) const override {
-//     auto otherObj = dynamic_cast<const Double*>(&other);
-//     if (otherObj) {
-//       return std::make_shared<Integer>(value > otherObj->getValue());
-//     }
-//     throw std::runtime_error("Integer does not support comparison with given type");
-//   }
+  bool greaterHelper(const Object& other) const override {
+    auto otherObj = dynamic_cast<const Double*>(&other);
+    if (otherObj) {
+      return value > otherObj->getValue();
+    }
+    throw std::runtime_error("Integer does not support comparison with given type");
+  }
 };
 
 ObjectPtr Double::addWithInteger(const Object& other) const {
@@ -360,27 +354,27 @@ ObjectPtr Double::divideWithInteger(const Object& other) const {
   throw std::runtime_error("Double does not support division with given type");
 }
 
-// ObjectPtr Double::equalsWithInteger(const Object& other) const {
-//   auto otherObj = dynamic_cast<const Integer*>(&other);
-//   if (otherObj) {
-//     return std::make_shared<Double>(value == otherObj->getValue());
-//   }
-//   throw std::runtime_error("Double does not support comparison with given type");
-// }
+bool Double::equalsWithInteger(const Object& other) const {
+  auto otherObj = dynamic_cast<const Integer*>(&other);
+  if (otherObj) {
+    return value == otherObj->getValue();
+  }
+  throw std::runtime_error("Double does not support comparison with given type");
+}
 
-// ObjectPtr Double::lessWithInteger(const Object& other) const {
-//   auto otherObj = dynamic_cast<const Integer*>(&other);
-//   if (otherObj) {
-//     return std::make_shared<Double>(value < otherObj->getValue());
-//   }
-//   throw std::runtime_error("Double does not support comparison with given type");
-// }
+bool Double::lessWithInteger(const Object& other) const {
+  auto otherObj = dynamic_cast<const Integer*>(&other);
+  if (otherObj) {
+    return value < otherObj->getValue();
+  }
+  throw std::runtime_error("Double does not support comparison with given type");
+}
 
-// ObjectPtr Double::greaterWithInteger(const Object& other) const {
-//   auto otherObj = dynamic_cast<const Integer*>(&other);
-//   if (otherObj) {
-//     return std::make_shared<Double>(value > otherObj->getValue());
-//   }
-//   throw std::runtime_error("Double does not support comparison with given type");
-// }
+bool Double::greaterWithInteger(const Object& other) const {
+  auto otherObj = dynamic_cast<const Integer*>(&other);
+  if (otherObj) {
+    return value > otherObj->getValue();
+  }
+  throw std::runtime_error("Double does not support comparison with given type");
+}
 

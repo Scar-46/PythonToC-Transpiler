@@ -26,8 +26,27 @@ int main() {
   std::cout << "Result: " << result << std::endl;
   std::cout << one << " == " << second_one << "?: " << (one == second_one) << std::endl;
 
-  if (one) {
+  if (one < twoPointTree) {
     std::cout << "True" << std::endl;
+  }
+  var newString = "New string";
+
+  std::cout << "'" << newString << "' is ";
+  if (newString < integer) {
+    std::cout << "less";
+  } else if (newString > integer) {
+    std::cout << "greater";
+  } else if (newString <= integer) {
+    std::cout << "less or equal";
+  } else if (newString >= integer) {
+    std::cout << "greater or equal";
+  } else if (newString == integer) {
+    std::cout << "Equal";
+  }
+  std::cout << " than '" << integer << "'" << std::endl;
+
+  if (newString == "New string") {
+    std::cout << "Can compare strings to const char*" << std::endl;
   }
   return 0;
   // std::cout << integer + duble << std::endl;
