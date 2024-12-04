@@ -5,3 +5,5 @@
 #include "../String/String.hpp"
 
 class List;
+class Tuple;
+class Map;

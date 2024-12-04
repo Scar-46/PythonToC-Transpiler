@@ -11,3 +11,5 @@
 #include "./Integer/Integer.hpp"
 #include "./String/String.hpp"
 #include "./Collections/List.hpp"
+#include "./Collections/Tuple.hpp"
+#include "./Collections/Map.hpp"

@@ -18,12 +18,18 @@ int main() {
   var boolean = false;
   List list = List();
   List list2 = List();
-  Tuple tup;
+  Map mapa = Map();
+  
+  mapa.addElement(duble,boolean);
 
- 
+
+
+  mapa.print(std::cout);
   list.addElement("Good");
   list.addElement("4");
   list.addElement("Nite");
+
+  std::cout << (list.equals(list2)) <<std::endl;
 
   for(auto i : list){
     std::cout << i << std::endl;
