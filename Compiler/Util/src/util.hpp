@@ -6,3 +6,5 @@
 #include "./object.hpp"
 #include "./var.hpp"
 #include "./list.hpp"
+#include "./map.hpp"
+#include "./set.hpp"
