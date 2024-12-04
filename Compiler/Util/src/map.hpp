@@ -12,7 +12,7 @@ class Map : public Object {
   Map() = default;
   Map(std::initializer_list<std::pair<var, var>> initList) {
     for (const auto& pair : initList) {
-      //elements[pair.first] = pair.second;
+      elements[pair.first] = pair.second;
     }
 }
 
@@ -53,7 +53,6 @@ class Map : public Object {
 
   // ------------------ Map Methods ------------------
   void addElement(const var& key, const var& value) {
-    //elements[key] = value;
-    //TODO: var needs to have "<" operator
+    elements[key] = value;
   }
 };

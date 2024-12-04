@@ -56,6 +56,7 @@ class List : public Object {
 
   // Override clone to copy the list
   ObjectPtr clone() const override {
+    return std::make_shared<List>();
   }
 
   // ------------------ List Methods ------------------
