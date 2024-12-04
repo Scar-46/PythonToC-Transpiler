@@ -5,8 +5,9 @@
 #include <iostream>
 
 #include "./Object/object.hpp"
+#include "./Object/var.hpp"
 #include "./Boolean/Boolean.hpp"
 #include "./Double/Double.hpp"
 #include "./Integer/Integer.hpp"
 #include "./String/String.hpp"
-#include "./Object/var.hpp"
+#include "./Collections/List.hpp"

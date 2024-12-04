@@ -1,7 +1,11 @@
-#pragma once
 // Copyright (c) 2024 Syntax Errors.
-#include "./object.hpp"
-#include "./var.hpp"
+#pragma once
+
+#include <memory>
+#include <vector>
+
+#include "./Object/object.hpp"
+#include "./Object/var.hpp"
 
 class List : public Object {
  private:
@@ -21,25 +25,31 @@ class List : public Object {
   List() = default;
   List(std::initializer_list<var> initList) : elements(initList) {}
 
+  // Overload the + operator to concatenate two lists
+  List operator+(const List& other) const {
+    List result = *this;  // Start with a copy of the current list
+    result.elements.insert(result.elements.end(), other.elements.begin(), other.elements.end());
+    return result;
+  }
+
   // ------------------ Overrides ------------------
   // Override the add method to handle list addition
   ObjectPtr add(const Object& other) const override {
+    auto otherList = dynamic_cast<const List*>(&other);
+     if (!otherList) {
+        throw std::invalid_argument("add method requires a List");
+    }
+    List result = *this + *otherList;
+    return std::make_shared<List>(result);
   }
 
-  // Override the add method to handle list subtraction
-  ObjectPtr subtract(const Object& other) const override {
-  }
-
-  // Override the add method to handle list multiplication
-  ObjectPtr multiply(const Object& other) const override {
-  }
-
-  // Override the add method to handle list division
-  ObjectPtr divide(const Object& other) const override {
-  }
-  
   // Override the equals method to compare the lists
   bool equals(const Object& other) const override {
+    auto otherList = dynamic_cast<const List*>(&other);
+    if (!otherList) {
+      throw std::invalid_argument("equals method requires a List");
+    }
+    return elements == otherList->elements;
   }
 
   // Override print to display list contents
@@ -56,7 +66,7 @@ class List : public Object {
 
   // Override clone to copy the list
   ObjectPtr clone() const override {
-    return std::make_shared<List>();
+    return std::make_shared<List>(elements);
   }
 
   // ------------------ List Methods ------------------
@@ -81,7 +91,7 @@ class List : public Object {
 void insert(int pos, const var& element) {
     if (pos < 0 || static_cast<size_t>(pos) > elements.size()) {
       std::cerr << "Position out of bounds\n";
-      return; // Or throw an exception
+      return;   // Or throw an exception
     }
     elements.insert(elements.begin() + pos, element);
   }
@@ -104,30 +114,17 @@ void insert(int pos, const var& element) {
     }
     return result;
   }
-  
+
   size_t size() const {
     return elements.size();
   }
+
   // ------------------ Operator Overloading ------------------
-  
   // Overload the [] operator to access elements by index
-  var operator[](int index) const {
-    return elements[normalizeIndex(index)];
-  }
-
-  // Overload the + operator to concatenate two lists
-  List operator+(const List& other) const {
-    List result = *this; // Start with a copy of the current list
-    result.elements.insert(result.elements.end(), other.elements.begin(), other.elements.end());
-    return result;
-  }
-
-  // ------------------ Iterator ------------------
-    std::vector<var>::iterator begin() {
-      return elements.begin();
-    }
-
-    std::vector<var>::iterator end() {
-      return elements.end();
-    }
+  iterator begin() override { return elements.begin(); }
+  iterator end() override { return elements.end(); }
+  const_iterator begin() const override { return elements.begin(); }
+  const_iterator end() const override { return elements.end(); }
+  const_iterator cbegin() const override { return elements.cbegin(); }
+  const_iterator cend() const override { return elements.cend(); }
 };
