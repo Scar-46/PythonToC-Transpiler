@@ -44,14 +44,14 @@ class List : public Object {
 
   // Override print to display list contents
   void print(std::ostream& os) const override {
-      os << "[";
-      for (size_t i = 0; i < elements.size(); ++i) {
-          os << elements[i];
-          if (i < elements.size() - 1) {
-              os << ", ";
-          }
+    os << "[";
+    for (size_t i = 0; i < elements.size(); ++i) {
+      os << elements[i];
+      if (i < elements.size() - 1) {
+        os << ", ";
       }
-      os << "] \n";
+    }
+    os << "] \n";
   }
 
   // Override clone to copy the list
@@ -60,48 +60,48 @@ class List : public Object {
 
   // ------------------ List Methods ------------------
   void addElement(const var& element) {
-      elements.push_back(element);
+    elements.push_back(element);
   }
 
   var popElement(size_t index) {
-      if (index >= elements.size()) {
-          std::cerr << "Index out of bounds\n";
-          return var();
-      }
-      var removedElement = elements[index];
-      elements.erase(elements.begin() + index);
-      return removedElement;
+    if (index >= elements.size()) {
+      std::cerr << "Index out of bounds\n";
+      return var();
+    }
+    var removedElement = elements[index];
+    elements.erase(elements.begin() + index);
+    return removedElement;
   }
 
   void clear() {
-      elements.clear();
+    elements.clear();
   }
 
-  void insert(int pos, const var& element) {
-      if (pos < 0 || static_cast<size_t>(pos) > elements.size()) {
-          std::cerr << "Position out of bounds\n";
-          return; // Or throw an exception
-      }
-      elements.insert(elements.begin() + pos, element);
+void insert(int pos, const var& element) {
+    if (pos < 0 || static_cast<size_t>(pos) > elements.size()) {
+      std::cerr << "Position out of bounds\n";
+      return; // Or throw an exception
+    }
+    elements.insert(elements.begin() + pos, element);
   }
 
   List slice(int start = 0, int end = -1, int step = 1) const {
-      if (step == 0) {
-          throw std::invalid_argument("Step cannot be zero");
+    if (step == 0) {
+      throw std::invalid_argument("Step cannot be zero");
+    }
+    size_t normalizedStart = normalizeIndex(start);
+    size_t normalizedEnd = normalizeIndex(end);
+    List result;
+    if (step > 0) {
+      for (size_t i = normalizedStart; i < normalizedEnd; i += step) {
+        result.addElement(elements[i]);
       }
-      size_t normalizedStart = normalizeIndex(start);
-      size_t normalizedEnd = normalizeIndex(end);
-      List result;
-      if (step > 0) {
-          for (size_t i = normalizedStart; i < normalizedEnd; i += step) {
-              result.addElement(elements[i]);
-          }
-      } else {
-          for (size_t i = normalizedStart; i > normalizedEnd; i += step) {
-              result.addElement(elements[i]);
-          }
+    } else {
+      for (size_t i = normalizedStart; i > normalizedEnd; i += step) {
+        result.addElement(elements[i]);
       }
-      return result;
+    }
+    return result;
   }
   
   size_t size() const {
@@ -111,7 +111,7 @@ class List : public Object {
   
   // Overload the [] operator to access elements by index
   var operator[](int index) const {
-      return elements[normalizeIndex(index)];
+    return elements[normalizeIndex(index)];
   }
 
   // Overload the + operator to concatenate two lists
@@ -123,10 +123,10 @@ class List : public Object {
 
   // ------------------ Iterator ------------------
     std::vector<var>::iterator begin() {
-        return elements.begin();
+      return elements.begin();
     }
 
     std::vector<var>::iterator end() {
-        return elements.end();
+      return elements.end();
     }
 };
