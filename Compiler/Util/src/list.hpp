@@ -26,15 +26,15 @@ class List : public Object {
   ObjectPtr add(const Object& other) const override {
   }
 
-  // Override the add method to handle list addition
+  // Override the add method to handle list subtraction
   ObjectPtr subtract(const Object& other) const override {
   }
 
-  // Override the add method to handle list addition
+  // Override the add method to handle list multiplication
   ObjectPtr multiply(const Object& other) const override {
   }
 
-  // Override the add method to handle list addition
+  // Override the add method to handle list division
   ObjectPtr divide(const Object& other) const override {
   }
   
