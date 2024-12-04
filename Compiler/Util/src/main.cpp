@@ -3,11 +3,31 @@
 
 #include "./util.hpp"
 
+// Dummy class
+class List : public Object {
+ public:
+  List() = default;
+
+  void print(std::ostream& os) const override {
+    os << "List" << std::endl;
+  }
+  ObjectPtr clone() const override {
+    return std::make_shared<List>();
+  }
+
+  void addChild(const std::string& child) {
+    std::cout << "Added child: " << child << std::endl;
+  }
+};
+
 int main() {
   var string = "Hello world";
   var integer = Integer(123);
   var duble = 12.7;
   var boolean = false;
+  var list = List();
+
+  list.as<List>()->addChild("Hello world");
 
 
   std::vector<var> variables = std::vector<var>({string, integer, duble, boolean});

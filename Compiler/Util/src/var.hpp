@@ -89,6 +89,15 @@ class var {
     throw std::runtime_error("Invalid comparison");
   }
 
+  // Access
+  ObjectPtr operator->() {
+    return value;
+  }
+
+  template<typename ObjectType>
+  std::shared_ptr<ObjectType> as() {
+    return std::dynamic_pointer_cast<ObjectType>(value);
+  }
 
   // Print for output
   friend std::ostream& operator<<(std::ostream& os, const var& variable) {
