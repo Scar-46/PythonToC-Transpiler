@@ -21,10 +21,10 @@ int main() {
 
   var one = 1;
   var twoPointTree = 2.3;
-  var result = twoPointTree + twoPointTree;
-  var test = one + integer;
+  var result = one + twoPointTree;
+  var second_one = 1;
   std::cout << "Result: " << result << std::endl;
-  std::cout << "Test: " << test << std::endl;
+  std::cout << one << " == " << second_one << "?: " << (one == second_one) << std::endl;
   return 0;
   // std::cout << integer + duble << std::endl;
 }

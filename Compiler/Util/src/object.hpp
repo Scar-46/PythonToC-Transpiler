@@ -71,10 +71,8 @@ class Object {
   }
 };
 
-
-
 #define DEFINE_OPERATOR(OP_NAME, OP_SYMBOL, ERROR_MESSAGE) \
-  ObjectPtr OP_NAME(unused const Object& other) const override { \
+  ObjectPtr OP_NAME(const Object& other) const override { \
       auto otherObj = dynamic_cast<const Derived*>(&other); \
       if (otherObj) { \
           return std::make_shared<Derived>(value OP_SYMBOL otherObj->getValue()); \
@@ -115,7 +113,6 @@ class BaseObject : public Object {
 
     // Define arithmetic operators
     DEFINE_OPERATOR(add, +, 'Addition')
-    // DEFINE_OPERATOR(subtract, -, 'Substraction')
 };
 
 // Boolean class
@@ -134,19 +131,10 @@ class Double : public BaseObject<Double, double> {
 class Integer : public BaseObject<Integer, int32_t> {
  public:
   explicit Integer(int32_t value) : BaseObject(value) {}
-  ObjectPtr addHelper(unused const Object& other) const override {
-    std::cout << "Addhelper for Integer" << std::endl;
-    return std::make_shared<Integer>(100);
-  }
 };
 
 // String class
 class String : public BaseObject<String, std::string> {
  public:
   explicit String(std::string value) : BaseObject(std::move(value)) {}
-
-  // Override subtract to throw an error or provide custom behavior
-  ObjectPtr subtract(unused const Object& other) const override {
-    throw std::runtime_error("Subtraction not supported for strings");
-  }
 };
