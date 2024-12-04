@@ -1,4 +1,5 @@
 #pragma once
+
 // Copyright (c) 2024 Syntax Errors.
 #include <typeindex>
 
@@ -45,6 +46,9 @@ class var {
     return *this;
   }
 
+  var operator==(const var& other) const {
+    return value->equals(*other.value);
+  }
   var operator+(const var& other) const {
     if (!value || !other.value) {
       throw std::runtime_error("Addition not supported for null values");
