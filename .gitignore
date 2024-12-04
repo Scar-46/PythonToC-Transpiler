@@ -172,3 +172,7 @@ Compiler/ICGenerator/parser.out
 Compiler/ICGenerator/parsetab.py
 Compiler/ICGenerator/parsetab.py
 Compiler/ICGenerator/parsetab.py
+*/bin/**
+*/*.exe
+*/out.txt
+*/parser.out
