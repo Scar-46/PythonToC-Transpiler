@@ -1,11 +1,21 @@
 import sys
-sys.path.insert(0, 'Compiler/ICGenerator')
+import os
+import inspect
 
-from Parser import Parser
-from common import error_logger
+# Use ICGenerator module by adding the parent directory to path
+sys.path.insert(
+    1, os.path.realpath( # Full path of
+        os.path.dirname( # Parent directory of
+            os.path.dirname( # Current directory of file
+                os.path.abspath(inspect.getfile(inspect.currentframe()))
+            )
+        )
+    )
+)
 
+from ICGenerator.Parser import Parser
+from ICGenerator.common import error_logger
 from Generator import CodeGenerator
-
 
 def read_file(file_name):
     try:
@@ -15,23 +25,33 @@ def read_file(file_name):
         print(f"File {file_name} not found.")
         exit(1)
 
+def write_to_file(folder_name, file_name, content):
+    try:
+        os.makedirs(folder_name, exist_ok=True)
+        file_path = os.path.join(folder_name, file_name)
+        with open(file_path, 'w') as file:
+            file.write(content)
+    except Exception as e:
+        print(f"Error writing to file {file_name}: {e}")
+        exit(1)
+
 def main():
     code = read_file(sys.argv[1])
     parser = Parser()
     generator = CodeGenerator()
 
     ast = parser.parse(code)
-    generator.visit(ast)
-    print(''.join(generator.code))
-
+    transpiled_code = generator.visit(ast)
+    
     if error_logger.error_count() <= 0:
-        exit_code = 0
-        # TODO: make this message prettier
-        print("############# File transpiled successfully! #############")
+        output_folder = "Output"
+        output_file = "CodeTranspiled.cpp"
+        write_to_file(output_folder, output_file, transpiled_code)
+        print(f"############# File transpiled successfully and saved in '{output_folder}/{output_file}'! #############")
+        exit(0)
     else:
-        exit_code = 1
         error_logger.print_error(sys.argv[1])
-    exit(exit_code)
+        exit(1)
 
 if __name__ == "__main__":
     main()

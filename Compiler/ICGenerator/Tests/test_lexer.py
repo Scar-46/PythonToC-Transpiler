@@ -1,5 +1,4 @@
 import sys
-import pytest
 sys.path.insert(0, 'Compiler\ICGenerator')
 from Lexer import Lexer, NEW_TOKEN
 

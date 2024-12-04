@@ -1,4 +1,4 @@
-from ErrorLogger import ErrorLogger
+from .ErrorLogger import ErrorLogger
 
 # GLOBAL instance
 error_logger = ErrorLogger()
