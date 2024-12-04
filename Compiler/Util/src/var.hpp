@@ -1,8 +1,8 @@
 #pragma once
 
 // Copyright (c) 2024 Syntax Errors.
+#include <compare>
 #include <typeindex>
-
 #include <iostream>
 #include <memory>
 #include <string>
@@ -13,7 +13,6 @@
 class var {
  private:
   ObjectPtr value;
-  explicit var(ObjectPtr obj) : value(std::move(obj)) {}
 
  public:
   var() : value(nullptr) {}
@@ -26,6 +25,7 @@ class var {
   implicit var(const std::string& value) : value(std::make_shared<String>(value)) {}
   implicit var(const char* value) : value(std::make_shared<String>(std::string(value))) {}
   explicit var(bool value) : value(std::make_shared<Boolean>(value)) {}
+  explicit var(ObjectPtr obj) : value(std::move(obj)) {}
 
   // Copy constructor and assignment
   var(const var& other) : value(other.value ? other.value->clone() : nullptr) {}
@@ -68,42 +68,26 @@ class var {
     return var(value->subtract(*other.value));
   }
 
-  // Spoecialized assignment
-  // Assignment for common types
-  // var& operator=(int32_t value) {
-  //   this->value = std::make_shared<Integer>(value);
-  //   return *this;
-  // }
+  var operator*(const var& other) const {
+    if (!value || !other.value) {
+      throw std::runtime_error("Multiplication not supported for null values");
+    }
+    return var(value->subtract(*other.value));
+  }
 
-  // var& operator=(double value) {
-  //   this->value = std::make_shared<Double>(value);
-  //   return *this;
-  // }
+  var operator/(const var& other) const {
+    if (!value || !other.value) {
+      throw std::runtime_error("Division not supported for null values");
+    }
+    return var(value->subtract(*other.value));
+  }
 
-  // var& operator=(bool value) {
-  //   this->value = std::make_shared<Boolean>(value);
-  //   return *this;
-  // }
+  std::strong_ordering operator<=>(const var& other) const {
+    if (static_cast<bool>(value->equals(*other.value))) return std::strong_ordering::equal;
+    if (static_cast<bool>(value->less(*other.value))) return std::strong_ordering::less;
+    if (static_cast<bool>(value->greater(*other.value))) return std::strong_ordering::greater;
+  }
 
-  // var& operator=(const std::string& value) {
-  //   this->value = std::make_shared<String>(value);
-  //   return *this;
-  // }
-
-  // var& operator=(const char* value) {
-  //   this->value = std::make_shared<String>(std::string(value));
-  //   return *this;
-  // }
-
-  // // Move constructor and move assignment
-  // var(var&& other) noexcept : value(std::move(other.value)) {}
-  // var& operator=(var&& other) noexcept {
-  //   if (this != &other) {
-  //     value = std::move(other.value);
-  //     other.value = nullptr;
-  //   }
-  //   return *this;
-  // }
 
   // Print for output
   friend std::ostream& operator<<(std::ostream& os, const var& variable) {
