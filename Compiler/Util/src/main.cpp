@@ -3,6 +3,14 @@
 
 #include "./util.hpp"
 
+void checkReference(unused const Object& op1, unused const Object& op2) {
+  std::cout << "Can be passed as object references" << std::endl;
+}
+
+void checkPointer(unused const ObjectPtr& op1, unused const ObjectPtr& op2) {
+  std::cout << "Can be passed as object pointers" << std::endl;
+}
+
 // Dummy class
 class List : public Object {
  public:
@@ -45,7 +53,7 @@ int main() {
   var result = one - twoPointTree;
   var second_one = 1;
   std::cout << "Result: " << result << std::endl;
-  std::cout << one << " == " << second_one << "?: " << (one == second_one) << std::endl;
+  std::cout << one << " != " << second_one << "?: " << (one != second_one) << std::endl;
 
   if (one < twoPointTree) {
     std::cout << "True" << std::endl;
@@ -69,6 +77,13 @@ int main() {
   if (newString == "New string") {
     std::cout << "Can compare strings to const char*" << std::endl;
   }
+
+  checkReference(one, one);
+  checkPointer(static_cast<ObjectPtr&>(one), static_cast<ObjectPtr&>(one));
+  if (one) {
+    std::cout << "Can check for value" << std::endl;
+  }
+  std::cout << "'" << string[Integer(0)] << "' is the first letter of '" << string << "'" << std::endl;
   return 0;
   // std::cout << integer + duble << std::endl;
 }

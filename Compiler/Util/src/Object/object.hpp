@@ -22,6 +22,19 @@ class Object {
     throw std::runtime_error("Boolean conversion not supported for this type");
   }
 
+  // Compare operators
+  virtual bool equals(unused const Object& other) const {
+    throw std::runtime_error("Comparison not supported for this type");
+  }
+
+  virtual bool less(unused const Object& other) const {
+    throw std::runtime_error("Comparison not supported for this type");
+  }
+
+  virtual bool greater(unused const Object& other) const {
+    throw std::runtime_error("Comparison not supported for this type");
+  }
+
   // Arithmetic operators
   virtual ObjectPtr add(unused const Object& other) const {
     throw std::runtime_error("Addition not supported for this type");
@@ -39,17 +52,8 @@ class Object {
     throw std::runtime_error("Division not supported for this type");
   }
 
-  // Compare operators
-  virtual bool equals(unused const Object& other) const {
-    throw std::runtime_error("Comparison not supported for this type");
-  }
-
-  virtual bool less(unused const Object& other) const {
-    throw std::runtime_error("Comparison not supported for this type");
-  }
-
-  virtual bool greater(unused const Object& other) const {
-    throw std::runtime_error("Comparison not supported for this type");
+  virtual ObjectPtr subscript(unused const Object& other) const {
+    throw std::runtime_error("Subscript not supported for this type");
   }
 
   // Shift operations
