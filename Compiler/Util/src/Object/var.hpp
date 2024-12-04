@@ -73,7 +73,7 @@ class var {
     return value;
   }
 
-  ObjectPtr operator->() {
+  ObjectPtr operator->() const {
     return value;
   }
 

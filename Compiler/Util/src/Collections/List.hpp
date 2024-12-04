@@ -43,7 +43,22 @@ class List : public Object {
   // Override the add method to handle list division
   ObjectPtr divide(const Object& other) const override {
   }
-  
+
+  // Override the subscript method to indexation
+  ObjectPtr subscript(const Object& other) const override {
+      // Attempt to cast the 'other' object to an Integer
+      auto otherObj = dynamic_cast<const Integer*>(&other);
+
+      if (otherObj) {
+          int index = otherObj->getValue();  // Assuming 'getValue' gets the integer value of the index
+          return elements[normalizeIndex(index)].operator->();
+      } else {
+          // Handle the case where 'other' is not an Integer (throw an exception, or return a default value)
+          std::cerr << "Invalid index type, expected Integer.\n";
+          return nullptr;  // Or throw an exception
+      }
+  }
+
   // Override the equals method to compare the lists
   bool equals(const Object& other) const override {
     auto otherList = dynamic_cast<const List*>(&other);
