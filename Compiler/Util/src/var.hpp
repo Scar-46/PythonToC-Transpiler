@@ -46,9 +46,14 @@ class var {
     return *this;
   }
 
+  explicit operator bool() const {
+    return static_cast<bool>(value);
+  }
+
   var operator==(const var& other) const {
     return value->equals(*other.value);
   }
+
   var operator+(const var& other) const {
     if (!value || !other.value) {
       throw std::runtime_error("Addition not supported for null values");
