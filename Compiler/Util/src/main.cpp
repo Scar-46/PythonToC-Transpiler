@@ -53,7 +53,7 @@ int main() {
   var result = one - twoPointTree;
   var second_one = 1;
   std::cout << "Result: " << result << std::endl;
-  std::cout << one << " == " << second_one << "?: " << (one == second_one) << std::endl;
+  std::cout << one << " != " << second_one << "?: " << (one != second_one) << std::endl;
 
   if (one < twoPointTree) {
     std::cout << "True" << std::endl;
@@ -83,6 +83,7 @@ int main() {
   if (one) {
     std::cout << "Can check for value" << std::endl;
   }
+  std::cout << "'" << string[Integer(0)] << "' is the first letter of '" << string << "'" << std::endl;
   return 0;
   // std::cout << integer + duble << std::endl;
 }
