@@ -24,16 +24,21 @@ class Map : public Object {
     }
   }
 
-  void addPair(const Pair& pair) {
-    std::cout << "Adding pair: ";
-    pair.print(std::cout);  // Ensure this prints correctly
-    std::cout << std::endl;
+  void addPair(const Pair& pair) { //TODO: Fix multi-type
     elements[pair.getFirst()] = pair.getSecond();
   }
 
   // ------------------ Overrides ------------------
   ObjectPtr add(const Object& other) const override {
-    // Implement map addition logic
+    auto otherMap = dynamic_cast<const Map*>(&other);
+    if (!otherMap) {
+      throw std::invalid_argument("add method requires a Map");
+    }
+    Map result = *this;
+    for (const auto& pair : otherMap->elements) {
+      result.elements[pair.first] = pair.second;
+    }
+    return nullptr; //TODO: Fix this later
   }
 
   // Override the subscript method to implement indexation

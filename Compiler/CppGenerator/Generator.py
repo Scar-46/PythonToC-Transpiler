@@ -301,7 +301,7 @@ class CodeGenerator():
 
 # ------------------------ Dictionary ------------------------
     def visit_dictionary(self, node):
-        code_strs = [self.emit("std::map<auto, auto> {", add_newline=True)]
+        code_strs = [self.emit("Map(", add_newline=True)]
         self.indent_level += 1
         for i, child in enumerate(node.children[0].children):
             code_strs.append(self.visit(child))
@@ -309,15 +309,15 @@ class CodeGenerator():
                 code_strs.append(self.emit(",", add_newline=True))
         self.indent_level -= 1
         self.emit("", add_newline=True)
-        code_strs.append(self.emit("}", add_newline=False))
+        code_strs.append(self.emit(")", add_newline=False))
         return ''.join(code_strs)
 
     def visit_key_value_pair(self, node):
-        code_strs = [self.emit("{", add_newline=False)]
+        code_strs = [self.emit("Pair(", add_newline=False)]
         code_strs.append(self.visit(node.children[0]))  # Key
         code_strs.append(self.emit(", ", add_newline=False))
         code_strs.append(self.visit(node.children[1]))  # Value
-        code_strs.append(self.emit("}", add_newline=False))
+        code_strs.append(self.emit(")", add_newline=False))
         return ''.join(code_strs)
     
 # ------------------------ List ------------------------
