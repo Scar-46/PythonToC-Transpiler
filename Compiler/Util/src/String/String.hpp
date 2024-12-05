@@ -32,6 +32,7 @@ class String : public BaseObject<String, std::string> {
     auto otherInteger = dynamic_cast<const Integer*>(&other);
     auto otherDouble = dynamic_cast<const Double*>(&other);
     if (otherInteger || otherDouble) {
+      std::cout << "Greater: Returning true" << std::endl;
       return true;
     }
     auto otherObj = dynamic_cast<const String*>(&other);

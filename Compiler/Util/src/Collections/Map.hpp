@@ -66,7 +66,14 @@ class Map : public Object {
 
   // ------------------ Map Methods ------------------
   void addElement(const var& key, const var& value) {
-    elements[key] = value;
+    if (!key) {
+      throw std::runtime_error("Map: cannot add null key");
+    }
+    auto it = this->elements.find(key);
+    if (it == this->elements.end()) {
+      std::cout << "New Key" << std::endl;
+      this->elements.insert({key, value});
+    }
   }
 
   var popElement(const var& key) {
