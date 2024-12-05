@@ -26,6 +26,7 @@ int main() {
   std::cout << "Tuple: " << hi << std::endl;
 
   std::cout << "Adding pair: " << var(Pair(floating, boolean)) << std::endl;
+  mapa.as<Map>()->addElement(integer, string);
   mapa.as<Map>()->addElement(floating, boolean);
   var access = mapa[floating];
   std::cout << "Accessed[" << floating << "] : " << access << std::endl;

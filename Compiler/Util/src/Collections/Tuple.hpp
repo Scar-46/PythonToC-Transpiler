@@ -130,4 +130,9 @@ class Tuple : public Object {       // TODO(Dwayne): var needs to be able to get
       return std::make_unique<TupleIterator>(*this);
     }
   };
+
+  // Override iteration methods
+  ObjectIt getIterator() const override {
+    return std::make_unique<TupleIterator>(*this);
+  }
 };
