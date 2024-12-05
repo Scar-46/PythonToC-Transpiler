@@ -223,13 +223,12 @@ class CodeGenerator():
         return ''.join(code_strs)
 
 #------------------------ FOR ------------------------
-
     def visit_for_stmt(self, node):
         target = node.children[0].children[0].value  # Loop variable
         self.emit("", add_newline=False) #TODO: Improve this solution
         iterable = self.visit(node.children[1])  # Get the iterable
         self.emit("", add_newline=True)
-        code_strs = [self.emit(f"for (auto {target} : {iterable})", add_newline=True)]
+        code_strs = [self.emit(f"for (auto {target} : {iterable})", add_newline=False)]
         code_strs.append(self.emit("{", add_newline=True))
         code_strs.append(self.visit(node.children[2]))  # Loop body
         code_strs.append(self.emit("}", add_newline=True))

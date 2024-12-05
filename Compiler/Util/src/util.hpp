@@ -14,3 +14,4 @@
 #include "./Collections/Tuple.hpp"
 #include "./Collections/Map.hpp"
 #include "./Collections/Set.hpp"
+#include "./Collections/Pair.hpp"

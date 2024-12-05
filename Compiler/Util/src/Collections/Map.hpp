@@ -1,14 +1,9 @@
-// Copyright (c) 2024 Syntax Errors.
 #pragma once
-
+// Copyright (c) 2024 Syntax Errors.
+#include "./Object/object.hpp"
+#include "./Object/var.hpp"
+#include "Pair.hpp"
 #include <map>
-#include <memory>
-#include <utility>
-
-#include "../Object/object.hpp"
-#include "../Object/var.hpp"
-#include "./Pair.hpp"
-
 
 class Map : public Object {
  private:
@@ -17,27 +12,49 @@ class Map : public Object {
  public:
   Map() = default;
   template <typename... Args>
+  Map(Args&&... args) {
+    if constexpr (sizeof...(args) > 0) {
+      (addPair(std::forward<Args>(args)), ...);
+    }
+  }
+  
   Map(std::initializer_list<std::pair<var, var>> initList) {
     for (const auto& pair : initList) {
       elements[pair.first] = pair.second;
     }
   }
 
+  void addPair(const Pair& pair) {
+    std::cout << "Adding pair: ";
+    pair.print(std::cout);  // Ensure this prints correctly
+    std::cout << std::endl;
+    elements[pair.getFirst()] = pair.getSecond();
+  }
+
   // ------------------ Overrides ------------------
-  ObjectPtr add(unused const Object& other) const override {
+  ObjectPtr add(const Object& other) const override {
     // Implement map addition logic
-    return std::make_shared<Map>(*this);
   }
 
   // Override the subscript method to implement indexation
   ObjectPtr subscript(const Object& other) const override {
-    for (const auto& kv : this->elements) {
-      if (kv.first->equals(other)) {
-        return kv.second.getValue();
+    const var* otherObj = dynamic_cast<const var*>(&other);
+
+    if (otherObj) {
+      var index = *otherObj;
+      auto it = elements.find(index);
+
+      if (it != elements.end()) {
+        return it->second.operator->();
+      } else {
+        std::cerr << "Key not found\n";
+        return nullptr;  // Or throw an exception if needed
       }
+    } else {
+      // Handle the case where 'other' is not a 'var' (or appropriate type)
+      std::cerr << "Invalid index type, expected 'var' (key type).\n";
+      return nullptr;  // Or throw an exception
     }
-    std::cerr << "Key not found\n";
-    return nullptr;
   }
 
   bool equals(const Object& other) const override {
@@ -102,7 +119,7 @@ class Map : public Object {
 
   // Overload the + operator to merge two maps
   Map operator+(const Map& other) const {
-    Map result = *this;   // Start with a copy of the current map
+    Map result = *this; // Start with a copy of the current map
     for (const auto& pair : other.elements) {
       result.elements[pair.first] = pair.second;  // Overwrite or insert new key-value pairs
     }
@@ -110,37 +127,11 @@ class Map : public Object {
   }
 
   // ------------------ Iterator ------------------
-  class MapIterator : public Object::ObjectIterator {
-   private:
-    const Map& _map;
-    size_t _currentIndex;
-
-   public:
-    explicit MapIterator(const Map& list) : _map(list), _currentIndex(0) {}
-
-    bool hasNext() const override {
-      return _currentIndex < _map.size();
-    }
-
-    ObjectPtr next() override {
-      if (!this->hasNext()) {
-        throw std::out_of_range("Iterator out of range");
-      }
-
-      auto it = _map.elements.begin();
-      std::advance(it, _currentIndex++);
-
-      // TODO(Dwayne): find an approiate way of returning the key-value pair.
-      return std::make_shared<Pair>(it->first, it->second);
-    }
-
-    ObjectIt clone() const override {
-      return std::make_unique<MapIterator>(*this);
-    }
-  };
-  // Override iteration methods
-  ObjectIt getIterator() const override {
-    return std::make_unique<MapIterator>(*this);
+  std::map<var, var>::iterator begin() {
+    return elements.begin();
   }
 
+  std::map<var, var>::iterator end() {
+    return elements.end();
+  }
 };
