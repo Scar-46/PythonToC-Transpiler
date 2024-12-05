@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "./Object/object.hpp"
-#include "./Object/var.hpp"
 
 class List : public Object {
  private:
@@ -66,7 +65,7 @@ class List : public Object {
 
   // Override clone to copy the list
   ObjectPtr clone() const override {
-    return std::make_shared<List>(elements);
+    return std::make_shared<List>();
   }
 
   // ------------------ List Methods ------------------
@@ -120,11 +119,41 @@ void insert(int pos, const var& element) {
   }
 
   // ------------------ Operator Overloading ------------------
+  class ListIterator : public Object::ObjectIterator {
+   private:
+    const List& _list;
+    size_t _currentIndex;
+
+   public:
+    explicit ListIterator(const List& list) : _list(list), _currentIndex(0) {}
+
+    bool hasNext() const override {
+      return _currentIndex < _list.size();
+    }
+
+    ObjectPtr next() override {
+      if (!this->hasNext()) {
+        throw std::out_of_range("Iterator out of range");
+    }
+      return _list.elements[_currentIndex++].getValue();
+    }
+
+    ObjectIt clone() const override {
+      return std::make_unique<ListIterator>(*this);
+    }
+  };
+
   // Overload the [] operator to access elements by index
-  iterator begin() override { return elements.begin(); }
+  // Override iteration methods
+  ObjectIt getIterator() const override {
+    return std::make_unique<ListIterator>(*this);
+  }
+
+
+  /* iterator begin() override { return elements.begin(); }
   iterator end() override { return elements.end(); }
   const_iterator begin() const override { return elements.begin(); }
   const_iterator end() const override { return elements.end(); }
   const_iterator cbegin() const override { return elements.cbegin(); }
-  const_iterator cend() const override { return elements.cend(); }
+  const_iterator cend() const override { return elements.cend(); } */
 };

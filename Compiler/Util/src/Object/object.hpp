@@ -14,6 +14,7 @@
 class Object;
 using ObjectPtr = std::shared_ptr<Object>;
 
+
 class Object {
  public:
   virtual ~Object() = default;
@@ -66,7 +67,7 @@ class Object {
     throw std::runtime_error("Shift right not supported for this type");
   }
 
-  // Methods to be implmentaed by all classes
+  // Methods to be implemented by all classes
   virtual void print(std::ostream& os) const = 0;
   virtual ObjectPtr clone() const = 0;
 
@@ -74,27 +75,22 @@ class Object {
     return typeid(*this) == typeid(other);
   }
 
-  // Iterator types
-  using iterator = std::string::iterator;
-  using const_iterator = std::string::const_iterator;
+ public:
+  class ObjectIterator;
+  using ObjectIt = std::unique_ptr<Object::ObjectIterator>;
 
-  // Default iteration behavior (non-iterable object)
-  virtual iterator begin() {
-    throw std::runtime_error("This object does not support iteration");
-  }
-  virtual iterator end() {
-    throw std::runtime_error("This object does not support iteration");
-  }
-  virtual const_iterator begin() const {
-    throw std::runtime_error("This object does not support iteration");
-  }
-  virtual const_iterator end() const {
-    throw std::runtime_error("This object does not support iteration");
-  }
-  virtual const_iterator cbegin() const {
-    throw std::runtime_error("This object does not support iteration");
-  }
-  virtual const_iterator cend() const {
+  // Default iteration behavior
+  class ObjectIterator {
+   public:
+    virtual ~ObjectIterator() = default;
+
+    virtual bool hasNext() const = 0;
+    // virtual ObjectPtr next() const = 0;
+    virtual ObjectPtr next() = 0;
+    virtual ObjectIt clone() const = 0;
+  };
+
+  virtual ObjectIt getIterator() const {
     throw std::runtime_error("This object does not support iteration");
   }
 };

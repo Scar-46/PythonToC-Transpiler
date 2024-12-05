@@ -49,10 +49,36 @@ class String : public BaseObject<String, std::string> {
   }
 
   // Override iteration methods
-  iterator begin() override { return value.begin(); }
-  iterator end() override { return value.end(); }
-  const_iterator begin() const override { return value.begin(); }
-  const_iterator end() const override { return value.end(); }
-  const_iterator cbegin() const override { return value.cbegin(); }
-  const_iterator cend() const override { return value.cend(); }
+  class StringIterator : public Object::ObjectIterator {
+   private:
+    const std::string& str;
+    size_t currentIndex;
+
+   public:
+    explicit StringIterator(const std::string& str) : str(str), currentIndex(0) {}
+
+    bool hasNext() const override {
+      return currentIndex < str.size();
+    }
+
+    ObjectPtr next() override {
+      if (!hasNext()) {
+        throw std::out_of_range("Iterator out of range");
+      }
+      // Wrap each character as a `String` object
+      return std::make_shared<String>(std::string(1, str[currentIndex++]));
+    }
+
+    // ObjectPtr next() const override {
+    //   return std::make_shared<String>(this->next());
+    // }
+
+    ObjectIt clone() const override {
+        return std::make_unique<StringIterator>(*this);
+    }
+  };
+
+  ObjectIt getIterator() const override {
+    return std::make_unique<StringIterator>(value);
+  }
 };
