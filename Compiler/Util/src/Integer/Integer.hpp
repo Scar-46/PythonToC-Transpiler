@@ -49,7 +49,7 @@ class Integer : public BaseNumeric<Integer, int32_t> {
     if (otherObj) {
       return value == otherObj->getValue();
     }
-    throw std::runtime_error("Integer does not support comparison with given type");
+    return false;
   }
 
   bool lessHelper(const Object& other) const override {
@@ -57,14 +57,25 @@ class Integer : public BaseNumeric<Integer, int32_t> {
     if (otherObj) {
       return value < otherObj->getValue();
     }
-    throw std::runtime_error("Integer does not support comparison with given type");
+    return lessHelperWithString(other);
   }
+
+  bool lessHelperWithString(const Object& other) const;
 
   bool greaterHelper(const Object& other) const override {
     auto otherObj = dynamic_cast<const Double*>(&other);
     if (otherObj) {
       return value > otherObj->getValue();
     }
-    throw std::runtime_error("Integer does not support comparison with given type");
+    return false;
   }
 };
+
+#include "../String/String.hpp"
+bool Integer::lessHelperWithString(const Object& other) const {
+  auto otherString = dynamic_cast<const String*>(&other);
+  if (otherString) {
+    return true;
+  }
+  return false;
+}
