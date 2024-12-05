@@ -21,8 +21,9 @@ BUILTIN_FUNCTIONS = {
     "float": lambda args: f"static_cast<float>({args[0]})",
 
     # Built-in types' constructors
-    "dict": lambda args: f"Map({'' if len(args) == 0 else f"{args[0]}, "+ ', '.join(f"{arg}" for arg in args[1:])})",
-    "set": lambda args: f"Set({'' if len(args) == 0 else f"{args[0]}, "+ ', '.join(f"{arg}" for arg in args[1:])})",
+    "dict": lambda args: f"Map({f"{args[0]}, " + ', '.join(f"{arg}" for arg in args[1:]) if args else ''})",
+    "set": lambda args: f"Set({f"{args[0]}, " + ', '.join(f"{arg}" for arg in args[1:]) if args else ''})",
+    "list": lambda args: f"List({f"{args[0]}, " + ', '.join(f"{arg}" for arg in args[1:]) if args else ''})",
 }
 
 def translate_function(name, arguments):
