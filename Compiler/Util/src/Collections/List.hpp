@@ -24,6 +24,7 @@ class List : public Object {
  public:
   List() = default;
   List(std::initializer_list<var> initList) : elements(initList) {}
+  explicit List(std::vector<var> elements) : elements(elements) {}
 
   // ------------------ Overrides ------------------
   // Override the add method to handle list addition

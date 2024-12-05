@@ -4,10 +4,12 @@
 #include <map>
 #include <memory>
 #include <utility>
+#include <vector>
 
 #include "../Object/object.hpp"
 #include "../Object/var.hpp"
 #include "./Pair.hpp"
+#include "./List.hpp"
 
 
 class Map : public Object {
@@ -86,6 +88,36 @@ class Map : public Object {
   size_t size() const {
     return elements.size();
   }
+
+  // ------------------ Keys, Values, and Items Methods ------------------
+
+    // Returns a list of all keys in the map
+    ObjectPtr keys() const {
+      std::vector<var> keyList;
+      for (const auto& kv : elements) {
+        keyList.push_back(kv.first);
+      }
+      return std::make_shared<List>(keyList);
+    }
+
+    // Returns a list of all values in the map
+    ObjectPtr values() const {
+      std::vector<var> valueList;
+      for (const auto& kv : elements) {
+        valueList.push_back(kv.second);
+      }
+      return std::make_shared<List>(valueList);
+    }
+
+  // Returns a list of key-value pairs as Pair objects
+  ObjectPtr items() const {
+    std::vector<var> itemList;
+    for (const auto& kv : elements) {
+      itemList.push_back(var(Pair(kv.first, kv.second)));
+    }
+    return std::make_shared<List>(itemList);
+  }
+
 
   // ------------------ Operator Overloading ------------------
   // Overload the [] operator to access elements by key

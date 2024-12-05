@@ -30,7 +30,10 @@ int main() {
   mapa.as<Map>()->addElement(floating, boolean);
   var access = mapa[floating];
   std::cout << "Accessed[" << floating << "] : " << access << std::endl;
-  std::cout << "Map: " << mapa << std::endl;
+  var keys = var(mapa.as<Map>()->keys());
+  var values = var(mapa.as<Map>()->values());
+  var items = var(mapa.as<Map>()->items());
+  std::cout << "Map: " << mapa << " | Keys: " << keys  << " | Values: " << values << " | Iems: " << items << std::endl;
 
   list.as<List>()->addElement("Good");
   list.as<List>()->addElement("4");
