@@ -260,7 +260,7 @@ class CodeGenerator():
             code_strs.append(self.emit('', add_newline=False))
 
             # Append parameters
-            parameters = [] if node.children == 1 \
+            parameters = [] if len(node.children) == 1 \
                 else [self.visit(node.children[1])] if node.children[1].node_type != "expressions" \
                     else [self.visit(expression) for expression in node.children[1].children]
  
