@@ -344,7 +344,10 @@ class CodeGenerator():
 
 #//////////////////////// Atomic Methods ////////////////////////
     def visit_identifier(self, node):
-        return self.emit("se_" + node.value, add_newline=False)
+        if  not isinstance(node.value, bool): #TODO: Fix this well, we have no time
+            return self.emit("se_" + node.value, add_newline=False)
+        else:
+            return self.emit(str(node.value).lower(), add_newline=False)
 
     def visit_number(self, node):
         return self.emit(str(node.value), add_newline=False)
