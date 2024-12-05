@@ -1,12 +1,14 @@
 // Copyright (c) 2024 Syntax Errors.
 #pragma once
 
+#include <algorithm>
 #include <memory>
 #include <string>
 #include <utility>
 
 #include "../Object/object.hpp"       // NOLINT
 #include "../Integer/Integer.hpp"     // NOLINT
+#include "../Double/Double.hpp"     // NOLINT
 
 // String class
 class String : public BaseObject<String, std::string> {
@@ -27,6 +29,12 @@ class String : public BaseObject<String, std::string> {
   }
 
   bool greater(const Object& other) const override {
+    auto otherInteger = dynamic_cast<const Integer*>(&other);
+    auto otherDouble = dynamic_cast<const Double*>(&other);
+    if (otherInteger || otherDouble) {
+      std::cout << "Greater: Returning true" << std::endl;
+      return true;
+    }
     auto otherObj = dynamic_cast<const String*>(&other);
     return this->value > otherObj->getValue();
   }
@@ -80,5 +88,33 @@ class String : public BaseObject<String, std::string> {
 
   ObjectIt getIterator() const override {
     return std::make_unique<StringIterator>(value);
+  }
+
+  ObjectPtr slice(int start, int end) const {
+    // Handle negative indices
+    int len = static_cast<int>(value.size());
+    if (start < 0) start += len;
+    if (end < 0) end += len;
+
+    // Clamp indices to valid ranges
+    start = std::max(0, std::min(start, len));
+    end = std::max(0, std::min(end, len));
+
+    // Return substring
+    if (start >= end) {
+      return std::make_shared<String>("");  // Empty string for invalid range
+    }
+    return std::make_shared<String>(value.substr(start, end - start));
+}
+
+  ObjectPtr slice(int start) const {
+    return slice(start, static_cast<int>(value.size()));
+  }
+
+  ObjectPtr slice() const {
+    return slice(0, static_cast<int>(value.size()));
+  }
+  String operator+(const String& value) {
+    return String(this->value + value.value);
   }
 };

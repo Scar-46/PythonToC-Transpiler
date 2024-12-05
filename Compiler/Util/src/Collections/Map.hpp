@@ -1,9 +1,16 @@
-#pragma once
 // Copyright (c) 2024 Syntax Errors.
-#include "./Object/object.hpp"
-#include "./Object/var.hpp"
-#include "Pair.hpp"
+#pragma once
+
 #include <map>
+#include <memory>
+#include <utility>
+#include <vector>
+
+#include "../Object/object.hpp"
+#include "../Object/var.hpp"
+#include "./Pair.hpp"
+#include "./List.hpp"
+
 
 class Map : public Object {
  private:
@@ -11,6 +18,11 @@ class Map : public Object {
 
  public:
   Map() = default;
+  Map(std::initializer_list<std::pair<var, var>> initList) {
+    for (const auto& pair : initList) {
+      elements[pair.first] = pair.second;
+    }
+  }
   template <typename... Args>
   Map(Args&&... args) {
     if constexpr (sizeof...(args) > 0) {
@@ -18,48 +30,25 @@ class Map : public Object {
     }
   }
   
-  Map(std::initializer_list<std::pair<var, var>> initList) {
-    for (const auto& pair : initList) {
-      elements[pair.first] = pair.second;
-    }
-  }
-
-  void addPair(const Pair& pair) { //TODO: Fix multi-type
+  void addPair(const Pair& pair) {
     elements[pair.getFirst()] = pair.getSecond();
   }
 
   // ------------------ Overrides ------------------
-  ObjectPtr add(const Object& other) const override {
-    auto otherMap = dynamic_cast<const Map*>(&other);
-    if (!otherMap) {
-      throw std::invalid_argument("add method requires a Map");
-    }
-    Map result = *this;
-    for (const auto& pair : otherMap->elements) {
-      result.elements[pair.first] = pair.second;
-    }
-    return nullptr; //TODO: Fix this later
+  ObjectPtr add(unused const Object& other) const override {
+    // Implement map addition logic
+    return std::make_shared<Map>(*this);
   }
 
   // Override the subscript method to implement indexation
   ObjectPtr subscript(const Object& other) const override {
-    const var* otherObj = dynamic_cast<const var*>(&other);
-
-    if (otherObj) {
-      var index = *otherObj;
-      auto it = elements.find(index);
-
-      if (it != elements.end()) {
-        return it->second.operator->();
-      } else {
-        std::cerr << "Key not found\n";
-        return nullptr;  // Or throw an exception if needed
+    for (const auto& kv : this->elements) {
+      if (kv.first->equals(other)) {
+        return kv.second.getValue();
       }
-    } else {
-      // Handle the case where 'other' is not a 'var' (or appropriate type)
-      std::cerr << "Invalid index type, expected 'var' (key type).\n";
-      return nullptr;  // Or throw an exception
     }
+    std::cerr << "Key not found\n";
+    return nullptr;
   }
 
   bool equals(const Object& other) const override {
@@ -87,7 +76,14 @@ class Map : public Object {
 
   // ------------------ Map Methods ------------------
   void addElement(const var& key, const var& value) {
-    elements[key] = value;
+    if (!key) {
+      throw std::runtime_error("Map: cannot add null key");
+    }
+    auto it = this->elements.find(key);
+    if (it == this->elements.end()) {
+      std::cout << "New Key" << std::endl;
+      this->elements.insert({key, value});
+    }
   }
 
   var popElement(const var& key) {
@@ -102,14 +98,6 @@ class Map : public Object {
     }
   }
 
-  var getKeys() const {
-    List keys;
-    for (const auto& pair : elements) {
-      keys.addElement(pair.first);  // Assuming List has an 'add' method to add elements
-    }
-    return var(keys);  // Wrap the List in a var and return it
-  }
-
   void clear() {
     elements.clear();
   }
@@ -117,6 +105,36 @@ class Map : public Object {
   size_t size() const {
     return elements.size();
   }
+
+  // ------------------ Keys, Values, and Items Methods ------------------
+
+    // Returns a list of all keys in the map
+    ObjectPtr keys() const {
+      std::vector<var> keyList;
+      for (const auto& kv : elements) {
+        keyList.push_back(kv.first);
+      }
+      return std::make_shared<List>(keyList);
+    }
+
+    // Returns a list of all values in the map
+    ObjectPtr values() const {
+      std::vector<var> valueList;
+      for (const auto& kv : elements) {
+        valueList.push_back(kv.second);
+      }
+      return std::make_shared<List>(valueList);
+    }
+
+  // Returns a list of key-value pairs as Pair objects
+  ObjectPtr items() const {
+    std::vector<var> itemList;
+    for (const auto& kv : elements) {
+      itemList.push_back(var(Pair(kv.first, kv.second)));
+    }
+    return std::make_shared<List>(itemList);
+  }
+
 
   // ------------------ Operator Overloading ------------------
   // Overload the [] operator to access elements by key
@@ -132,7 +150,7 @@ class Map : public Object {
 
   // Overload the + operator to merge two maps
   Map operator+(const Map& other) const {
-    Map result = *this; // Start with a copy of the current map
+    Map result = *this;   // Start with a copy of the current map
     for (const auto& pair : other.elements) {
       result.elements[pair.first] = pair.second;  // Overwrite or insert new key-value pairs
     }
@@ -140,11 +158,37 @@ class Map : public Object {
   }
 
   // ------------------ Iterator ------------------
-  std::map<var, var>::iterator begin() {
-    return elements.begin();
+  class MapIterator : public Object::ObjectIterator {
+   private:
+    const Map& _map;
+    size_t _currentIndex;
+
+   public:
+    explicit MapIterator(const Map& list) : _map(list), _currentIndex(0) {}
+
+    bool hasNext() const override {
+      return _currentIndex < _map.size();
+    }
+
+    ObjectPtr next() override {
+      if (!this->hasNext()) {
+        throw std::out_of_range("Iterator out of range");
+      }
+
+      auto it = _map.elements.begin();
+      std::advance(it, _currentIndex++);
+
+      // TODO(Dwayne): find an approiate way of returning the key-value pair.
+      return std::make_shared<Pair>(it->first, it->second);
+    }
+
+    ObjectIt clone() const override {
+      return std::make_unique<MapIterator>(*this);
+    }
+  };
+  // Override iteration methods
+  ObjectIt getIterator() const override {
+    return std::make_unique<MapIterator>(*this);
   }
 
-  std::map<var, var>::iterator end() {
-    return elements.end();
-  }
 };

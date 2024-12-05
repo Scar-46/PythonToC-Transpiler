@@ -4,7 +4,8 @@
 #include <memory>
 #include <vector>
 
-#include "./Object/object.hpp"
+#include "../Object/object.hpp"
+#include "../Object/var.hpp"
 
 class List : public Object {
  private:
@@ -25,6 +26,7 @@ class List : public Object {
   template <typename... Args>
   List(Args&&... args) : elements{var(std::forward<Args>(args))...} {}
   List(std::initializer_list<var> initList) : elements(initList) {}
+  explicit List(std::vector<var> elements) : elements(elements) {}
 
   // ------------------ Overrides ------------------
   // Override the add method to handle list addition
@@ -163,5 +165,14 @@ class List : public Object {
   // Override iteration methods
   ObjectIt getIterator() const override {
     return std::make_unique<ListIterator>(*this);
+  }
+
+  bool has(const Object& value) {
+    for (const auto& element : elements) {
+      if (element->equals(value)) {
+        return true;
+      }
+    }
+    return false;
   }
 };
