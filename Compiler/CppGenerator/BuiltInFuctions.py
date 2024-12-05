@@ -1,6 +1,6 @@
 BUILTIN_FUNCTIONS = {
     # I/O Functions
-    "print": lambda args: f"std::cout << {''.join(f"{arg} << \" \" <<" for arg in args)} std::endl",
+    "print": lambda args: "std::cout << " + " << \" \" << ".join(f"{arg}" for arg in args) + " << std::endl" if args else "std::cout << std::endl",
     "input": lambda args: "std::cin >> " + args[0] if args else "std::cin",
 
     # Sequence and Container Functions
@@ -19,6 +19,10 @@ BUILTIN_FUNCTIONS = {
     "str": lambda args: f"std::to_string({args[0]})",
     "int": lambda args: f"static_cast<int>({args[0]})",
     "float": lambda args: f"static_cast<float>({args[0]})",
+
+    # Built-in types' constructors
+    "dict": lambda args: f"Map({'' if len(args) == 0 else f"{args[0]}, "+ ', '.join(f"{arg}" for arg in args[1:])})",
+    "set": lambda args: f"Set({'' if len(args) == 0 else f"{args[0]}, "+ ', '.join(f"{arg}" for arg in args[1:])})",
 }
 
 def translate_function(name, arguments):
