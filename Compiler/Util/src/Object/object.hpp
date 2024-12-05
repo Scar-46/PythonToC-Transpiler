@@ -149,7 +149,7 @@ class BaseObject : public Object {
   } \
   \
   virtual bool OP_NAME##Helper(unused const Object& other) const { \
-      throw std::runtime_error(#ERROR_MESSAGE " not supported for different types"); \
+      return false; \
   }
 
 // Base template class for numeric Object

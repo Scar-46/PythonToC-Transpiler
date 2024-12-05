@@ -90,7 +90,7 @@ int main() {
 
   checkReference(one, one);
   checkPointer(static_cast<ObjectPtr&>(one), static_cast<ObjectPtr&>(one));
-  if (one) {
+  if (one && twoPointTree) {
     std::cout << "Can check for value" << std::endl;
   }
   std::cout << "'" << string[Integer(0)] << "' is the first letter of '" << string << "'" << std::endl;
