@@ -21,18 +21,6 @@ class Map : public Object {
     // Implement map addition logic
   }
 
-  ObjectPtr subtract(const Object& other) const override {
-    // Implement map subtraction logic
-  }
-
-  ObjectPtr multiply(const Object& other) const override {
-    // Implement map multiplication logic
-  }
-
-  ObjectPtr divide(const Object& other) const override {
-    // Implement map division logic
-  }
-
   // Override the subscript method to implement indexation
   ObjectPtr subscript(const Object& other) const override {
     const var* otherObj = dynamic_cast<const var*>(&other);

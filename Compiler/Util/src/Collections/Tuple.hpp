@@ -24,26 +24,15 @@ class Tuple : public Object { //TODO():var needs to be able to get tup = {}
   Tuple(std::initializer_list<var> initList) : elements(initList) {}
 
   // ------------------ Overrides ------------------
-  // Override the add method to handle tuple addition (unsupported for tuples)
   ObjectPtr add(const Object& other) const override {
-    throw std::invalid_argument("add method is not supported for Tuple");
+    auto otherTuple = dynamic_cast<const Tuple*>(&other);
+     if (!otherTuple) {
+        throw std::invalid_argument("add method requires a Tuple");
+    }
+    Tuple result = *this + *otherTuple;
+    return std::make_shared<Tuple>(result);
   }
-
-  // Override the subtract method to handle tuple subtraction (unsupported for tuples)
-  ObjectPtr subtract(const Object& other) const override {
-    throw std::invalid_argument("subtract method is not supported for Tuple");
-  }
-
-  // Override the multiply method to handle tuple multiplication (unsupported for tuples)
-  ObjectPtr multiply(const Object& other) const override {
-    throw std::invalid_argument("multiply method is not supported for Tuple");
-  }
-
-  // Override the divide method to handle tuple division (unsupported for tuples)
-  ObjectPtr divide(const Object& other) const override {
-    throw std::invalid_argument("divide method is not supported for Tuple");
-  }
-
+  
   // Override the subscript method to indexation
   ObjectPtr subscript(const Object& other) const override {
       // Attempt to cast the 'other' object to an Integer
@@ -103,6 +92,13 @@ class Tuple : public Object { //TODO():var needs to be able to get tup = {}
   // Overload the [] operator to access elements by index
   var operator[](int index) const {
     return elements[normalizeIndex(index)];
+  }
+
+  // Overload the + operator to concatenate two tuples
+  Tuple operator+(const Tuple& other) const {
+    Tuple result = *this; // Start with a copy of the current tuples
+    result.elements.insert(result.elements.end(), other.elements.begin(), other.elements.end());
+    return result;
   }
 
   // ------------------ Iterator ------------------
