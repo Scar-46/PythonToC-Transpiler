@@ -334,12 +334,12 @@ class CodeGenerator():
     
 # ------------------------ Set ------------------------
     def visit_set(self, node):
-        code_strs = [self.emit("{", add_newline=False)]
+        code_strs = [self.emit("List(", add_newline=False)]
         for i, child in enumerate(node.children):
             if i > 0:
                 code_strs.append(self.emit(", ", add_newline=False))
             code_strs.append(self.visit(child))
-        code_strs.append(self.emit("}", add_newline=False))
+        code_strs.append(self.emit(")", add_newline=False))
         return ''.join(code_strs)
 
 #//////////////////////// Atomic Methods ////////////////////////

@@ -22,7 +22,17 @@ class Map : public Object {
     for (const auto& pair : initList) {
       elements[pair.first] = pair.second;
     }
-}
+  }
+  template <typename... Args>
+  Map(Args&&... args) {
+    if constexpr (sizeof...(args) > 0) {
+      (addPair(std::forward<Args>(args)), ...);
+    }
+  }
+  
+  void addPair(const Pair& pair) {
+    elements[pair.getFirst()] = pair.getSecond();
+  }
 
   // ------------------ Overrides ------------------
   ObjectPtr add(unused const Object& other) const override {
