@@ -1,9 +1,15 @@
-#pragma once
 // Copyright (c) 2024 Syntax Errors.
+#pragma once
+
+#include <map>
+#include <memory>
+#include <utility>
+#include <vector>
+
 #include "./Object/object.hpp"
 #include "./Object/var.hpp"
 
-class Tuple : public Object { //TODO():var needs to be able to get tup = {}
+class Tuple : public Object {       // TODO(Dwayne): var needs to be able to get tup = {}
  private:
   std::vector<var> elements;
 
@@ -20,7 +26,7 @@ class Tuple : public Object { //TODO():var needs to be able to get tup = {}
  public:
   Tuple() = default;
   template <typename... Args>
-  Tuple(Args&&... args) : elements{var(std::forward<Args>(args))...} {}
+  explicit Tuple(Args&&... args) : elements{var(std::forward<Args>(args))...} {}
   Tuple(std::initializer_list<var> initList) : elements(initList) {}
 
   // ------------------ Overrides ------------------
@@ -32,22 +38,22 @@ class Tuple : public Object { //TODO():var needs to be able to get tup = {}
     Tuple result = *this + *otherTuple;
     return std::make_shared<Tuple>(result);
   }
-  
+
   // Override the subscript method to indexation
   ObjectPtr subscript(const Object& other) const override {
-      // Attempt to cast the 'other' object to an Integer
-      auto otherObj = dynamic_cast<const Integer*>(&other);
+    // Attempt to cast the 'other' object to an Integer
+    auto otherObj = dynamic_cast<const Integer*>(&other);
 
-      if (otherObj) {
-          int index = otherObj->getValue();  // Assuming 'getValue' gets the integer value of the index
-          return elements[normalizeIndex(index)].operator->();
-      } else {
-          // Handle the case where 'other' is not an Integer (throw an exception, or return a default value)
-          std::cerr << "Invalid index type, expected Integer.\n";
-          return nullptr;  // Or throw an exception
-      }
+    if (otherObj) {
+      int index = otherObj->getValue();  // Assuming 'getValue' gets the integer value of the index
+      return elements[normalizeIndex(index)].operator->();
+    } else {
+      // Handle the case where 'other' is not an Integer (throw an exception, or return a default value)
+      std::cerr << "Invalid index type, expected Integer.\n";
+      return nullptr;  // Or throw an exception
+    }
   }
-  
+
   // Override the equals method to compare tuples
   bool equals(const Object& other) const override {
     auto otherTuple = dynamic_cast<const Tuple*>(&other);
@@ -96,17 +102,37 @@ class Tuple : public Object { //TODO():var needs to be able to get tup = {}
 
   // Overload the + operator to concatenate two tuples
   Tuple operator+(const Tuple& other) const {
-    Tuple result = *this; // Start with a copy of the current tuples
+    Tuple result = *this;  // Start with a copy of the current tuples
     result.elements.insert(result.elements.end(), other.elements.begin(), other.elements.end());
     return result;
   }
 
   // ------------------ Iterator ------------------
-  std::vector<var>::const_iterator begin() const {
-    return elements.begin();
-  }
+  class TupleIterator : public Object::ObjectIterator {
+   private:
+    const Tuple& _tuple;
+    size_t _currentIndex;
+   public:
+    explicit TupleIterator(const Tuple& tuple) : _tuple(tuple), _currentIndex(0) {}
 
-  std::vector<var>::const_iterator end() const {
-    return elements.end();
+    bool hasNext() const override {
+      return _currentIndex < _tuple.size();
+    }
+
+    ObjectPtr next() override {
+      if (!this->hasNext()) {
+        throw std::out_of_range("Iterator out of range");
+    }
+      return _tuple.elements[_currentIndex++].getValue();
+    }
+
+    ObjectIt clone() const override {
+      return std::make_unique<TupleIterator>(*this);
+    }
+  };
+
+  // Override iteration methods
+  ObjectIt getIterator() const override {
+    return std::make_unique<TupleIterator>(*this);
   }
 };

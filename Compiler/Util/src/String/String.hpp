@@ -10,6 +10,9 @@
 
 // String class
 class String : public BaseObject<String, std::string> {
+ private:
+  using BaseObject::value;
+
  public:
   explicit String(std::string value) : BaseObject(std::move(value)) {}
 
@@ -43,5 +46,39 @@ class String : public BaseObject<String, std::string> {
       return std::make_shared<String>(std::string(1, result));
     }
     throw std::runtime_error("Cannot Index with non integer type");
+  }
+
+  // Override iteration methods
+  class StringIterator : public Object::ObjectIterator {
+   private:
+    const std::string& str;
+    size_t currentIndex;
+
+   public:
+    explicit StringIterator(const std::string& str) : str(str), currentIndex(0) {}
+
+    bool hasNext() const override {
+      return currentIndex < str.size();
+    }
+
+    ObjectPtr next() override {
+      if (!hasNext()) {
+        throw std::out_of_range("Iterator out of range");
+      }
+      // Wrap each character as a `String` object
+      return std::make_shared<String>(std::string(1, str[currentIndex++]));
+    }
+
+    // ObjectPtr next() const override {
+    //   return std::make_shared<String>(this->next());
+    // }
+
+    ObjectIt clone() const override {
+        return std::make_unique<StringIterator>(*this);
+    }
+  };
+
+  ObjectIt getIterator() const override {
+    return std::make_unique<StringIterator>(value);
   }
 };

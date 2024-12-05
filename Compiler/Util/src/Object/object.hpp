@@ -3,6 +3,7 @@
 
 #include <compare>
 #include <iostream>
+#include <iterator>
 #include <memory>
 #include <string>
 #include <utility>
@@ -12,6 +13,7 @@
 
 class Object;
 using ObjectPtr = std::shared_ptr<Object>;
+
 
 class Object {
  public:
@@ -65,12 +67,31 @@ class Object {
     throw std::runtime_error("Shift right not supported for this type");
   }
 
-  // Methods to be implmentaed by all classes
+  // Methods to be implemented by all classes
   virtual void print(std::ostream& os) const = 0;
   virtual ObjectPtr clone() const = 0;
 
   virtual bool isSameType(const Object& other) const {
     return typeid(*this) == typeid(other);
+  }
+
+ public:
+  class ObjectIterator;
+  using ObjectIt = std::unique_ptr<Object::ObjectIterator>;
+
+  // Default iteration behavior
+  class ObjectIterator {
+   public:
+    virtual ~ObjectIterator() = default;
+
+    virtual bool hasNext() const = 0;
+    // virtual ObjectPtr next() const = 0;
+    virtual ObjectPtr next() = 0;
+    virtual ObjectIt clone() const = 0;
+  };
+
+  virtual ObjectIt getIterator() const {
+    throw std::runtime_error("This object does not support iteration");
   }
 };
 

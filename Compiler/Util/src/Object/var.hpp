@@ -8,7 +8,43 @@
 #include <string>
 #include <utility>
 
-#include "./includes.hpp"
+#include "./object.hpp"
+#include "./Boolean/Boolean.hpp"
+#include "./Double/Double.hpp"
+#include "./Integer/Integer.hpp"
+#include "./String/String.hpp"
+
+class var;
+
+class Iterator {
+  Object::ObjectIt objectIterator;
+  bool isEnd;
+
+ public:
+  // Constructor for a valid iterator
+  explicit Iterator(Object::ObjectIt iterator)
+    : objectIterator(std::move(iterator)), isEnd(false) {}
+
+  // Constructor for the end iterator
+  Iterator() : objectIterator(nullptr), isEnd(true) {}
+
+  var operator*() const;
+  var operator*();
+
+  Iterator& operator++() {
+    if (!objectIterator || isEnd) {
+      throw std::runtime_error("Incrementing an invalid iterator");
+    }
+    if (!objectIterator->hasNext()) {
+      isEnd = true;
+    }
+    return *this;
+  }
+
+  bool operator!=(const Iterator& other) const {
+    return isEnd != other.isEnd;  // Simple end-check comparison
+  }
+};
 
 class var {
  private:
@@ -77,6 +113,14 @@ class var {
     return value;
   }
 
+  // ObjectPtr operator->() const {
+  //   return value;
+  // }
+
+  inline ObjectPtr getValue() const {
+    return this->value;
+  }
+
   template<typename ObjectType>
   std::shared_ptr<ObjectType> as() {
     return std::dynamic_pointer_cast<ObjectType>(value);
@@ -141,4 +185,42 @@ class var {
     }
     return os;
   }
+
+ public:
+  // Provide `begin()` and `end()` methods for range-based for loops
+  Iterator cbegin() const {
+    if (!value) {
+      throw std::runtime_error("Cannot iterate over null var");
+    }
+    return Iterator(value->getIterator());
+  }
+
+  Iterator cend() const {
+    return Iterator();
+  }
+
+  Iterator begin() {
+    if (!value) {
+      throw std::runtime_error("Cannot iterate over null var");
+    }
+    return Iterator(value->getIterator());
+  }
+
+  Iterator end() {
+    return Iterator();
+  }
 };
+
+var Iterator::operator*() const {
+  if (!objectIterator || isEnd || !objectIterator->hasNext()) {
+    throw std::runtime_error("Dereferencing an invalid iterator");
+  }
+  return var(objectIterator->next());
+}
+
+var Iterator::operator*() {
+  if (!objectIterator || isEnd || !objectIterator->hasNext()) {
+    throw std::runtime_error("Dereferencing an invalid iterator");
+  }
+  return var(objectIterator->next());
+}

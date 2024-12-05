@@ -1,7 +1,10 @@
-#pragma once
 // Copyright (c) 2024 Syntax Errors.
+#pragma once
+
+#include <memory>
+#include <vector>
+
 #include "./Object/object.hpp"
-#include "./Object/var.hpp"
 
 class List : public Object {
  private:
@@ -35,17 +38,17 @@ class List : public Object {
   }
   // Override the subscript method to indexation
   ObjectPtr subscript(const Object& other) const override {
-      // Attempt to cast the 'other' object to an Integer
-      auto otherObj = dynamic_cast<const Integer*>(&other);
+    // Attempt to cast the 'other' object to an Integer
+    auto otherObj = dynamic_cast<const Integer*>(&other);
 
-      if (otherObj) {
-          int index = otherObj->getValue();  // Assuming 'getValue' gets the integer value of the index
-          return elements[normalizeIndex(index)].operator->();
-      } else {
-          // Handle the case where 'other' is not an Integer (throw an exception, or return a default value)
-          std::cerr << "Invalid index type, expected Integer.\n";
-          return nullptr;  // Or throw an exception
-      }
+    if (otherObj) {
+      int index = otherObj->getValue();  // Assuming 'getValue' gets the integer value of the index
+      return elements[normalizeIndex(index)].operator->();
+    } else {
+      // Handle the case where 'other' is not an Integer (throw an exception, or return a default value)
+      std::cerr << "Invalid index type, expected Integer.\n";
+      return nullptr;  // Or throw an exception
+    }
   }
 
   // Override the equals method to compare the lists
@@ -93,10 +96,10 @@ class List : public Object {
     elements.clear();
   }
 
-void insert(int pos, const var& element) {
+  void insert(int pos, const var& element) {
     if (pos < 0 || static_cast<size_t>(pos) > elements.size()) {
       std::cerr << "Position out of bounds\n";
-      return; // Or throw an exception
+      return;   // Or throw an exception
     }
     elements.insert(elements.begin() + pos, element);
   }
@@ -119,31 +122,46 @@ void insert(int pos, const var& element) {
     }
     return result;
   }
-  
+
   size_t size() const {
     return elements.size();
   }
 
   // ------------------ Operator Overloading ------------------
-  
-  // Overload the [] operator to access elements by index
-  var operator[](int index) const {
-    return elements[normalizeIndex(index)];
-  }
-
   // Overload the + operator to concatenate two lists
   List operator+(const List& other) const {
-    List result = *this; // Start with a copy of the current list
+    List result = *this;  // Start with a copy of the current list
     result.elements.insert(result.elements.end(), other.elements.begin(), other.elements.end());
     return result;
   }
 
   // ------------------ Iterator ------------------
-    std::vector<var>::iterator begin() {
-      return elements.begin();
+  class ListIterator : public Object::ObjectIterator {
+   private:
+    const List& _list;
+    size_t _currentIndex;
+
+   public:
+    explicit ListIterator(const List& list) : _list(list), _currentIndex(0) {}
+
+    bool hasNext() const override {
+      return _currentIndex < _list.size();
     }
 
-    std::vector<var>::iterator end() {
-      return elements.end();
+    ObjectPtr next() override {
+      if (!this->hasNext()) {
+        throw std::out_of_range("Iterator out of range");
     }
+      return _list.elements[_currentIndex++].getValue();
+    }
+
+    ObjectIt clone() const override {
+      return std::make_unique<ListIterator>(*this);
+    }
+  };
+
+  // Override iteration methods
+  ObjectIt getIterator() const override {
+    return std::make_unique<ListIterator>(*this);
+  }
 };
