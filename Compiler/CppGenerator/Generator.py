@@ -188,10 +188,26 @@ class CodeGenerator():
 
 # ------------------------ Comparison ------------------------
     def visit_comparison(self, node):
-        code_strs = [self.visit(node.children[0])]  # Left operand
+        code_strs = []
+        temp_code1 = self.visit(node.children[0])  # Left operand
         operator_node = node.children[1]
-        code_strs.append(self.emit(f" {operator_node.value} ", add_newline=False))
-        code_strs.append(self.visit(operator_node.children[0]))  # Right operand
+        temp_code2 = self.visit(operator_node.children[0])  # Right operand
+
+        if operator_node.value == "in":
+            code_strs.append(temp_code2)
+            code_strs.append(self.emit(".has(", add_newline=False))
+            code_strs.append(temp_code1)
+            code_strs.append(")")
+        elif operator_node.value == "not in":
+            code_strs.append("!")
+            code_strs.append(temp_code2)
+            code_strs.append(self.emit(".has(", add_newline=False))
+            code_strs.append(temp_code1)
+            code_strs.append(")")
+        else:
+            code_strs.append(temp_code1)
+            code_strs.append(self.emit(f" {operator_node.value} ", add_newline=False))
+            code_strs.append(temp_code2)
         return ''.join(code_strs)
 
 # ------------------------ Logical Operation ------------------------
@@ -228,7 +244,7 @@ class CodeGenerator():
         self.emit("", add_newline=False) #TODO: Improve this solution
         iterable = self.visit(node.children[1])  # Get the iterable
         self.emit("", add_newline=True)
-        code_strs = [self.emit(f"for (auto {target} : {iterable})", add_newline=False)]
+        code_strs = [self.emit(f"for (auto se_{target} : {iterable})", add_newline=False)]
         code_strs.append(self.emit("{", add_newline=True))
         code_strs.append(self.visit(node.children[2]))  # Loop body
         code_strs.append(self.emit("}", add_newline=True))
