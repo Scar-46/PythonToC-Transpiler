@@ -102,6 +102,14 @@ class Map : public Object {
     }
   }
 
+  var getKeys() const {
+    List keys;
+    for (const auto& pair : elements) {
+      keys.addElement(pair.first);  // Assuming List has an 'add' method to add elements
+    }
+    return var(keys);  // Wrap the List in a var and return it
+  }
+
   void clear() {
     elements.clear();
   }
