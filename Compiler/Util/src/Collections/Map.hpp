@@ -5,8 +5,9 @@
 #include <memory>
 #include <utility>
 
-#include "./Object/object.hpp"
-#include "./Object/var.hpp"
+#include "../Object/object.hpp"
+#include "../Object/var.hpp"
+#include "./Pair.hpp"
 
 
 class Map : public Object {
@@ -29,23 +30,13 @@ class Map : public Object {
 
   // Override the subscript method to implement indexation
   ObjectPtr subscript(const Object& other) const override {
-    const var* otherObj = dynamic_cast<const var*>(&other);
-
-    if (otherObj) {
-      var index = *otherObj;
-      auto it = elements.find(index);
-
-      if (it != elements.end()) {
-        return it->second.operator->();
-      } else {
-        std::cerr << "Key not found\n";
-        return nullptr;  // Or throw an exception if needed
+    for (const auto& kv : this->elements) {
+      if (kv.first->equals(other)) {
+        return kv.second.getValue();
       }
-    } else {
-      // Handle the case where 'other' is not a 'var' (or appropriate type)
-      std::cerr << "Invalid index type, expected 'var' (key type).\n";
-      return nullptr;  // Or throw an exception
     }
+    std::cerr << "Key not found\n";
+    return nullptr;
   }
 
   bool equals(const Object& other) const override {
@@ -135,13 +126,20 @@ class Map : public Object {
         throw std::out_of_range("Iterator out of range");
       }
 
+      auto it = _map.elements.begin();
+      std::advance(it, _currentIndex++);
+
       // TODO(Dwayne): find an approiate way of returning the key-value pair.
-      return std::make_shared<Map>(_map);
+      return std::make_shared<Pair>(it->first, it->second);
     }
 
     ObjectIt clone() const override {
       return std::make_unique<MapIterator>(*this);
     }
   };
+  // Override iteration methods
+  ObjectIt getIterator() const override {
+    return std::make_unique<MapIterator>(*this);
+  }
 
 };

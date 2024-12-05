@@ -36,17 +36,17 @@ class List : public Object {
   }
   // Override the subscript method to indexation
   ObjectPtr subscript(const Object& other) const override {
-      // Attempt to cast the 'other' object to an Integer
-      auto otherObj = dynamic_cast<const Integer*>(&other);
+    // Attempt to cast the 'other' object to an Integer
+    auto otherObj = dynamic_cast<const Integer*>(&other);
 
-      if (otherObj) {
-          int index = otherObj->getValue();  // Assuming 'getValue' gets the integer value of the index
-          return elements[normalizeIndex(index)].operator->();
-      } else {
-          // Handle the case where 'other' is not an Integer (throw an exception, or return a default value)
-          std::cerr << "Invalid index type, expected Integer.\n";
-          return nullptr;  // Or throw an exception
-      }
+    if (otherObj) {
+      int index = otherObj->getValue();  // Assuming 'getValue' gets the integer value of the index
+      return elements[normalizeIndex(index)].operator->();
+    } else {
+      // Handle the case where 'other' is not an Integer (throw an exception, or return a default value)
+      std::cerr << "Invalid index type, expected Integer.\n";
+      return nullptr;  // Or throw an exception
+    }
   }
 
   // Override the equals method to compare the lists
@@ -94,7 +94,7 @@ class List : public Object {
     elements.clear();
   }
 
-void insert(int pos, const var& element) {
+  void insert(int pos, const var& element) {
     if (pos < 0 || static_cast<size_t>(pos) > elements.size()) {
       std::cerr << "Position out of bounds\n";
       return;   // Or throw an exception
@@ -158,7 +158,6 @@ void insert(int pos, const var& element) {
     }
   };
 
-  // Overload the [] operator to access elements by index
   // Override iteration methods
   ObjectIt getIterator() const override {
     return std::make_unique<ListIterator>(*this);

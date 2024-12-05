@@ -23,37 +23,36 @@ int main() {
 
   hi = Tuple(integer, 80);
 
-  std::cout << hi << std::endl;
+  std::cout << "Tuple: " << hi << std::endl;
 
+  std::cout << "Adding pair: " << var(Pair(floating, boolean)) << std::endl;
   mapa.as<Map>()->addElement(floating, boolean);
+  var access = mapa[floating];
+  std::cout << "Accessed[" << floating << "] : " << access << std::endl;
+  std::cout << "Map: " << mapa << std::endl;
 
-  // for(auto i : hi){
-  //   std::cout << i << std::endl;
-  // }
-
-  mapa.as<Map>()->print(std::cout);
   list.as<List>()->addElement("Good");
   list.as<List>()->addElement("4");
   list.as<List>()->addElement("Nite");
 
   var hello = list;
 
-  std::cout << mapa[floating] <<std::endl;
+  list->print(std::cout);
+  std::cout << " == ";
+  hello->print(std::cout);
+  std::cout << "?: " << (list == hello) <<std::endl;
 
-  std::cout << (list == list2) <<std::endl;
-
-  for (auto i : list) {
-    std::cout << i << std::endl;
-  }
-
+  std::cout << "List: ";
   for (const auto& it : list) {
-    std::cout << it << " ";
+    std::cout << it << ", ";
   }
   std::cout << std::endl;
 
-  for (auto variable : list) {
-    std::cout << variable << std::endl;
+  std::cout << "Map: ";
+  for (const auto& it : mapa) {
+    std::cout << it << std::endl;
   }
+  std::cout << std::endl;
 
   integer = "I do not want to do this";
   std::cout << integer << std::endl;
