@@ -1,9 +1,9 @@
 import ply.yacc as yacc
 
-from .TokenRules import tokens
-from .Lexer import Lexer
-from .common import log_error
-from .node import Node
+from ICGenerator.TokenRules import tokens
+from ICGenerator.Lexer import Lexer
+from ICGenerator.common import log_error
+from ICGenerator.node import Node
 
 # Based on PEG grammar for Python
 # Python 3 grammar: https://docs.python.org/3/reference/grammar.html

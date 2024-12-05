@@ -1,8 +1,9 @@
-from Parser import Parser
-from common import error_logger
-from node import Node
-import graphviz
 import sys
+import graphviz
+
+from ICGenerator.Parser import Parser
+from ICGenerator.common import error_logger
+from ICGenerator.node import Node
 
 def read_file(file_name):
     try:

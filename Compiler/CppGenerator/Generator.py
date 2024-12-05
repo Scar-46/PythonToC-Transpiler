@@ -1,36 +1,36 @@
-import sys
-sys.path.insert(0, 'Compiler/ICGenerator')
-from node import Node
-from SymbolTable import SymbolTable
+from ICGenerator.node import Node
+from CppGenerator.SymbolTable import SymbolTable
+from CppGenerator.BuiltInFuctions import BUILTIN_FUNCTIONS, translate_function
 
+# C++ code-snippets factory
+# Takes a parser's AST and emits valid C++ code 
 class CodeGenerator():
-
-    built_in_map = {
-        "print": "std::cout <<",
-        "len": "std::size",
-        "abs": "std::abs",
-        "min": "std::min",
-        "max": "std::max",
-    }
-
+    # Initialize a new context for code generation
     def __init__(self):
         self.indent_level = 0
         self.indent = False
         self.symbol_table = SymbolTable()
+    
+#//////////////////////// AST pre-order navigation ////////////////////////
+    # Yield a valid code string given an AST node and context acquired so far
+    def visit(self, node):
+        # Match the node type to the corresponding visitor handler
+        method_name = f"visit_{node.node_type}"
+        visitor = getattr(self, method_name, self.error_visit)
 
+        # Let the visitor handle the node
+        return visitor(node)
+
+    # Called when missing a visitor method for a node type
+    def error_visit(self, node):
+        raise Exception(f"No visit_{node.node_type} method")
+    
+    # Add valid code to the current line or a new one
     def emit(self, code_str, add_newline=False):
         indent = '    ' * self.indent_level if self.indent else ''
         result = f"\n{indent}{code_str}" if self.indent else f"{indent}{code_str}"
         self.indent = add_newline
         return result
-
-    def visit(self, node):
-        method_name = f"visit_{node.node_type}"
-        visitor = getattr(self, method_name, self.error_visit)
-        return visitor(node)
-        
-    def error_visit(self, node):
-        raise Exception(f"No visit_{node.node_type} method")
 
 #//////////////////////// Statements methods ////////////////////////
     def visit_statements(self, node):
@@ -243,18 +243,28 @@ class CodeGenerator():
 
     def visit_function_call(self, node):
         code_strs = []
-        function_name = node.children[0].value
+        function_name : str = node.children[0].value
 
-        if function_name in self.built_in_map:
-            code_strs.append(self.emit(self.built_in_map[function_name], add_newline=False))
-            if len(node.children) > 1:
-                code_strs.append(self.visit(node.children[1]))
+        # If the function is not built-in, handle it by evaluation
+        if function_name in BUILTIN_FUNCTIONS:
+            parameters = [] if node.children == 1 \
+                else [self.visit(node.children[1])] if node.children[1].node_type != "expressions" \
+                    else [self.visit(expression) for expression in node.children[1].children]
+            
+            code_strs.append(
+                self.emit(
+                    translate_function(node.children[0].value, parameters), 
+                    add_newline=False
+                )
+            )
+        # Otherwise, let the built-in function visitor handle the function call
         else:
-            code_strs.append(self.visit(node.children[0]))  # Function name
+            code_strs.append(self.visit(node.children[0])) # Resolve function call
             code_strs.append(self.emit("(", add_newline=False))
             if len(node.children) > 1:  # Arguments
                 code_strs.append(self.visit(node.children[1]))
             code_strs.append(self.emit(")", add_newline=False))
+
         return ''.join(code_strs)
 
 # ------------------------ Arguments ------------------------
