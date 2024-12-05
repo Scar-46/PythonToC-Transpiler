@@ -1,7 +1,8 @@
 import re
-import TokenRules
 import ply.lex as lex
-from common import log_error
+
+from ICGenerator import TokenRules
+from ICGenerator.common import log_error
 
 # Errors
 errorList = []
