@@ -7,3 +7,4 @@
 class List;
 class Tuple;
 class Map;
+class Set;
