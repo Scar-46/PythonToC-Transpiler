@@ -159,14 +159,14 @@ class var {
     if (!value || !other.value) {
       throw std::runtime_error("Multiplication not supported for null values");
     }
-    return var(value->subtract(*other.value));
+    return var(value->multiply(*other.value));
   }
 
   var operator/(const var& other) const {
     if (!value || !other.value) {
       throw std::runtime_error("Division not supported for null values");
     }
-    return var(value->subtract(*other.value));
+    return var(value->divide(*other.value));
   }
 
   var operator[](const var& other) const {

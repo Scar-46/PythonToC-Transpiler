@@ -4,7 +4,8 @@
 #include <memory>
 #include <vector>
 
-#include "./Object/object.hpp"
+#include "../Object/object.hpp"
+#include "../Object/var.hpp"
 
 class List : public Object {
  private:
@@ -161,5 +162,14 @@ class List : public Object {
   // Override iteration methods
   ObjectIt getIterator() const override {
     return std::make_unique<ListIterator>(*this);
+  }
+
+  bool has(const Object& value) {
+    for (const auto& element : elements) {
+      if (element->equals(value)) {
+        return true;
+      }
+    }
+    return false;
   }
 };

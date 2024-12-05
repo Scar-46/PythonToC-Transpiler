@@ -94,6 +94,18 @@ int main() {
     std::cout << "Can check for value" << std::endl;
   }
   std::cout << "'" << string[Integer(0)] << "' is the first letter of '" << string << "'" << std::endl;
+
+  one = 1;
+  var two = 2;
+  var hola = "hola";
+  var four = 4;
+  var five = 5;
+  List set = {one, two, hola, four, five};
+  if (set.has(Integer(2))) {
+    std::cout << "2 in ";
+    set.print(std::cout);
+  }
+
   return 0;
 }
 
