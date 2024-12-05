@@ -223,21 +223,15 @@ class CodeGenerator():
         return ''.join(code_strs)
 
 #------------------------ FOR ------------------------
-    def visit_for_stmt(self, node): #TODO: Multiple types of for must be supported
-        target = node.children[0].children[0].value  # `i` from target_list
-        range_call = node.children[1]  # function_call
-        range_args = range_call.children[1].children
 
-        # Determine range arguments
-        if len(range_args) == 1:  # range(stop)
-            start, stop, step = "0", range_args[0].value, "1"
-        elif len(range_args) == 2:  # range(start, stop)
-            start, stop, step = range_args[0].value, range_args[1].value, "1"
-        elif len(range_args) == 3:  # range(start, stop, step)
-            start, stop, step = range_args[0].value, range_args[1].value, range_args[2].value
-
-        code_strs = [self.emit(f"for (int {target} = {start}; {target} < {stop}; {target} += {step}){{", add_newline=True)]
-        code_strs.append(self.visit(node.children[2]))  # Body of the loop
+    def visit_for_stmt(self, node):
+        target = node.children[0].children[0].value  # Loop variable
+        self.emit("", add_newline=False) #TODO: Improve this solution
+        iterable = self.visit(node.children[1])  # Get the iterable
+        self.emit("", add_newline=True)
+        code_strs = [self.emit(f"for (auto {target} : {iterable})", add_newline=True)]
+        code_strs.append(self.emit("{", add_newline=True))
+        code_strs.append(self.visit(node.children[2]))  # Loop body
         code_strs.append(self.emit("}", add_newline=True))
         return ''.join(code_strs)
 
