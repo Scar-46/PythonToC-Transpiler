@@ -247,10 +247,14 @@ class CodeGenerator():
 
         # If the function is not built-in, handle it by evaluation
         if function_name in BUILTIN_FUNCTIONS:
+            # Flush in case of possible identation for identifier
+            code_strs.append(self.emit('', add_newline=False))
+
+            # Append parameters
             parameters = [] if node.children == 1 \
                 else [self.visit(node.children[1])] if node.children[1].node_type != "expressions" \
                     else [self.visit(expression) for expression in node.children[1].children]
-            
+ 
             code_strs.append(
                 self.emit(
                     translate_function(node.children[0].value, parameters), 
