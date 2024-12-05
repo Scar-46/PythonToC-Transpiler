@@ -49,8 +49,8 @@ b = {
     "set": set(), 
     1: "1", 
     "list": list(), 
-}
-
+} 
+ 
 def while_func(n): 
     while (n > 0): 
         print(n) 
@@ -84,8 +84,7 @@ hi = hola = "hola" + " mundo" + "!"
 print(hi) 
 print(hola) 
  
-for x, idx in range(2,n): 
-    bala, tro = video = game = "hey"
+ 
  
 def hello(): 
     print("hello") 

@@ -20,7 +20,7 @@ lib/
 lib64/
 parts/
 sdist/
-var/
+CMakeFiles/
 wheels/
 share/python-wheels/
 *.egg-info/
@@ -176,3 +176,7 @@ cython_debug/
 # Transpiler output
 /Compiler/Output
 /Compiler/Util/bin
+Compiler/Util/cmake_install.cmake
+*.txt
+Compiler/Util/Makefile
+Compiler/Util/Makefile
