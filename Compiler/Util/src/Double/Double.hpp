@@ -1,6 +1,8 @@
 // Copyright (c) 2024 Syntax Errors.
 #pragma once
 
+#include <memory>
+
 #include "../Object/object.hpp"
 
 // Double class
@@ -87,10 +89,15 @@ bool Double::equalsWithInteger(const Object& other) const {
   throw std::runtime_error("Double does not support comparison with given type");
 }
 
+#include "String/String.hpp"
 bool Double::lessWithInteger(const Object& other) const {
   auto otherObj = dynamic_cast<const Integer*>(&other);
   if (otherObj) {
     return value < otherObj->getValue();
+  }
+  auto otherString = dynamic_cast<const String*>(&other);
+  if (otherString) {
+    return true;
   }
   throw std::runtime_error("Double does not support comparison with given type");
 }

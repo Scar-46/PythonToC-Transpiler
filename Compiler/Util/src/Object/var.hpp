@@ -126,12 +126,6 @@ class var {
     return std::dynamic_pointer_cast<ObjectType>(value);
   }
 
-  std::strong_ordering operator<=>(const var& other) const {
-    if (value->equals(*other.value)) return std::strong_ordering::equal;
-    if (value->less(*other.value)) return std::strong_ordering::less;
-    if (value->greater(*other.value)) return std::strong_ordering::greater;
-    throw std::runtime_error("Invalid comparison");
-  }
 
   var operator==(const var& other) const {
     return value->equals(*other.value);
@@ -139,6 +133,13 @@ class var {
 
   var operator!=(const var& other) const {
     return !value->equals(*other.value);
+  }
+
+  std::strong_ordering operator<=>(const var& other) const {
+    if (value->equals(*other.value)) return std::strong_ordering::equal;
+    if (value->less(*other.value)) return std::strong_ordering::less;
+    if (value->greater(*other.value)) return std::strong_ordering::greater;
+    throw std::runtime_error("Failed three-way comparison");
   }
 
   var operator+(const var& other) const {

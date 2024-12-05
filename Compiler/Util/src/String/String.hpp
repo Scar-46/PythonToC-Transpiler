@@ -8,6 +8,7 @@
 
 #include "../Object/object.hpp"       // NOLINT
 #include "../Integer/Integer.hpp"     // NOLINT
+#include "../Double/Double.hpp"     // NOLINT
 
 // String class
 class String : public BaseObject<String, std::string> {
@@ -28,6 +29,11 @@ class String : public BaseObject<String, std::string> {
   }
 
   bool greater(const Object& other) const override {
+    auto otherInteger = dynamic_cast<const Integer*>(&other);
+    auto otherDouble = dynamic_cast<const Double*>(&other);
+    if (otherInteger || otherDouble) {
+      return true;
+    }
     auto otherObj = dynamic_cast<const String*>(&other);
     return this->value > otherObj->getValue();
   }
