@@ -33,6 +33,27 @@ class Map : public Object {
     // Implement map division logic
   }
 
+  // Override the subscript method to implement indexation
+  ObjectPtr subscript(const Object& other) const override {
+    const var* otherObj = dynamic_cast<const var*>(&other);
+
+    if (otherObj) {
+      var index = *otherObj;
+      auto it = elements.find(index);
+
+      if (it != elements.end()) {
+        return it->second.operator->();
+      } else {
+        std::cerr << "Key not found\n";
+        return nullptr;  // Or throw an exception if needed
+      }
+    } else {
+      // Handle the case where 'other' is not a 'var' (or appropriate type)
+      std::cerr << "Invalid index type, expected 'var' (key type).\n";
+      return nullptr;  // Or throw an exception
+    }
+  }
+
   bool equals(const Object& other) const override {
     auto otherMap  = dynamic_cast<const Map*>(&other);
     if (!otherMap) {

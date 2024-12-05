@@ -19,6 +19,8 @@ class Tuple : public Object { //TODO():var needs to be able to get tup = {}
 
  public:
   Tuple() = default;
+  template <typename... Args>
+  Tuple(Args&&... args) : elements{var(std::forward<Args>(args))...} {}
   Tuple(std::initializer_list<var> initList) : elements(initList) {}
 
   // ------------------ Overrides ------------------
@@ -42,6 +44,21 @@ class Tuple : public Object { //TODO():var needs to be able to get tup = {}
     throw std::invalid_argument("divide method is not supported for Tuple");
   }
 
+  // Override the subscript method to indexation
+  ObjectPtr subscript(const Object& other) const override {
+      // Attempt to cast the 'other' object to an Integer
+      auto otherObj = dynamic_cast<const Integer*>(&other);
+
+      if (otherObj) {
+          int index = otherObj->getValue();  // Assuming 'getValue' gets the integer value of the index
+          return elements[normalizeIndex(index)].operator->();
+      } else {
+          // Handle the case where 'other' is not an Integer (throw an exception, or return a default value)
+          std::cerr << "Invalid index type, expected Integer.\n";
+          return nullptr;  // Or throw an exception
+      }
+  }
+  
   // Override the equals method to compare tuples
   bool equals(const Object& other) const override {
     auto otherTuple = dynamic_cast<const Tuple*>(&other);
