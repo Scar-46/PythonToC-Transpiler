@@ -294,7 +294,7 @@ class CodeGenerator():
 
 # ------------------------ Tuple ------------------------
     def visit_tuple(self, node):
-        code_strs = [self.emit("std::make_tuple(", add_newline=False)]
+        code_strs = [self.emit("Tuple(", add_newline=False)]
         for i, child in enumerate(node.children):
             code_strs.append(self.visit(child))
             if i < len(node.children) - 1:
@@ -325,14 +325,14 @@ class CodeGenerator():
     
 # ------------------------ List ------------------------
     def visit_list(self, node):
-        code_strs = [self.emit("{", add_newline=False)]
+        code_strs = [self.emit("List(", add_newline=False)]
         
         for i, child in enumerate(node.children):
             if i > 0:
                 code_strs.append(self.emit(", ", add_newline=False))
             code_strs.append(self.visit(child))
         
-        code_strs.append(self.emit("}", add_newline=False))
+        code_strs.append(self.emit(")", add_newline=False))
         return ''.join(code_strs)
     
 # ------------------------ Set ------------------------

@@ -19,6 +19,8 @@ class List : public Object {
 
  public:
   List() = default;
+  template <typename... Args>
+  List(Args&&... args) : elements{var(std::forward<Args>(args))...} {}
   List(std::initializer_list<var> initList) : elements(initList) {}
 
   // ------------------ Overrides ------------------

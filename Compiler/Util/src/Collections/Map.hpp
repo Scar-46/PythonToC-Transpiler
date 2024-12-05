@@ -10,11 +10,12 @@ class Map : public Object {
 
  public:
   Map() = default;
+  template <typename... Args>
   Map(std::initializer_list<std::pair<var, var>> initList) {
     for (const auto& pair : initList) {
       elements[pair.first] = pair.second;
     }
-}
+  }
 
   // ------------------ Overrides ------------------
   ObjectPtr add(const Object& other) const override {
