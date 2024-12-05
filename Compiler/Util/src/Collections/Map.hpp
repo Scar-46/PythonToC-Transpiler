@@ -110,7 +110,7 @@ class Map : public Object {
 
   // Overload the + operator to merge two maps
   Map operator+(const Map& other) const {
-    Map result = *this; // Start with a copy of the current map
+    Map result = *this;   // Start with a copy of the current map
     for (const auto& pair : other.elements) {
       result.elements[pair.first] = pair.second;  // Overwrite or insert new key-value pairs
     }
@@ -118,11 +118,30 @@ class Map : public Object {
   }
 
   // ------------------ Iterator ------------------
-  std::map<var, var>::iterator begin() {
-    return elements.begin();
-  }
+  class MapIterator : public Object::ObjectIterator {
+   private:
+    const Map& _map;
+    size_t _currentIndex;
 
-  std::map<var, var>::iterator end() {
-    return elements.end();
-  }
+   public:
+    explicit MapIterator(const Map& list) : _map(list), _currentIndex(0) {}
+
+    bool hasNext() const override {
+      return _currentIndex < _map.size();
+    }
+
+    ObjectPtr next() override {
+      if (!this->hasNext()) {
+        throw std::out_of_range("Iterator out of range");
+      }
+
+      // TODO(Dwayne): find an approiate way of returning the key-value pair.
+      return std::make_shared<Map>(_map);
+    }
+
+    ObjectIt clone() const override {
+      return std::make_unique<MapIterator>(*this);
+    }
+  };
+
 };

@@ -17,13 +17,34 @@ int main() {
   var floating = 12.7;
   var boolean = false;
   var list = List();
-  // var list2 = List();
-  // Tuple tup;
+  var list2 = List();
+  var mapa = Map();
+  var hi;
 
+  hi = Tuple(integer, 80);
 
+  std::cout << hi << std::endl;
+
+  mapa.as<Map>()->addElement(floating, boolean);
+
+  // for(auto i : hi){
+  //   std::cout << i << std::endl;
+  // }
+
+  mapa.as<Map>()->print(std::cout);
   list.as<List>()->addElement("Good");
   list.as<List>()->addElement("4");
   list.as<List>()->addElement("Nite");
+
+  var hello = list;
+
+  std::cout << mapa[floating] <<std::endl;
+
+  std::cout << (list == list2) <<std::endl;
+
+  for (auto i : list) {
+    std::cout << i << std::endl;
+  }
 
   for (const auto& it : list) {
     std::cout << it << " ";
