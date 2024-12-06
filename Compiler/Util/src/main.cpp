@@ -4,19 +4,12 @@
 
 #include "./util.hpp"
 
-void checkReference(unused const Object& op1, unused const Object& op2) {
-  std::cout << "Can be passed as object references" << std::endl;
-}
-
-void checkPointer(unused const ObjectPtr& op1, unused const ObjectPtr& op2) {
-  std::cout << "Can be passed as object pointers" << std::endl;
-}
-
 int main() {
-  var string = "Hello world";
-  var integer = 123;
-  var floating = 12.7;
-  var boolean = false;
+  // Variables of different types
+  var hello_world = "Hello world";
+  var number = 123;
+  
+  // List
   var list = List();
 
   list->Call("append", {string.getValue()});
