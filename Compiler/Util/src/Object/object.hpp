@@ -8,19 +8,28 @@
 #include <string>
 #include <utility>
 
+#include <functional>
+#include <map>
+#include <type_traits>
+
 #define implicit
 #define unused [[maybe_unused]]
 
+// Forward-declarations
 class Object;
 using ObjectPtr = std::shared_ptr<Object>;
 
-
 class Object {
+ protected:
+  // Callable methods by name and parameters
+  using Method = std::function<ObjectPtr(std::initializer_list<ObjectPtr>)>;
+  std::map<std::string, Method> _methods;
+
  public:
   virtual ~Object() = default;
 
   // Conversion operator to bool (can be customized based on logic)
-  explicit operator bool() const {
+  virtual explicit operator bool() const {
     throw std::runtime_error("Boolean conversion not supported for this type");
   }
 
@@ -75,7 +84,18 @@ class Object {
     return typeid(*this) == typeid(other);
   }
 
- public:
+  // Specific methods per instance
+  ObjectPtr Call(const std::string& name, std::initializer_list<ObjectPtr> params) {
+    auto matchedMethod = _methods.find(name);
+
+      if (matchedMethod == _methods.end()) {
+          throw std::runtime_error("Object has no method " + name);
+      }
+
+      return matchedMethod->second(params);
+  }
+
+  // Iterators
   class ObjectIterator;
   using ObjectIt = std::unique_ptr<Object::ObjectIterator>;
 
@@ -116,8 +136,12 @@ class BaseObject : public Object {
     #endif
   }
 
-  explicit operator bool() const {
-    return static_cast<bool>(value);
+  explicit operator bool() const override {
+    if constexpr (std::is_convertible_v<ValueType, bool>) {
+      return static_cast<bool>(value);
+    }
+
+    throw std::runtime_error("Boolean conversion not supported for this type");
   }
 
   // Default implementation of clone
@@ -163,7 +187,7 @@ class BaseNumeric : public Object {
   ~BaseNumeric() override = default;
   inline const ValueType& getValue() const { return value; }
 
-  explicit operator bool() const {
+  explicit operator bool() const override {
     return static_cast<bool>(value);
   }
 

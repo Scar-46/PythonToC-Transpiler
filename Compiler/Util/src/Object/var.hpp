@@ -61,7 +61,6 @@ class var {
   implicit var(const std::string& value) : value(std::make_shared<String>(value)) {}
   implicit var(const char* value) : value(std::make_shared<String>(std::string(value))) {}
   explicit var(bool value) : value(std::make_shared<Boolean>(value)) {}
-  explicit var(ObjectPtr obj) : value(std::move(obj)) {}
 
   // Copy constructor and assignment
   var(const var& other) : value(other.value ? other.value->clone() : nullptr) {}
@@ -82,9 +81,17 @@ class var {
     return *this;
   }
 
+  // Copy-assignment from ObjPtr
+  var(const ObjectPtr& obj) : value(obj->clone()) {}
+  var& operator=(const ObjectPtr& other) noexcept {
+    value = other->clone();
+    return *this;
+  }
+
   // Access and basic conversion
   explicit operator bool() const {
-    return static_cast<bool>(value);
+    if (!value) { return false; }
+    return static_cast<bool>(*value);
   }
 
   implicit operator const Object&() const {
@@ -209,6 +216,15 @@ class var {
 
   Iterator end() {
     return Iterator();
+  }
+
+  // Specific methods per instance
+  ObjectPtr Call(const std::string& name, std::initializer_list<ObjectPtr> params) {
+    if (!value) {
+      throw std::runtime_error("Cannot call method on null var");
+    }
+
+    return value->Call(name, params);
   }
 };
 
