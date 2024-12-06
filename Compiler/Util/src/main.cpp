@@ -25,9 +25,9 @@ int main() {
   //   std::cout << "Item: " << item << std::endl;
   // }
 
-  var result = list->Call("has", {Double(123.432356)});
-
-  std::cout << "Result: " << result << std::endl;
+  if (list->Call("has", {Double(123.456)})) {
+    std::cout << "Found!" << std::endl;
+  }
   return 0;
 }
 
