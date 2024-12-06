@@ -2,10 +2,14 @@
 #pragma once
 
 #include <memory>
+#include <tuple>
+#include <utility>
 #include <vector>
 
 #include "../Object/object.hpp"
 #include "../Object/var.hpp"
+
+#include "../Integer/Integer.hpp"
 
 class List : public Object {
  private:
@@ -15,20 +19,27 @@ class List : public Object {
     if (index < 0) {
       index += (elements.size());
     }
-    if (index < 0 || static_cast<size_t>(index) >= elements.size()) {
+    if (index < 0 || static_cast<size_t>(index) > elements.size()) {
       throw std::out_of_range("Index out of bounds");
     }
     return static_cast<size_t>(index);
   }
 
- public:
-  List() = default;
-  template <typename... Args>
-  List(Args&&... args) : elements{var(std::forward<Args>(args))...} {}
-  List(std::initializer_list<var> initList) : elements(initList) {}
-  explicit List(std::vector<var> elements) : elements(elements) {}
+  void init() override {
+    _methods["has"] = std::bind(&List::has, this, std::placeholders::_1);
+    _methods["append"] = std::bind(&List::append, this, std::placeholders::_1);
+    _methods["slice"] = std::bind(&List::slice, this, std::placeholders::_1);
+  }
 
-  // ------------------ Overrides ------------------
+ public:
+  List() : Object() { this->init(); }
+  template <typename... Args>
+  implicit List(Args&&... args) : elements{var(std::forward<Args>(args))...} { init(); }
+  List(std::initializer_list<var> initList) : elements(initList) { init(); }
+  explicit List(std::vector<var> elements) : elements(elements) { init(); }
+
+  // ------------------ Overrides -----------------
+
   // Override the add method to handle list addition
   ObjectPtr add(const Object& other) const override {
     auto otherList = dynamic_cast<const List*>(&other);
@@ -71,7 +82,7 @@ class List : public Object {
         os << ", ";
       }
     }
-    os << "] \n";
+    os << "]";
   }
 
   // Override clone to copy the list
@@ -104,25 +115,6 @@ class List : public Object {
       return;   // Or throw an exception
     }
     elements.insert(elements.begin() + pos, element);
-  }
-
-  List slice(int start = 0, int end = -1, int step = 1) const {
-    if (step == 0) {
-      throw std::invalid_argument("Step cannot be zero");
-    }
-    size_t normalizedStart = normalizeIndex(start);
-    size_t normalizedEnd = normalizeIndex(end);
-    List result;
-    if (step > 0) {
-      for (size_t i = normalizedStart; i < normalizedEnd; i += step) {
-        result.addElement(elements[i]);
-      }
-    } else {
-      for (size_t i = normalizedStart; i > normalizedEnd; i += step) {
-        result.addElement(elements[i]);
-      }
-    }
-    return result;
   }
 
   size_t size() const {
@@ -167,12 +159,63 @@ class List : public Object {
     return std::make_unique<ListIterator>(*this);
   }
 
-  bool has(const Object& value) {
+  // ------------------ List Methods for Bind ------------------
+  ObjectPtr has(std::initializer_list<ObjectPtr> params) {
+    Boolean result = Boolean(false);
+    if (params.size() <= 0) return std::make_shared<Boolean>(result);
+    auto queryPtr = *(params.begin());
+    if (!queryPtr) return std::make_shared<Boolean>(result);
+    auto query = var(queryPtr);
+    if (!query) return std::make_shared<Boolean>(result);
     for (const auto& element : elements) {
-      if (element->equals(value)) {
-        return true;
+      if (element == query) {
+        result = Boolean(true);
       }
     }
-    return false;
+
+    return std::make_shared<Boolean>(result);
+  }
+
+  ObjectPtr append(std::initializer_list<ObjectPtr> params) {
+    if (params.size() <= 0) return nullptr;
+    ObjectPtr element = *(params.begin());
+    if (element) elements.push_back(var(element->clone()));
+
+    return nullptr;
+  }
+
+  ObjectPtr slice(std::initializer_list<ObjectPtr> params) {
+    std::tuple<Integer, Integer, Integer> values = {Integer(0), Integer(-1), Integer(1)};
+    auto it = params.begin();
+    assignValues(values, it, params.end());
+
+    int start = std::get<0>(values).getValue();
+    int end = std::get<1>(values).getValue();
+    int step = std::get<2>(values).getValue();
+
+    if (step == 0) {
+      throw std::invalid_argument("Step cannot be zero");
+    }
+
+    // Handle negative step (reversing the slice)
+    size_t normalizedStart = normalizeIndex(start);
+    size_t normalizedEnd = normalizeIndex(end);
+    List result;
+    if (step > 0) {
+      for (size_t i = normalizedStart; i < normalizedEnd; i += step) {
+        result.addElement(elements[i]);
+      }
+    } else {
+      if (start < end) {
+        throw std::invalid_argument("For negative step, start must be greater than end.");
+      } else if (normalizedStart >= this->elements.size()) {
+        throw std::invalid_argument("Index out of bounds.");
+      }
+      for (int i = normalizedStart; i >= static_cast<int>(normalizedEnd); i += step) {
+        result.addElement(elements[i]);
+      }
+    }
+
+    return std::make_shared<List>(result);
   }
 };

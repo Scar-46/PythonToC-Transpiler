@@ -35,6 +35,8 @@ class Map : public Object {
   }
 
   // ------------------ Overrides ------------------
+
+  // Override the addition method to implement map addition
   ObjectPtr add(unused const Object& other) const override {
     // Implement map addition logic
     return std::make_shared<Map>(*this);
@@ -67,7 +69,7 @@ class Map : public Object {
         os << ", ";
       }
     }
-    os << "} \n";
+    os << "}";
   }
 
   ObjectPtr clone() const override {

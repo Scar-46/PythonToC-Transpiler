@@ -17,14 +17,24 @@ class String : public BaseObject<String, std::string> {
 
  public:
   explicit String(std::string value) : BaseObject(std::move(value)) {}
+  operator ObjectPtr() override{
+    return std::make_shared<String>(*this);
+  };
 
   bool equals(const Object& other) const override {
     auto otherObj = dynamic_cast<const String*>(&other);
-    return this->value == otherObj->getValue();
+    if (otherObj) {
+      return this->value == otherObj->getValue();
+    }
+    return false;
   }
 
   bool less(const Object& other) const override {
     auto otherObj = dynamic_cast<const String*>(&other);
+    if (otherObj) {
+      return this->value == otherObj->getValue();
+    }
+    return false;
     return this->value < otherObj->getValue();
   }
 
@@ -32,11 +42,13 @@ class String : public BaseObject<String, std::string> {
     auto otherInteger = dynamic_cast<const Integer*>(&other);
     auto otherDouble = dynamic_cast<const Double*>(&other);
     if (otherInteger || otherDouble) {
-      std::cout << "Greater: Returning true" << std::endl;
       return true;
     }
     auto otherObj = dynamic_cast<const String*>(&other);
-    return this->value > otherObj->getValue();
+    if (otherObj) {
+      return this->value == otherObj->getValue();
+    }
+    return false;
   }
 
   ObjectPtr add(const Object& other) const override {

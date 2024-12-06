@@ -16,7 +16,7 @@
 
 class var;
 
-class Iterator : public Object{
+class Iterator {
   Object::ObjectIt objectIterator;
   bool isEnd;
 
@@ -30,7 +30,6 @@ class Iterator : public Object{
 
   var operator*() const;
   var operator*();
-  var next();
 
   Iterator& operator++() {
     if (!objectIterator || isEnd) {
@@ -44,14 +43,6 @@ class Iterator : public Object{
 
   bool operator!=(const Iterator& other) const {
     return isEnd != other.isEnd;  // Simple end-check comparison
-  }
-
-  void print(std::ostream& os) const override {
-    os << "";
-  }
-
-  ObjectPtr clone() const override {
-    return nullptr;
   }
 };
 
@@ -70,7 +61,6 @@ class var {
   implicit var(const std::string& value) : value(std::make_shared<String>(value)) {}
   implicit var(const char* value) : value(std::make_shared<String>(std::string(value))) {}
   explicit var(bool value) : value(std::make_shared<Boolean>(value)) {}
-  explicit var(ObjectPtr obj) : value(std::move(obj)) {}
 
   // Copy constructor and assignment
   var(const var& other) : value(other.value ? other.value->clone() : nullptr) {}
@@ -91,9 +81,17 @@ class var {
     return *this;
   }
 
+  // Copy-assignment from ObjPtr
+  implicit var(const ObjectPtr& obj) : value(obj) {}
+  implicit var& operator=(const ObjectPtr& other) noexcept {
+    value = other;
+    return *this;
+  }
+
   // Access and basic conversion
   explicit operator bool() const {
-    return static_cast<bool>(value);
+    if (!value) { return false; }
+    return static_cast<bool>(*value);
   }
 
   implicit operator const Object&() const {
@@ -198,14 +196,6 @@ class var {
 
  public:
   // Provide `begin()` and `end()` methods for range-based for loops
-
-  Iterator getIterator() const {
-    if (!value) {
-      throw std::runtime_error("Cannot retrieve iterator from null var");
-    }
-    return Iterator(value->getIterator());
-  }
-
   Iterator cbegin() const {
     if (!value) {
       throw std::runtime_error("Cannot iterate over null var");
@@ -227,6 +217,15 @@ class var {
   Iterator end() {
     return Iterator();
   }
+
+  // Specific methods per instance
+  ObjectPtr Call(const std::string& name, std::initializer_list<ObjectPtr> params) {
+    if (!value) {
+      throw std::runtime_error("Cannot call method on null var");
+    }
+
+    return value->Call(name, params);
+  }
 };
 
 var Iterator::operator*() const {
@@ -241,12 +240,4 @@ var Iterator::operator*() {
     throw std::runtime_error("Dereferencing an invalid iterator");
   }
   return var(objectIterator->next());
-}
-var Iterator::next() {
-  if (isEnd || !objectIterator) {
-    throw std::runtime_error("No more elements to iterate over");
-  }
-  var current = **this;  // Dereference to get the current element
-  ++(*this);             // Advance the iterator
-  return current;
 }
