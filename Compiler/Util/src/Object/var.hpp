@@ -30,6 +30,7 @@ class Iterator {
 
   var operator*() const;
   var operator*();
+  var next();
 
   Iterator& operator++() {
     if (!objectIterator || isEnd) {
@@ -189,6 +190,14 @@ class var {
 
  public:
   // Provide `begin()` and `end()` methods for range-based for loops
+
+  Iterator getIterator() const {
+    if (!value) {
+      throw std::runtime_error("Cannot retrieve iterator from null var");
+    }
+    return Iterator(value->getIterator());
+  }
+
   Iterator cbegin() const {
     if (!value) {
       throw std::runtime_error("Cannot iterate over null var");
@@ -224,4 +233,12 @@ var Iterator::operator*() {
     throw std::runtime_error("Dereferencing an invalid iterator");
   }
   return var(objectIterator->next());
+}
+var Iterator::next() {
+  if (isEnd || !objectIterator) {
+    throw std::runtime_error("No more elements to iterate over");
+  }
+  var current = **this;  // Dereference to get the current element
+  ++(*this);             // Advance the iterator
+  return current;
 }
