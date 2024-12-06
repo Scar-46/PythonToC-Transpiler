@@ -23,13 +23,13 @@ int main() {
   list->Call("append", {floating.getValue()});
   list->Call("append", {boolean.getValue()});
 
+  std::cout << "List: " << list << std::endl;
   // All of this is broken for some reason
-  // list->print(std::cout);
-  // for (const auto& item : list) {
-  //   std::cout << "Item: " << item << std::endl;
-  // }
+  for (const auto& item : list) {
+    std::cout << "Item: " << item << std::endl;
+  }
 
-  if (auto val = var(list->Call("has", {}))) {
+  if (auto val = var(list->Call("has", {string.getValue()}))) {
     std::cout << "Found! " << val << std::endl;
   } else {
     std::cout << "Not found" << std::endl;

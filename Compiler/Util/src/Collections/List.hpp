@@ -34,6 +34,11 @@ class List : public Object {
 
  public:
   List() : Object() { this->init(); }
+  
+  // Copy constructor
+  List(const List& other) : Object(other), elements(other.elements) {
+      this->init();  // Initialize methods for the new object
+  }
   template <typename... Args>
   implicit List(Args&&... args) : elements{var(std::forward<Args>(args))...} { init(); }
   List(std::initializer_list<var> initList) : elements(initList) { init(); }

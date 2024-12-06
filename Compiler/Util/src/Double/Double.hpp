@@ -89,7 +89,7 @@ bool Double::equalsWithInteger(const Object& other) const {
   if (otherObj) {
     return value == otherObj->getValue();
   }
-  throw std::runtime_error("Double does not support comparison with given type");
+  return false;
 }
 
 #include "String/String.hpp"
@@ -102,7 +102,7 @@ bool Double::lessWithInteger(const Object& other) const {
   if (otherString) {
     return true;
   }
-  throw std::runtime_error("Double does not support comparison with given type");
+  return false;
 }
 
 bool Double::greaterWithInteger(const Object& other) const {
@@ -110,5 +110,5 @@ bool Double::greaterWithInteger(const Object& other) const {
   if (otherObj) {
     return value > otherObj->getValue();
   }
-  throw std::runtime_error("Double does not support comparison with given type");
+  return false;
 }
