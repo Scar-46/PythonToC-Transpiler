@@ -15,8 +15,8 @@ int main() {
   var list = List();
   var map = Map();
 
-  map.as<Map>()->addPair({string, integer});
-  map.as<Map>()->addPair({integer, string});
+  map.as<Map>()->addPair({string, floating});
+  map.as<Map>()->addPair({integer, boolean});
 
   list->Call("append", {string.getValue()});
   list->Call("append", {integer.getValue()});
@@ -42,7 +42,7 @@ int main() {
   var slice = list->Call("slice", {Integer(0), Integer(1)});
   var query = slice->Call("has", {string.getValue()});
   std::cout << "List slice: " << slice[Integer(0)] << std::endl;
-  std::cout << "List query:" << query << std::endl;
+  std::cout << "List query: " << query << std::endl;
 
   slice = string->Call("slice", {Integer(0), Integer(5)});
   std::cout << "String slice: " << slice << std::endl;

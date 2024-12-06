@@ -25,18 +25,23 @@ class Map : public Object {
  public:
   Map(): elements() { this->init(); }
 
+  Map(const Map& other) : Object(other), elements(other.elements) {
+      this->init();  // Initialize methods for the new object
+  }
   Map(std::initializer_list<std::pair<var, var>> initList) {
     for (const auto& pair : initList) {
       elements[pair.first] = pair.second;
     }
+    this->init();
   }
   template <typename... Args>
-  Map(Args&&... args) {
+  explicit Map(Args&&... args) {
     if constexpr (sizeof...(args) > 0) {
       (addPair(std::forward<Args>(args)), ...);
     }
+    this->init();
   }
-  
+
   void addPair(const Pair& pair) {
     elements[pair.getFirst()] = pair.getSecond();
   }
