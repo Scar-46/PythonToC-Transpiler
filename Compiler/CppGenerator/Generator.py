@@ -82,7 +82,9 @@ class CodeGenerator():
         temp_code.append(self.visit(node.children[block_index]))  # Visit block
         self.indent_level += 1
         if not is_constructor:
-            self.symbol_table.add_symbol_over(f"se_{function_name}", symbol_type="function", params=parameters)
+            param_names = [param.split('=')[0].strip() for param in parameters.split(',') if '=' in param]
+            param_names += [param.strip() for param in parameters.split(',') if '=' not in param]   #TODO(): Improve this way to remove default parameters
+            self.symbol_table.add_symbol_over(f"se_{function_name}", symbol_type="function", params=', '.join(param_names))
             temp_code.append(self.emit("return var();", add_newline=True))
         self.indent_level -= 1
         temp_code.append(self.emit("}", add_newline=True))
@@ -414,7 +416,7 @@ class CodeGenerator():
         for i, child in enumerate(node.children):
             code_strs.append(self.visit(child))
             if i < len(node.children) - 1:
-                code_strs.append(self.emit(":", add_newline=False))
+                code_strs.append(self.emit(", ", add_newline=False))
         return ''.join(code_strs)
 
     def visit_aug_assign(self, node):
