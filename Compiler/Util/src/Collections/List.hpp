@@ -21,12 +21,17 @@ class List : public Object {
     return static_cast<size_t>(index);
   }
 
+  void init() {
+    _methods["has"] = std::bind(&List::has, this, std::placeholders::_1);
+    _methods["append"] = std::bind(&List::append, this, std::placeholders::_1);
+  }
+
  public:
-  List() = default;
+  List() { init(); };
   template <typename... Args>
-  List(Args&&... args) : elements{var(std::forward<Args>(args))...} {}
-  List(std::initializer_list<var> initList) : elements(initList) {}
-  explicit List(std::vector<var> elements) : elements(elements) {}
+  List(Args&&... args) : elements{var(std::forward<Args>(args))...} { init(); }
+  List(std::initializer_list<var> initList) : elements(initList) { init(); }
+  explicit List(std::vector<var> elements) : elements(elements) { init(); }
 
   // ------------------ Overrides ------------------
   // Override the add method to handle list addition
@@ -167,12 +172,23 @@ class List : public Object {
     return std::make_unique<ListIterator>(*this);
   }
 
-  bool has(const Object& value) {
+  ObjectPtr has(std::initializer_list<ObjectPtr> params) {
+    ObjectPtr query = *(params.begin());
+
     for (const auto& element : elements) {
-      if (element->equals(value)) {
-        return true;
+      if (element->equals(*query)) {
+        return std::make_shared<Boolean>(true);
       }
     }
-    return false;
+
+    return std::make_shared<Boolean>(false);
+  }
+
+  ObjectPtr append(std::initializer_list<ObjectPtr> params) {
+    ObjectPtr element = *(params.begin());
+
+    elements.push_back(var(element->clone()));
+
+    return std::make_shared<Boolean>(true);
   }
 };
