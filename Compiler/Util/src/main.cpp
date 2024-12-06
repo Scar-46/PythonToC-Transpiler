@@ -34,7 +34,22 @@ int main() {
   } else {
     std::cout << "Not found" << std::endl;
   }
-  std::cout << "Map: " << map << std::endl;
+
+  std::cout << "Map: " << map << std::endl << " | Keys: " << var(map->Call("keys", {}))
+    << std::endl << " | Values: " << var(map->Call("keys", {})) << std::endl;
+
+  // var slice = list->Call("slice", {Integer(0), Integer(1)})->Call("has", {string.getValue()});
+  var slice = list->Call("slice", {Integer(0), Integer(1)});
+  var query = slice->Call("has", {string.getValue()});
+  std::cout << "List slice: " << slice[Integer(0)] << std::endl;
+  std::cout << "List query:" << query << std::endl;
+
+  slice = string->Call("slice", {Integer(0), Integer(5)});
+  std::cout << "String slice: " << slice << std::endl;
+
+  // var slice = list->Call("slice", {Integer(4)});
+  // std::cout << "Slice: " << slice << std::endl;
+  // std::cout << "String: " << var(string->Call("slice", {Integer(0), Integer(5)}));
   return 0;
 }
 

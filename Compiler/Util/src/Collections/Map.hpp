@@ -16,8 +16,15 @@ class Map : public Object {
  private:
   std::map<var, var> elements;
 
+  void init() override {
+    _methods["keys"] = std::bind(&Map::keys, this, std::placeholders::_1);
+    _methods["values"] = std::bind(&Map::values, this, std::placeholders::_1);
+    _methods["items"] = std::bind(&Map::items, this, std::placeholders::_1);
+  }
+
  public:
-  Map() = default;
+  Map(): elements() { this->init(); }
+
   Map(std::initializer_list<std::pair<var, var>> initList) {
     for (const auto& pair : initList) {
       elements[pair.first] = pair.second;
@@ -56,7 +63,7 @@ class Map : public Object {
   bool equals(const Object& other) const override {
     auto otherMap  = dynamic_cast<const Map*>(&other);
     if (!otherMap) {
-      throw std::invalid_argument("add method requires a List");
+      throw std::invalid_argument("Cannot compare map with given type");
     }
     return elements == otherMap->elements;
   }
@@ -111,7 +118,7 @@ class Map : public Object {
   // ------------------ Keys, Values, and Items Methods ------------------
 
     // Returns a list of all keys in the map
-    ObjectPtr keys() const {
+    ObjectPtr keys(unused std::initializer_list<ObjectPtr> params) {
       std::vector<var> keyList;
       for (const auto& kv : elements) {
         keyList.push_back(kv.first);
@@ -120,7 +127,7 @@ class Map : public Object {
     }
 
     // Returns a list of all values in the map
-    ObjectPtr values() const {
+    ObjectPtr values(unused std::initializer_list<ObjectPtr> params) {
       std::vector<var> valueList;
       for (const auto& kv : elements) {
         valueList.push_back(kv.second);
@@ -129,7 +136,7 @@ class Map : public Object {
     }
 
   // Returns a list of key-value pairs as Pair objects
-  ObjectPtr items() const {
+  ObjectPtr items(unused std::initializer_list<ObjectPtr> params) {
     std::vector<var> itemList;
     for (const auto& kv : elements) {
       itemList.push_back(var(Pair(kv.first, kv.second)));
