@@ -19,7 +19,7 @@ class List : public Object {
     if (index < 0) {
       index += (elements.size());
     }
-    if (index < 0 || static_cast<size_t>(index) >= elements.size()) {
+    if (index < 0 || static_cast<size_t>(index) > elements.size()) {
       throw std::out_of_range("Index out of bounds");
     }
     return static_cast<size_t>(index);
@@ -176,7 +176,6 @@ class List : public Object {
     ObjectPtr element = *(params.begin());
 
     elements.push_back(var(element->clone()));
-
     return nullptr;
   }
 
@@ -185,27 +184,33 @@ class List : public Object {
     auto it = params.begin();
     assignValues(values, it, params.end());
 
-    Integer start = std::get<0>(values);
-    Integer end = std::get<1>(values);
-    Integer step = std::get<2>(values);
+    int start = std::get<0>(values).getValue();
+    int end = std::get<1>(values).getValue();
+    int step = std::get<2>(values).getValue();
 
-    std::cout << "Start: " << start.getValue() << " | End: " << end.getValue() << " | Step: " << step.getValue() << std::endl;
-
-if (step.getValue() == 0) {
+    if (step == 0) {
       throw std::invalid_argument("Step cannot be zero");
     }
-    size_t normalizedStart = normalizeIndex(start.getValue());
-    size_t normalizedEnd = normalizeIndex(end.getValue());
+
+    // Handle negative step (reversing the slice)
+    size_t normalizedStart = normalizeIndex(start);
+    size_t normalizedEnd = normalizeIndex(end);
     List result;
-    if (step.getValue() > 0) {
-      for (size_t i = normalizedStart; i < normalizedEnd; i += step.getValue()) {
+    if (step > 0) {
+      for (size_t i = normalizedStart; i < normalizedEnd; i += step) {
         result.addElement(elements[i]);
       }
     } else {
-      for (size_t i = normalizedStart; i > normalizedEnd; i += step.getValue()) {
+      if (start < end) {
+        throw std::invalid_argument("For negative step, start must be greater than end.");
+      } else if (normalizedStart >= this->elements.size()) {
+        throw std::invalid_argument("Index out of bounds.");
+      }
+      for (int i = normalizedStart; i >= static_cast<int>(normalizedEnd); i += step) {
         result.addElement(elements[i]);
       }
     }
+
     return std::make_shared<List>(result);
   }
 };

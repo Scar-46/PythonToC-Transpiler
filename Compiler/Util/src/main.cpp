@@ -19,7 +19,13 @@ int main() {
   list->Call("append", {floating.getValue()});
   list->Call("append", {boolean.getValue()});
 
-  var result = list->Call("slice", {Integer(-1)});
+  // All of this is broken for some reason
+  // list->print(std::cout);
+  // for (const auto& item : list) {
+  //   std::cout << "Item: " << item << std::endl;
+  // }
+
+  var result = list->Call("slice", {Integer(3), Integer(0), Integer(-1)});
 
   std::cout << "Result: " << result;
   return 0;
