@@ -8,8 +8,9 @@
 
 #include "../Object/object.hpp"
 #include "../Object/var.hpp"
-
 #include "../Integer/Integer.hpp"
+
+#include "../functions.hpp"
 
 class List : public Object {
  private:
@@ -171,7 +172,6 @@ class List : public Object {
     auto queryPtr = *(params.begin());
     if (!queryPtr) return std::make_shared<Boolean>(result);
     auto query = var(queryPtr);
-    if (!query) return std::make_shared<Boolean>(result);
     for (const auto& element : elements) {
       if (element == query) {
         result = Boolean(true);
@@ -190,37 +190,13 @@ class List : public Object {
   }
 
   ObjectPtr slice(std::initializer_list<ObjectPtr> params) {
-    std::tuple<Integer, Integer, Integer> values = {Integer(0), Integer(-1), Integer(1)};
-    auto it = params.begin();
-    assignValues(values, it, params.end());
-
-    int start = std::get<0>(values).getValue();
-    int end = std::get<1>(values).getValue();
-    int step = std::get<2>(values).getValue();
-
-    if (step == 0) {
-      throw std::invalid_argument("Step cannot be zero");
-    }
-
-    // Handle negative step (reversing the slice)
-    size_t normalizedStart = normalizeIndex(start);
-    size_t normalizedEnd = normalizeIndex(end);
-    List result;
-    if (step > 0) {
-      for (size_t i = normalizedStart; i < normalizedEnd; i += step) {
-        result.addElement(elements[i]);
+    return generalizedSlice(
+      this->elements,
+      params,
+      [](std::vector<var>& result, const var& element) { result.push_back(element); },
+      [](const std::vector<var>& resultContainer) {
+        return std::make_shared<List>(resultContainer);
       }
-    } else {
-      if (start < end) {
-        throw std::invalid_argument("For negative step, start must be greater than end.");
-      } else if (normalizedStart >= this->elements.size()) {
-        throw std::invalid_argument("Index out of bounds.");
-      }
-      for (int i = normalizedStart; i >= static_cast<int>(normalizedEnd); i += step) {
-        result.addElement(elements[i]);
-      }
-    }
-
-    return std::make_shared<List>(result);
+    );    // NOLINT
   }
 };

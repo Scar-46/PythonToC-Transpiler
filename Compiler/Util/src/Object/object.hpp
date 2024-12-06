@@ -241,20 +241,3 @@ class BaseNumeric : public Object {
   DEFINE_COMPARISON_OPERATOR(less, <, 'Less than')
   DEFINE_COMPARISON_OPERATOR(greater, >, 'Greater than')
 };
-
-// Helper to safely extract a value or use a default
-template <typename T>
-T getValueOrDefault(const ObjectPtr& obj, const T& defaultValue) {
-    if (auto ptr = dynamic_cast<const T*>(&*obj)) {
-        return *ptr;
-    }
-    return defaultValue;
-}
-
-// Iterate over tuple elements and assign values from params
-template <typename Tuple, typename Iterator>
-void assignValues(Tuple& values, Iterator& it, Iterator end) {
-    std::apply([&](auto&... args) {
-        ((it != end ? args = getValueOrDefault(*it++, args) : args), ...);
-    }, values);
-}

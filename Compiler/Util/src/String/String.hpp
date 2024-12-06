@@ -4,19 +4,25 @@
 #include <algorithm>
 #include <memory>
 #include <string>
+#include <tuple>
 #include <utility>
 
 #include "../Object/object.hpp"       // NOLINT
 #include "../Integer/Integer.hpp"     // NOLINT
-#include "../Double/Double.hpp"     // NOLINT
+#include "../Double/Double.hpp"       // NOLINT
+#include "../functions.hpp"           // NOLINT
 
 // String class
 class String : public BaseObject<String, std::string> {
  private:
   using BaseObject::value;
 
+  void init() {
+    _methods["slice"] = std::bind(&String::slice, this, std::placeholders::_1);
+  }
+
  public:
-  explicit String(std::string value) : BaseObject(std::move(value)) {}
+  explicit String(std::string value) : BaseObject(std::move(value)) { init(); }
   operator ObjectPtr() override{
     return std::make_shared<String>(*this);
   };
@@ -36,6 +42,26 @@ class String : public BaseObject<String, std::string> {
       return std::make_shared<String>(std::string(1, result));
     }
     throw std::runtime_error("Cannot Index with non integer type");
+  }
+
+  String operator+(const String& other) {
+    return String(this->value + other.value);
+  }
+
+  String operator+(const std::string& other) {
+    return String(this->value + other);
+  }
+
+  String operator+(const char* other) {
+    return String(this->value + std::string(other));
+  }
+
+  String operator+(const char other) {
+    return String(this->value + other);
+  }
+
+  explicit operator bool() const override {
+    return value.empty();
   }
 
   // Override iteration methods
@@ -59,10 +85,6 @@ class String : public BaseObject<String, std::string> {
       return std::make_shared<String>(std::string(1, str[currentIndex++]));
     }
 
-    // ObjectPtr next() const override {
-    //   return std::make_shared<String>(this->next());
-    // }
-
     ObjectIt clone() const override {
         return std::make_unique<StringIterator>(*this);
     }
@@ -72,31 +94,14 @@ class String : public BaseObject<String, std::string> {
     return std::make_unique<StringIterator>(value);
   }
 
-  ObjectPtr slice(int start, int end) const {
-    // Handle negative indices
-    int len = static_cast<int>(value.size());
-    if (start < 0) start += len;
-    if (end < 0) end += len;
-
-    // Clamp indices to valid ranges
-    start = std::max(0, std::min(start, len));
-    end = std::max(0, std::min(end, len));
-
-    // Return substring
-    if (start >= end) {
-      return std::make_shared<String>("");  // Empty string for invalid range
-    }
-    return std::make_shared<String>(value.substr(start, end - start));
-}
-
-  ObjectPtr slice(int start) const {
-    return slice(start, static_cast<int>(value.size()));
-  }
-
-  ObjectPtr slice() const {
-    return slice(0, static_cast<int>(value.size()));
-  }
-  String operator+(const String& value) {
-    return String(this->value + value.value);
+  ObjectPtr slice(std::initializer_list<ObjectPtr> params) {
+    return generalizedSlice(
+      this->value,
+      params,
+      [](std::string& result, const char& element) { result += element; },
+      [](const std::string& resultContainer) {
+        return std::make_shared<String>(resultContainer);
+      }
+    );    // NOLINT
   }
 };
