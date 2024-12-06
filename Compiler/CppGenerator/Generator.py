@@ -372,7 +372,7 @@ class CodeGenerator():
 
     def visit_string(self, node):
         escaped_string = node.value.replace('"', '\\"')  # Escape double quotes
-        return self.emit(f"\"{escaped_string}\"", add_newline=False)
+        return self.emit(f"String(\"{escaped_string}\")", add_newline=False)
 
     def visit_group(self, node):
         code_strs = [self.emit("(", add_newline=False)]
