@@ -15,6 +15,10 @@ class Set : public Object {
   Set(std::initializer_list<var> initList) : elements(initList) {}
 
   // ------------------ Overrides ------------------
+  operator ObjectPtr() override{
+    return std::make_shared<Set>(*this);
+  };
+
   // Override the equals method to compare sets
   bool equals(const Object& other) const override {
     auto otherSet = dynamic_cast<const Set*>(&other);

@@ -2,10 +2,14 @@
 #pragma once
 
 #include <memory>
+#include <tuple>
+#include <utility>
 #include <vector>
 
 #include "../Object/object.hpp"
 #include "../Object/var.hpp"
+
+#include "../Integer/Integer.hpp"
 
 class List : public Object {
  private:
@@ -21,19 +25,21 @@ class List : public Object {
     return static_cast<size_t>(index);
   }
 
-  void init() {
+  void init() override {
     _methods["has"] = std::bind(&List::has, this, std::placeholders::_1);
     _methods["append"] = std::bind(&List::append, this, std::placeholders::_1);
+    _methods["slice"] = std::bind(&List::slice, this, std::placeholders::_1);
   }
 
  public:
-  List() { init(); };
+  List() : Object() { this->init(); }
   template <typename... Args>
-  List(Args&&... args) : elements{var(std::forward<Args>(args))...} { init(); }
+  implicit List(Args&&... args) : elements{var(std::forward<Args>(args))...} { init(); }
   List(std::initializer_list<var> initList) : elements(initList) { init(); }
   explicit List(std::vector<var> elements) : elements(elements) { init(); }
 
-  // ------------------ Overrides ------------------
+  // ------------------ Overrides -----------------
+
   // Override the add method to handle list addition
   ObjectPtr add(const Object& other) const override {
     auto otherList = dynamic_cast<const List*>(&other);
@@ -111,25 +117,6 @@ class List : public Object {
     elements.insert(elements.begin() + pos, element);
   }
 
-  List slice(int start = 0, int end = -1, int step = 1) const {
-    if (step == 0) {
-      throw std::invalid_argument("Step cannot be zero");
-    }
-    size_t normalizedStart = normalizeIndex(start);
-    size_t normalizedEnd = normalizeIndex(end);
-    List result;
-    if (step > 0) {
-      for (size_t i = normalizedStart; i < normalizedEnd; i += step) {
-        result.addElement(elements[i]);
-      }
-    } else {
-      for (size_t i = normalizedStart; i > normalizedEnd; i += step) {
-        result.addElement(elements[i]);
-      }
-    }
-    return result;
-  }
-
   size_t size() const {
     return elements.size();
   }
@@ -172,6 +159,7 @@ class List : public Object {
     return std::make_unique<ListIterator>(*this);
   }
 
+  // ------------------ List Methods for Bind ------------------
   ObjectPtr has(std::initializer_list<ObjectPtr> params) {
     ObjectPtr query = *(params.begin());
 
@@ -189,6 +177,35 @@ class List : public Object {
 
     elements.push_back(var(element->clone()));
 
-    return std::make_shared<Boolean>(true);
+    return nullptr;
+  }
+
+  ObjectPtr slice(std::initializer_list<ObjectPtr> params) {
+    std::tuple<Integer, Integer, Integer> values = {Integer(0), Integer(-1), Integer(1)};
+    auto it = params.begin();
+    assignValues(values, it, params.end());
+
+    Integer start = std::get<0>(values);
+    Integer end = std::get<1>(values);
+    Integer step = std::get<2>(values);
+
+    std::cout << "Start: " << start.getValue() << " | End: " << end.getValue() << " | Step: " << step.getValue() << std::endl;
+
+if (step.getValue() == 0) {
+      throw std::invalid_argument("Step cannot be zero");
+    }
+    size_t normalizedStart = normalizeIndex(start.getValue());
+    size_t normalizedEnd = normalizeIndex(end.getValue());
+    List result;
+    if (step.getValue() > 0) {
+      for (size_t i = normalizedStart; i < normalizedEnd; i += step.getValue()) {
+        result.addElement(elements[i]);
+      }
+    } else {
+      for (size_t i = normalizedStart; i > normalizedEnd; i += step.getValue()) {
+        result.addElement(elements[i]);
+      }
+    }
+    return std::make_shared<List>(result);
   }
 };

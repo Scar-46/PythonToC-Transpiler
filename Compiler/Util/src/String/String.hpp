@@ -17,6 +17,9 @@ class String : public BaseObject<String, std::string> {
 
  public:
   explicit String(std::string value) : BaseObject(std::move(value)) {}
+  operator ObjectPtr() override{
+    return std::make_shared<String>(*this);
+  };
 
   bool equals(const Object& other) const override {
     auto otherObj = dynamic_cast<const String*>(&other);
