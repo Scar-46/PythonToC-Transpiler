@@ -21,27 +21,6 @@ class String : public BaseObject<String, std::string> {
     return std::make_shared<String>(*this);
   };
 
-  bool equals(const Object& other) const override {
-    auto otherObj = reinterpret_cast<const String&>(other);
-    return this->value == otherObj.getValue();
-  }
-
-  bool less(const Object& other) const override {
-    auto otherObj = dynamic_cast<const String*>(&other);
-    return this->value < otherObj->getValue();
-  }
-
-  bool greater(const Object& other) const override {
-    auto otherInteger = dynamic_cast<const Integer*>(&other);
-    auto otherDouble = dynamic_cast<const Double*>(&other);
-    if (otherInteger || otherDouble) {
-      std::cout << "Greater: Returning true" << std::endl;
-      return true;
-    }
-    auto otherObj = dynamic_cast<const String*>(&other);
-    return this->value > otherObj->getValue();
-  }
-
   ObjectPtr add(const Object& other) const override {
     auto otherObj = dynamic_cast<const String*>(&other);
     if (otherObj) {

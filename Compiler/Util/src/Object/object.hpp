@@ -153,6 +153,28 @@ class BaseObject : public Object {
   inline ObjectPtr clone() const override {
     return std::make_shared<Derived>(value);
   }
+
+  // Default implementation of comparisons
+  virtual bool equals(const Object& other) const {
+    if (!isSameType(other)) { return false ;}
+
+    auto otherObj = dynamic_cast<const BaseObject<Derived, ValueType>&>(other);
+    return this->value == otherObj.getValue();
+  }
+
+  virtual bool less(const Object& other) const {
+    if (!isSameType(other)) { return false ;}
+
+    auto otherObj = dynamic_cast<const BaseObject<Derived, ValueType>&>(other);
+    return this->value < otherObj.getValue();
+  }
+
+  virtual bool greater(const Object& other) const {
+    if (!isSameType(other)) { return false ;}
+
+    auto otherObj = dynamic_cast<const BaseObject<Derived, ValueType>&>(other);
+    return this->value > otherObj.getValue();
+  }
 };
 
 #define DEFINE_OPERATOR(OP_NAME, OP_SYMBOL, ERROR_MESSAGE) \
