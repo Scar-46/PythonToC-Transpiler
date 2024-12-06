@@ -19,8 +19,8 @@ class String : public BaseObject<String, std::string> {
   explicit String(std::string value) : BaseObject(std::move(value)) {}
 
   bool equals(const Object& other) const override {
-    auto otherObj = dynamic_cast<const String*>(&other);
-    return this->value == otherObj->getValue();
+    auto otherObj = reinterpret_cast<const String&>(other);
+    return this->value == otherObj.getValue();
   }
 
   bool less(const Object& other) const override {
