@@ -16,6 +16,10 @@ class Pair : public Object {
   // Default constructor
   Pair() : value() {}
 
+  operator ObjectPtr() override{
+    return std::make_shared<Pair>(*this);
+  };
+
   // Parameterized constructor
   Pair(var first, var second) : value(std::make_pair(first, second)) {}
 

@@ -30,6 +30,11 @@ class Tuple : public Object {       // TODO(Dwayne): var needs to be able to get
   Tuple(std::initializer_list<var> initList) : elements(initList) {}
 
   // ------------------ Overrides ------------------
+  operator ObjectPtr() override{
+    return std::make_shared<Tuple>(*this);
+  };
+
+  // add Operator
   ObjectPtr add(const Object& other) const override {
     auto otherTuple = dynamic_cast<const Tuple*>(&other);
      if (!otherTuple) {

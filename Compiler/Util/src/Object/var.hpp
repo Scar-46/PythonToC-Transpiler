@@ -82,9 +82,9 @@ class var {
   }
 
   // Copy-assignment from ObjPtr
-  var(const ObjectPtr& obj) : value(obj->clone()) {}
-  var& operator=(const ObjectPtr& other) noexcept {
-    value = other->clone();
+  implicit var(const ObjectPtr& obj) : value(obj) {}
+  implicit var& operator=(const ObjectPtr& other) noexcept {
+    value = other;
     return *this;
   }
 

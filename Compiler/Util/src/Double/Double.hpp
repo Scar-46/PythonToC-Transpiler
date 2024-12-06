@@ -9,6 +9,9 @@
 class Double : public BaseNumeric<Double, double> {
  public:
   explicit Double(double value) : BaseNumeric(value) {}
+  operator ObjectPtr() override{
+    return std::make_shared<Double>(*this);
+  };
 
   ObjectPtr addHelper(const Object& other) const override {
     return addWithInteger(other);

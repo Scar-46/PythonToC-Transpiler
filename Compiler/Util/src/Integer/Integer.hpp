@@ -12,6 +12,10 @@ class Integer : public BaseNumeric<Integer, int32_t> {
  public:
   explicit Integer(int32_t value) : BaseNumeric(value) {}
 
+  operator ObjectPtr() override{
+    return std::make_shared<Integer>(*this);
+  };
+
   ObjectPtr addHelper(const Object& other) const override {
     auto otherObj = dynamic_cast<const Double*>(&other);
     if (otherObj) {

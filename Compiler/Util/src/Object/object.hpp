@@ -25,8 +25,13 @@ class Object {
   using Method = std::function<ObjectPtr(std::initializer_list<ObjectPtr>)>;
   std::map<std::string, Method> _methods;
 
+  virtual void init() {}
+
  public:
   virtual ~Object() = default;
+  virtual operator ObjectPtr() {
+    throw std::runtime_error("ObjectPtr conversion is not defined by this object");
+  }
 
   // Conversion operator to bool (can be customized based on logic)
   virtual explicit operator bool() const {
@@ -214,3 +219,20 @@ class BaseNumeric : public Object {
   DEFINE_COMPARISON_OPERATOR(less, <, 'Less than')
   DEFINE_COMPARISON_OPERATOR(greater, >, 'Greater than')
 };
+
+// Helper to safely extract a value or use a default
+template <typename T>
+T getValueOrDefault(const ObjectPtr& obj, const T& defaultValue) {
+    if (auto ptr = dynamic_cast<const T*>(&*obj)) {
+        return *ptr;
+    }
+    return defaultValue;
+}
+
+// Iterate over tuple elements and assign values from params
+template <typename Tuple, typename Iterator>
+void assignValues(Tuple& values, Iterator& it, Iterator end) {
+    std::apply([&](auto&... args) {
+        ((it != end ? args = getValueOrDefault(*it++, args) : args), ...);
+    }, values);
+}
