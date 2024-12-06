@@ -69,7 +69,7 @@ class Map : public Object {
         os << ", ";
       }
     }
-    os << "} \n";
+    os << "}";
   }
 
   ObjectPtr clone() const override {

@@ -33,6 +33,11 @@ class List : public Object {
 
  public:
   List() : Object() { this->init(); }
+  
+  // Copy constructor
+  List(const List& other) : Object(other), elements(other.elements) {
+      this->init();  // Initialize methods for the new object
+  }
   template <typename... Args>
   implicit List(Args&&... args) : elements{var(std::forward<Args>(args))...} { init(); }
   List(std::initializer_list<var> initList) : elements(initList) { init(); }
@@ -82,7 +87,7 @@ class List : public Object {
         os << ", ";
       }
     }
-    os << "] \n";
+    os << "]";
   }
 
   // Override clone to copy the list
@@ -161,21 +166,26 @@ class List : public Object {
 
   // ------------------ List Methods for Bind ------------------
   ObjectPtr has(std::initializer_list<ObjectPtr> params) {
-    ObjectPtr query = *(params.begin());
-
+    Boolean result = Boolean(false);
+    if (params.size() <= 0) return std::make_shared<Boolean>(result);
+    auto queryPtr = *(params.begin());
+    if (!queryPtr) return std::make_shared<Boolean>(result);
+    auto query = var(queryPtr);
+    if (!query) return std::make_shared<Boolean>(result);
     for (const auto& element : elements) {
-      if (element->equals(*query)) {
-        return std::make_shared<Boolean>(true);
+      if (element == query) {
+        result = Boolean(true);
       }
     }
 
-    return std::make_shared<Boolean>(false);
+    return std::make_shared<Boolean>(result);
   }
 
   ObjectPtr append(std::initializer_list<ObjectPtr> params) {
+    if (params.size() <= 0) return nullptr;
     ObjectPtr element = *(params.begin());
+    if (element) elements.push_back(var(element->clone()));
 
-    elements.push_back(var(element->clone()));
     return nullptr;
   }
 

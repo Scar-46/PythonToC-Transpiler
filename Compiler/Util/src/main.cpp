@@ -13,6 +13,10 @@ int main() {
 
   // List
   var list = List();
+  var map = Map();
+
+  map.as<Map>()->addPair({string, integer});
+  map.as<Map>()->addPair({integer, string});
 
   list->Call("append", {string.getValue()});
   list->Call("append", {integer.getValue()});
@@ -25,9 +29,12 @@ int main() {
   //   std::cout << "Item: " << item << std::endl;
   // }
 
-  var result = list->Call("slice", {Integer(3), Integer(0), Integer(-1)});
-
-  std::cout << "Result: " << result;
+  if (auto val = var(list->Call("has", {}))) {
+    std::cout << "Found! " << val << std::endl;
+  } else {
+    std::cout << "Not found" << std::endl;
+  }
+  std::cout << "Map: " << map << std::endl;
   return 0;
 }
 
