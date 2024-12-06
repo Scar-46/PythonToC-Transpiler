@@ -12,8 +12,8 @@ class Boolean : public BaseObject<Boolean, bool> {
   explicit Boolean(bool value) : BaseObject(value) {}
 
   bool equals(const Object& other) const override {
-    auto otherObj = dynamic_cast<const Boolean*>(&other);
-    return this->value == otherObj->getValue();
+    auto otherObj = reinterpret_cast<const Boolean&>(other);
+    return this->value == otherObj.getValue();
   }
 
   bool less(const Object& other) const override {
