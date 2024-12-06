@@ -6,9 +6,11 @@
 
 int main() {
   // Variables of different types
-  var hello_world = "Hello world";
-  var number = 123;
-  
+  var string = "Hello world";
+  var integer = 123;
+  var floating = 123.456;
+  var boolean = false;
+
   // List
   var list = List();
 
