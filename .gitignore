@@ -165,8 +165,7 @@ cython_debug/
 
 # === Specific files ==
 # VSCode workspace
-.vscode/launch.json
-.vscode/tasks.json
+.vscode/*
 
 # Parser output
 **/parser.out
