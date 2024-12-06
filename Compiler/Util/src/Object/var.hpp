@@ -16,7 +16,7 @@
 
 class var;
 
-class Iterator {
+class Iterator : public Object{
   Object::ObjectIt objectIterator;
   bool isEnd;
 
@@ -44,6 +44,14 @@ class Iterator {
 
   bool operator!=(const Iterator& other) const {
     return isEnd != other.isEnd;  // Simple end-check comparison
+  }
+
+  void print(std::ostream& os) const override {
+    os << "";
+  }
+
+  ObjectPtr clone() const override {
+    return nullptr;
   }
 };
 
