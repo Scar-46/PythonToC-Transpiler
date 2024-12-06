@@ -7,7 +7,7 @@
 // Boolean class
 class Boolean : public BaseObject<Boolean, bool> {
  private:
-  using BaseObject::BaseObject;
+  // using BaseObject::BaseObject;
 
  public:
   explicit Boolean(bool value) : BaseObject(value) {}
@@ -46,4 +46,6 @@ class Boolean : public BaseObject<Boolean, bool> {
   void print(std::ostream& os) const override {
     os << ((this->value)? "True" : "False") << std::endl;
   }
+
+  operator bool() const override { return this->value; }
 };

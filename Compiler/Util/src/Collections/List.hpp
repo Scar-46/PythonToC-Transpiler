@@ -161,15 +161,16 @@ class List : public Object {
 
   // ------------------ List Methods for Bind ------------------
   ObjectPtr has(std::initializer_list<ObjectPtr> params) {
-    ObjectPtr query = *(params.begin());
-
+    auto query = var(*(params.begin()));
+    Boolean result = Boolean(false);
+    if (!query) return std::make_shared<Boolean>(result);
     for (const auto& element : elements) {
-      if (element->equals(*query)) {
-        return std::make_shared<Boolean>(true);
+      if (element == query) {
+        result = Boolean(true);
       }
     }
 
-    return std::make_shared<Boolean>(false);
+    return std::make_shared<Boolean>(result);
   }
 
   ObjectPtr append(std::initializer_list<ObjectPtr> params) {

@@ -25,7 +25,7 @@ int main() {
   //   std::cout << "Item: " << item << std::endl;
   // }
 
-  var result = list->Call("slice", {Integer(3), Integer(0), Integer(-1)});
+  var result = list->Call("has", {Integer(123)});
 
   std::cout << "Result: " << result;
   return 0;
