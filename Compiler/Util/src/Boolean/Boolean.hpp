@@ -44,7 +44,7 @@ class Boolean : public BaseObject<Boolean, bool> {
   }
 
   void print(std::ostream& os) const override {
-    os << ((this->value)? "True" : "False") << std::endl;
+    os << ((this->value)? "True" : "False");
   }
 
   operator bool() const override { return this->value; }

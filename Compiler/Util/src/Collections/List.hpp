@@ -82,7 +82,7 @@ class List : public Object {
         os << ", ";
       }
     }
-    os << "] \n";
+    os << "]";
   }
 
   // Override clone to copy the list

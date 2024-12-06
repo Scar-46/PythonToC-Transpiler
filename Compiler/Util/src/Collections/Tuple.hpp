@@ -77,7 +77,7 @@ class Tuple : public Object {       // TODO(Dwayne): var needs to be able to get
         os << ", ";
       }
     }
-    os << ") \n";
+    os << ")";
   }
 
   // Override clone to copy the tuple

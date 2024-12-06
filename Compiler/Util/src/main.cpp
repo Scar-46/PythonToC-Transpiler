@@ -25,9 +25,9 @@ int main() {
   //   std::cout << "Item: " << item << std::endl;
   // }
 
-  var result = list->Call("has", {Integer(123)});
+  var result = list->Call("has", {Double(123.432356)});
 
-  std::cout << "Result: " << result;
+  std::cout << "Result: " << result << std::endl;
   return 0;
 }
 
