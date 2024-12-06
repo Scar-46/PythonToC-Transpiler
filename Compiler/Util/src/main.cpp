@@ -25,8 +25,10 @@ int main() {
   //   std::cout << "Item: " << item << std::endl;
   // }
 
-  if (list->Call("has", {Double(123.456)})) {
+  if (list->Call("has", {})) {
     std::cout << "Found!" << std::endl;
+  } else {
+    std::cout << "Not found" << std::endl;
   }
   return 0;
 }

@@ -161,8 +161,11 @@ class List : public Object {
 
   // ------------------ List Methods for Bind ------------------
   ObjectPtr has(std::initializer_list<ObjectPtr> params) {
-    auto query = var(*(params.begin()));
     Boolean result = Boolean(false);
+    if (params.size() <= 0) return std::make_shared<Boolean>(result);
+    auto queryPtr = *(params.begin());
+    if (!queryPtr) return std::make_shared<Boolean>(result);
+    auto query = var(queryPtr);
     if (!query) return std::make_shared<Boolean>(result);
     for (const auto& element : elements) {
       if (element == query) {
@@ -174,9 +177,10 @@ class List : public Object {
   }
 
   ObjectPtr append(std::initializer_list<ObjectPtr> params) {
+    if (params.size() <= 0) return nullptr;
     ObjectPtr element = *(params.begin());
+    if (element) elements.push_back(var(element->clone()));
 
-    elements.push_back(var(element->clone()));
     return nullptr;
   }
 
