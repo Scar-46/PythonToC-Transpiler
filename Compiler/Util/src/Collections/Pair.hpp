@@ -7,132 +7,70 @@
 #include "../Object/object.hpp"
 #include "../Object/var.hpp"
 
-
 class Pair : public Object {
  private:
   std::pair<var, var> value;
 
  public:
   // Default constructor
-  Pair() : value() {}
+  Pair() = default;
 
-  operator ObjectPtr() override{
-    return std::make_shared<Pair>(*this);
-  };
+  operator ObjectPtr();
 
   // Parameterized constructor
-  Pair(var first, var second) : value(std::make_pair(first, second)) {}
+  Pair(var first, var second);
 
   // Copy constructor
-  Pair(const Pair& other) : value(other.value) {}
+  Pair(const Pair& other);
 
   // Move constructor
-  Pair(Pair&& other) noexcept : value(std::move(other.value)) {}
+  Pair(Pair&& other) noexcept;
 
   // Destructor
   ~Pair() noexcept override = default;
 
   // Copy assignment operator
-  Pair& operator=(const Pair& other) {
-    if (this != &other) {
-      value = other.value;
-    }
-    return *this;
-  }
+  Pair& operator=(const Pair& other);
 
   // Move assignment operator
-  Pair& operator=(Pair&& other) noexcept {
-    if (this != &other) {
-      value = std::move(other.value);
-    }
-    return *this;
-  }
+  Pair& operator=(Pair&& other) noexcept;
 
   // Equality operators
-  inline bool operator==(const Pair& other) const {
-    return value == other.value;
-  }
+  inline bool operator==(const Pair& other) const;
 
-  bool equals(const Object& other) const {
-    auto otherObj = dynamic_cast<const Pair*>(&other);
-    if (otherObj) {
-      return value == otherObj->value;
-    }
-    throw std::runtime_error("Pair does not support comparison with given type");
-  }
+  bool equals(const Object& other) const;
 
-  bool operator!=(const Pair& other) const {
-    return !(*this == other);
-  }
+  bool operator!=(const Pair& other) const;
 
   // Comparison operators
-  bool operator<(const Pair& other) const {
-    return value < other.value;
-  }
+  bool operator<(const Pair& other) const;
 
-  bool less(const Object& other) const override {
-    auto otherObj = dynamic_cast<const Pair*>(&other);
-    if (otherObj) {
-      return value < otherObj->value;
-    }
-    throw std::runtime_error("Pair does not support comparison with given type");
-  }
+  bool less(const Object& other) const override;
 
-  bool operator<=(const Pair& other) const {
-    return value <= other.value;
-  }
+  bool operator<=(const Pair& other) const;
 
-  bool operator>(const Pair& other) const {
-    return value > other.value;
-  }
+  bool operator>(const Pair& other) const;
 
-  bool greater(const Object& other) const override {
-    auto otherObj = dynamic_cast<const Pair*>(&other);
-    if (otherObj) {
-      return value > otherObj->value;
-    }
-    throw std::runtime_error("Pair does not support comparison with given type");
-  }
+  bool greater(const Object& other) const override;
 
-  bool operator>=(const Pair& other) const {
-    return value >= other.value;
-  }
+  bool operator>=(const Pair& other) const;
 
   // Accessors
-  var getFirst() const {
-    return value.first;
-  }
+  var getFirst() const;
 
-  void setFirst(const var& first) {
-    value.first = first;
-  }
+  void setFirst(const var& first);
 
-  var getSecond() const {
-    return value.second;
-  }
+  var getSecond() const;
 
-  void setSecond(const var& second) {
-    value.second = second;
-  }
+  void setSecond(const var& second);
 
-  ObjectPtr clone() const override {
-    return std::make_shared<Pair>(*this);
-  }
+  ObjectPtr clone() const override;
 
   // Swap method
-  void swap(Pair& other) noexcept {
-    std::swap(value, other.value);
-  }
+  void swap(Pair& other) noexcept;
 
   // Print function
-  void print(std::ostream& os) const override {
-    os << "(";
-    value.first->print(os);
-    os << ", ";
-    value.second->print(os);
-    os << ")";
-  }
-
+  void print(std::ostream& os) const override;
 };
 
 // Non-member swap for ADL
