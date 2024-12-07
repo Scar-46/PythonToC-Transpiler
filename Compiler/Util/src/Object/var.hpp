@@ -28,13 +28,19 @@ class Iterator: public Object{
   // Constructor for the end iterator
   Iterator() : objectIterator(nullptr), isEnd(true) {this->init();}
 
-  var operator*() const;
-  var operator*();
-  ObjectPtr next(std::initializer_list<ObjectPtr> params);
+  // Copy constructor
+  Iterator(const Iterator& other)
+    : objectIterator(other.objectIterator), isEnd(other.isEnd) {
+    this->init();
+  }
 
   void init() override {
     _methods["next"] = std::bind(&Iterator::next, this, std::placeholders::_1);
   }
+
+  var operator*() const;
+  var operator*();
+  Method::result_type next(const std::vector<ObjectPtr>& params);
 
   Iterator& operator++() {
     if (!objectIterator || isEnd) {
@@ -276,11 +282,11 @@ var Iterator::operator*() {
   return var(objectIterator->next());
 }
 
-ObjectPtr Iterator::next(std::initializer_list<ObjectPtr> params) {
+ObjectPtr Iterator::next(const std::vector<ObjectPtr>& params)  {
   if (isEnd || !objectIterator) {
     throw std::runtime_error("No more elements to iterate over");
   }
   var current = **this;
   ++(*this);
-  return nullptr;
+  return current.getValue();
 }
