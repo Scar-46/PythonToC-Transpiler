@@ -16,7 +16,7 @@
 
 class var;
 
-class Iterator {
+class Iterator: public Object{
   Object::ObjectIt objectIterator;
   bool isEnd;
 
@@ -43,6 +43,13 @@ class Iterator {
 
   bool operator!=(const Iterator& other) const {
     return isEnd != other.isEnd;  // Simple end-check comparison
+  }
+
+    void print(std::ostream& os) const override {
+    os << "";
+  }
+  ObjectPtr clone() const override {
+    return nullptr;
   }
 };
 
@@ -202,6 +209,14 @@ class var {
 
  public:
   // Provide `begin()` and `end()` methods for range-based for loops
+
+  Iterator getIterator() const {
+    if (!value) {
+      throw std::runtime_error("Cannot retrieve iterator from null var");
+    }
+    return Iterator(value->getIterator());
+  }
+
   Iterator cbegin() const {
     if (!value) {
       throw std::runtime_error("Cannot iterate over null var");

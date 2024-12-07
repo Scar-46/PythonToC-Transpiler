@@ -44,8 +44,12 @@ int main() {
   std::cout << "List slice: " << slice[Integer(0)] << std::endl;
   std::cout << "List query: " << query << std::endl;
 
-  slice = string->Call("slice", {Integer(0), Integer(5)});
-  std::cout << "String slice: " << slice << std::endl;
+  var hello = List();
+
+  var h = hello.getIterator();
+
+  //slice = string->Call("slice", {Integer(0), Integer(5)});
+  //std::cout << "String slice: " << slice << std::endl;
 
   // var slice = list->Call("slice", {Integer(4)});
   // std::cout << "Slice: " << slice << std::endl;
