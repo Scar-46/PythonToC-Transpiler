@@ -2,11 +2,15 @@
 #include <algorithm>
 
 #include "./String.hpp"
+#include "./Boolean.hpp"
 #include "../Numeric/Integer.hpp"     // NOLINT
 #include "../functions.hpp"           // NOLINT
 
 void String::init() {
     _methods["slice"] = std::bind(&String::slice, this, std::placeholders::_1);
+    _methods["__len__"] = std::bind(&String::len, this, std::placeholders::_1);
+    _methods["__bool__"] = std::bind(&String::asBool, this, std::placeholders::_1);
+    _methods["__str__"] = std::bind(&String::asString, this, std::placeholders::_1);
 }
 
  String::String(std::string value) : Primitive(std::move(value)) { init(); }
@@ -91,4 +95,30 @@ String::ObjectIt String::StringIterator::clone() const {
 
 String::ObjectIt String::getIterator() const  {
     return std::make_unique<StringIterator>(value);
+}
+
+// ------------------ Management Methods ------------------
+
+String::Method::result_type String::len(const std::vector<ObjectPtr>& params) {
+    if (params.size() != 0) {
+      throw std::runtime_error("__len__: Invalid number of arguments");
+    }
+
+    return std::make_shared<Integer>(this->value.length());
+}
+
+String::Method::result_type String::asBool(const std::vector<ObjectPtr>& params) {
+    if (params.size() != 0) {
+      throw std::runtime_error("__bool__: Invalid number of arguments");
+    }
+
+    return std::make_shared<Boolean>(this->value.length() > 0);
+}
+
+String::Method::result_type String::asString(const std::vector<ObjectPtr>& params) {
+    if (params.size() != 0) {
+      throw std::runtime_error("__str__: Invalid number of arguments");
+    }
+
+    return std::make_shared<String>(*this);
 }

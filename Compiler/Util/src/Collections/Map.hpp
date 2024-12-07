@@ -8,6 +8,7 @@
 
 #include "../Object/object.hpp"
 #include "../Object/var.hpp"
+#include "../Primitive/Boolean.hpp"
 #include "./Pair.hpp"
 #include "./List.hpp"
 #include <list>
@@ -28,6 +29,7 @@ class Map : public Object {
     _methods["__min__"] = std::bind(&Map::min, this, std::placeholders::_1);
     _methods["__max__"] = std::bind(&Map::max, this, std::placeholders::_1);
     _methods["__sum__"] = std::bind(&Map::sum, this, std::placeholders::_1);
+    _methods["__bool__"] = std::bind(&Map::asBoolean, this, std::placeholders::_1);
   }
 
  public:
@@ -238,6 +240,15 @@ class Map : public Object {
     }
 
     return std::make_shared<Integer>(elements.size());
+  }
+
+  // True if there are any entries in the map
+  Method::result_type asBoolean(const std::vector<ObjectPtr>& params) {
+    if (params.size() != 0) {
+      throw std::runtime_error("__bool__: Invalid number of arguments");
+    }
+
+    return std::make_shared<Boolean>(elements.size() > 0);
   }
 
   // Smallest key in map

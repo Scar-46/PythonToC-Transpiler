@@ -17,7 +17,7 @@ BUILTIN_FUNCTIONS = {
     "pow": lambda args: f"Builtin::pow({', '.join(f"{arg}" for arg in args)})",
 
     # Type Conversion Functions
-    "str": lambda args: f"std::to_string({args[0]})",
+    "str": lambda args: f"Builtin::asString({', '.join(f"{arg}" for arg in args)})",
     "int": lambda args: f"Builtin::asInteger({', '.join(f"{arg}" for arg in args)})",
     "float": lambda args: f"Builtin::asDouble({', '.join(f"{arg}" for arg in args)})",
 
