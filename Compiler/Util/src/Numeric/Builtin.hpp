@@ -12,5 +12,11 @@ namespace Builtin {
   var round(const std::vector<var>& params);
 
   // Get power from base raised to power, modulo
-  var round(const std::vector<var>& params);
+  var pow(const std::vector<var>& params);
+
+  // Get interpretation as integer number
+  var asInteger(const std::vector<var>& params);
+
+  // Get interpretation as double-precision floating point number
+  var asDouble(const std::vector<var>& params);
 }

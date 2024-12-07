@@ -4,6 +4,7 @@
 #include "./Builtin.hpp"
 #include "./Integer.hpp"
 #include "./Double.hpp"
+#include "../Primitive/String.hpp"
 
 // Implement orphan built in functions
 namespace Builtin {
@@ -128,5 +129,114 @@ namespace Builtin {
     }
 
     return (var) std::make_shared<Double>(std::pow(base, exponent));
+  }
+
+  var asInteger(const std::vector<var>& params) {
+    if (params.size() == 0) {
+        return (var) std::make_shared<Integer>(0);
+    }
+
+    if (params.size() > 2) {
+      std::cerr << "int: Invalid number of arguments\n";
+      return nullptr;
+    }
+
+    ObjectPtr obj = params[0].getValue();
+    {
+        auto objDouble = dynamic_cast<const Double*>(obj.get());
+        auto objInteger = dynamic_cast<const Integer*>(obj.get());
+
+        if (objDouble || objInteger) {
+            if (params.size() == 2) {
+                std::cerr << "Base parameter is discarded when first parameter is Integer or Double.\n";
+                return nullptr;
+            }
+
+            if (objInteger) {
+                return (var) objInteger;
+            }
+
+            return (var) std::make_shared<Integer>(objDouble->getValue());
+        }
+    }
+
+    auto objString = dynamic_cast<const String*>(obj.get());
+    if (! objString) {
+        std::cerr << "Unexpected first parameter type. Expected String, Integer or Double.\n";
+        return nullptr;
+    }
+
+    const std::string& str = objString->getValue();
+
+    std::size_t base = 10;
+
+    if (params.size() == 2) {
+        ObjectPtr obj = params[1].getValue();
+        auto objInteger = dynamic_cast<const Integer*>(obj.get());
+
+        if (! objInteger) {
+            std::cerr << "Unexpected second parameter type. Expected Integer.\n";
+            return nullptr;
+        }
+
+        if (auto paramBase = objInteger->getValue() > 0) {
+            base = paramBase; 
+        } else {
+            std::cerr << "Integer base must be positive.\n";
+            return nullptr;
+        }
+    }
+
+    try {
+        int32_t result = std::stoi(str, nullptr, base); 
+        return (var) std::make_shared<Integer>(result);
+    } catch (const std::exception& e) {
+        std::cerr 
+            << "Invalid integer conversion from String: "
+            << e.what() << std::endl;
+
+        return nullptr;
+    }
+
+    return nullptr;
+  }
+
+  var asDouble(const std::vector<var>& params) {
+    if (params.size() == 0) {
+        return (var) std::make_shared<Double>(0.0);
+    }
+
+    if (params.size() > 1) {
+      std::cerr << "float: Invalid number of arguments\n";
+      return nullptr;
+    }
+
+    ObjectPtr obj = params[0].getValue();
+    
+    if (auto objDouble = dynamic_cast<const Double*>(obj.get())) {
+        return (var) objDouble;
+    }
+
+    if (auto objInteger = dynamic_cast<const Integer*>(obj.get())) {
+        return (var) std::make_shared<Double>(objInteger->getValue());
+    }
+
+    if (auto objString = dynamic_cast<const String*>(obj.get())) {
+        const std::string& str = objString->getValue();
+
+        try {
+            double result = std::stod(str, nullptr);
+            return (var) std::make_shared<Double>(result);
+        } catch (const std::exception& e) {
+            std::cerr 
+                << "Invalid float conversion from String: "
+                << e.what() << std::endl;
+
+            return nullptr;
+        }
+    }
+
+    std::cerr << "Unexpected type. Expected String, Integer or Double.\n";
+    return nullptr;
   }
 }
