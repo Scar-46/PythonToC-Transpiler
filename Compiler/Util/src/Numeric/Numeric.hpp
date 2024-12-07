@@ -40,13 +40,19 @@
 // Base template class for numeric objects
 template <typename Derived, typename ValueType>
 class Numeric : public Object {
+ private: 
+  void init() {
+    _methods["__abs__"] = std::bind(&Numeric::abs, this, std::placeholders::_1);
+  }
+
  protected:
   ValueType value;
 
  public:
-  explicit Numeric(ValueType value) : value(std::move(value)) {}
-  ~Numeric() override = default;
+  explicit Numeric(ValueType value) : value(std::move(value)) { init(); }
   inline const ValueType& getValue() const { return value; }
+  
+  ~Numeric() override = default;
 
   // ------------------ Native methods ------------------
 
@@ -85,4 +91,13 @@ class Numeric : public Object {
   DEFINE_COMPARISON_OPERATOR(equals, ==, 'Equality')
   DEFINE_COMPARISON_OPERATOR(less, <, 'Less than')
   DEFINE_COMPARISON_OPERATOR(greater, >, 'Greater than')
+
+  // ------------------ Management methods ------------------
+  virtual Method::result_type abs(const std::vector<ObjectPtr>& params) {
+    if (params.size() != 0) {
+      throw std::runtime_error("abs: Invalid number of arguments");
+    }
+
+    return std::make_shared<Derived>(std::abs(this->value));
+  }
 };
