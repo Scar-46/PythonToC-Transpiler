@@ -58,13 +58,34 @@ class Tuple : public Collection<Tuple, std::vector> {       // TODO(Dwayne): var
     return std::make_shared<Tuple>(*this);
   };
 
+  bool equals(const Object& other) const override {
+    auto otherTuple = dynamic_cast<const Tuple*>(&other);
+    if (! otherTuple) { return false; }
+
+    return _elements == otherTuple->_elements;
+  }
+
+  bool less(const Object& other) const override {
+    auto otherTuple = dynamic_cast<const Tuple*>(&other);
+    if (! otherTuple) { return false; }
+
+    return this->_elements < otherTuple->_elements;
+  }
+
+  bool greater(const Object& other) const override {
+    auto otherTuple = dynamic_cast<const Tuple*>(&other);
+    if (! otherTuple) { return false; }
+
+    return this->_elements > otherTuple->_elements;
+  }
+
   // Return a tuple with elements from both tuples (self, then other's)
   ObjectPtr add(const Object& other) const override {
     auto otherTuple = dynamic_cast<const Tuple*>(&other);
 
      if (!otherTuple) {
-        std::cerr << "Invalid argument type, expected Tuple.\n";
-        return nullptr;
+      std::cerr << "Invalid argument type, expected Tuple.\n";
+      return nullptr;
     }
   
     std::vector<var> result = this->elements;
@@ -75,7 +96,8 @@ class Tuple : public Collection<Tuple, std::vector> {       // TODO(Dwayne): var
     return std::make_shared<Tuple>(result);
   }
 
-  // Access a given element on the tuple
+  
+  // Access a given element on the collection by index
   ObjectPtr subscript(const Object& other) const override {
     auto otherObj = dynamic_cast<const Integer*>(&other);
 
@@ -86,12 +108,12 @@ class Tuple : public Collection<Tuple, std::vector> {       // TODO(Dwayne): var
 
     std::size_t index = normalizeIndex(otherObj->getValue());
 
-    if (static_cast<size_t>(index) >= elements.size()) {
+    if (static_cast<size_t>(index) >= _elements.size()) {
       std::cerr << "Invalid index, out of bounds.\n";
       return nullptr; 
     }
 
-    return elements[index].getValue();
+    return _elements[index].getValue();
   }
 
   // ------------------ Management methods ------------------

@@ -21,10 +21,10 @@ class List : public Collection<List, std::vector> {
 
  public:
   // Default constructor
-  List() { this->init(); }
+  List() { init(); }
   
   // Copy constructor
-  List(const List& other) : Collection<List, std::vector>(other) { this->init(); }
+  List(const List& other) : Collection<List, std::vector>(other) { init(); }
   explicit List(const std::vector<var>& elements) : Collection<List, std::vector>(elements) { init(); }
   
   // Brace-list constructor
@@ -57,30 +57,50 @@ class List : public Collection<List, std::vector> {
     return std::make_shared<List>(*this);
   };
 
-  // Concatenate iself and another list
-  List operator+(const List& other) const {
-    List result = *this;  // Start with a copy of the current list
-    result._elements.insert(result._elements.end(), other._elements.begin(), other._elements.end());
-    return result;
+  bool equals(const Object& other) const override {
+    auto otherList = dynamic_cast<const List*>(&other);
+    if (! otherList) { return false; }
+
+    return _elements == otherList->_elements;
   }
 
-  // Add itself and another list
+  bool less(const Object& other) const override {
+    auto otherList = dynamic_cast<const List*>(&other);
+    if (! otherList) { return false; }
+
+    return this->_elements < otherList->_elements;
+  }
+
+  bool greater(const Object& other) const override {
+    auto otherList = dynamic_cast<const List*>(&other);
+    if (! otherList) { return false; }
+
+    return this->_elements > otherList->_elements;
+  }
+
+  // Return a list with elements from both list (self, then other's)
   ObjectPtr add(const Object& other) const override {
     auto otherList = dynamic_cast<const List*>(&other);
-     if (!otherList) {
-        throw std::invalid_argument("add method requires a List");
+     if (! otherList) {
+      std::cerr << "Invalid argument type, expected List.\n";
+      return nullptr;
     }
-    List result = *this + *otherList;
+
+    std::vector<var> result = this->_elements;
+    result.insert(
+      result.end(), otherList->_elements.begin(), otherList->_elements.end()
+    );
+
     return std::make_shared<List>(result);
   }
 
-  // Index-access element in list
+  // Access a given element on the collection by index
   ObjectPtr subscript(const Object& other) const override {
     auto otherObj = dynamic_cast<const Integer*>(&other);
 
     if (! otherObj) {
       std::cerr << "Invalid index type, expected Integer.\n";
-      return nullptr;
+      return nullptr; 
     }
 
     std::size_t index = normalizeIndex(otherObj->getValue());
@@ -90,7 +110,7 @@ class List : public Collection<List, std::vector> {
       return nullptr; 
     }
 
-    return _elements[index].operator->();
+    return _elements[index].getValue();
   }
 
   // ------------------ Management methods ------------------

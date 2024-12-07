@@ -1,3 +1,6 @@
+// Copyright (c) 2024 Syntax Errors.
+#pragma once
+
 #include <algorithm>
 #include <numeric>
 
@@ -68,20 +71,6 @@ class Collection : public Object {
 
     auto otherObj = dynamic_cast<const Collection<Derived, ContainerType>*>(&other);
     return this->_elements == otherObj->_elements;
-  }
-
-  virtual bool less(const Object& other) const override {
-    if (!isSameType(other)) { return false ;}
-
-    auto otherObj = dynamic_cast<const Collection<Derived, ContainerType>*>(&other);
-    return this->_elements < otherObj->_elements;
-  }
-
-  virtual bool greater(const Object& other) const override {
-    if (!isSameType(other)) { return false ;}
-
-    auto otherObj = dynamic_cast<const Collection<Derived, ContainerType>*>(&other);
-    return this->_elements > otherObj->_elements;
   }
 
   // ------------------ Management Methods ------------------
