@@ -1,107 +1,52 @@
 // Copyright (c) 2024 Syntax Errors.
 #pragma once
 
-#include <algorithm>
-#include <memory>
 #include <string>
-#include <tuple>
-#include <utility>
 
 #include "./Primitive.hpp"            // NOLINT
-#include "../Numeric/Integer.hpp"     // NOLINT
-#include "../Numeric/Double.hpp"      // NOLINT
-#include "../functions.hpp"           // NOLINT
 
 // String class
 class String : public Primitive<String, std::string> {
- private:
-  using Primitive::value;
+	private:
+		using Primitive::value;
 
-  void init() {
-    _methods["slice"] = std::bind(&String::slice, this, std::placeholders::_1);
-  }
+		void init();
 
- public:
-  explicit String(std::string value) : Primitive(std::move(value)) { init(); }
-  operator ObjectPtr() override{
-    return std::make_shared<String>(*this);
-  };
+ 	public:
+		explicit String(std::string value);
+		operator ObjectPtr();
 
-  ObjectPtr add(const Object& other) const override {
-    auto otherObj = dynamic_cast<const String*>(&other);
-    if (otherObj) {
-      return std::make_shared<String>(value + otherObj->getValue());
-    }
-    throw std::runtime_error("Cannot concat non string type");
-  }
+		ObjectPtr add(const Object& other) const override;
 
-  ObjectPtr subscript(const Object& other) const override {
-    auto otherObj = dynamic_cast<const Integer*>(&other);
-    if (otherObj) {
-      auto result = value[otherObj->getValue()];
-      return std::make_shared<String>(std::string(1, result));
-    }
-    throw std::runtime_error("Cannot Index with non integer type");
-  }
+		ObjectPtr subscript(const Object& other) const override;
 
-  String operator+(const String& other) {
-    return String(this->value + other.value);
-  }
+		String operator+(const String& other);
 
-  String operator+(const std::string& other) {
-    return String(this->value + other);
-  }
+		String operator+(const std::string& other);
 
-  String operator+(const char* other) {
-    return String(this->value + std::string(other));
-  }
+		String operator+(const char* other);
 
-  String operator+(const char other) {
-    return String(this->value + other);
-  }
+		String operator+(const char other);
 
-  explicit operator bool() const override {
-    return value.empty();
-  }
+		explicit operator bool() const override;
 
-  // Override iteration methods
-  class StringIterator : public Object::ObjectIterator {
-   private:
-    const std::string& str;
-    size_t currentIndex;
+		// Override iteration methods
+		class StringIterator : public Object::ObjectIterator {
+			private:
+				const std::string& str;
+				size_t currentIndex;
 
-   public:
-    explicit StringIterator(const std::string& str) : str(str), currentIndex(0) {}
+			public:
+				explicit StringIterator(const std::string& str);
 
-    bool hasNext() const override {
-      return currentIndex < str.size();
-    }
+				bool hasNext() const override;
 
-    ObjectPtr next() override {
-      if (!hasNext()) {
-        throw std::out_of_range("Iterator out of range");
-      }
-      // Wrap each character as a `String` object
-      return std::make_shared<String>(std::string(1, str[currentIndex++]));
-    }
+				ObjectPtr next() override;
 
-    ObjectIt clone() const override {
-        return std::make_unique<StringIterator>(*this);
-    }
-  };
+				ObjectIt clone() const override;
+		};
 
-  ObjectIt getIterator() const override {
-    return std::make_unique<StringIterator>(value);
-  }
+		ObjectIt getIterator() const override;
 
-  Method::result_type slice(const std::vector<ObjectPtr>& params) {
-    return generalizedSlice(
-      this->value,
-      params,
-      [](std::string& result, const char& element) { result += element; },
-      [](const std::string& resultContainer) {
-        return std::make_shared<String>(resultContainer);
-      }
-    );    // NOLINT
-  }
+		Method::result_type slice(const std::vector<ObjectPtr>& params);
 };
