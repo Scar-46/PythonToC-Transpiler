@@ -31,6 +31,17 @@ int main() {
     std::cout << "Item: " << item << std::endl;
   }
 
+  // Set
+  var set = Set();
+  set->Call("add", {Integer(0)});
+  set->Call("add", {Integer(100)});
+  set->Call("add", {String("Zero")});
+  set->Call("add", {String("Hundred")});
+
+  for (const auto& item : set) {
+    std::cout << "Set item: " << item << std::endl;
+  }
+
   if (auto val = var(list->Call("has", {string.getValue()}))) {
     std::cout << "Found! " << val << std::endl;
   } else {
