@@ -1,10 +1,10 @@
 // Copyright (c) 2024 Syntax Errors.
 
 #include "./var.hpp"
-#include "./Boolean/Boolean.hpp"
-#include "./Numeric/Double.hpp"
-#include "./Numeric/Integer.hpp"
-#include "./String/String.hpp"
+#include "../Numeric/Double.hpp"
+#include "../Numeric/Integer.hpp"
+#include "../Primitive/Boolean.hpp"
+#include "../Primitive/String.hpp"
 
 // ------------------ var ------------------
 var::var() : value(nullptr) {}

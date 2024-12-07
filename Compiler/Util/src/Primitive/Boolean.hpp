@@ -2,17 +2,17 @@
 #pragma once
 
 #include <memory>
-#include "../Object/object.hpp"
+#include "./Primitive.hpp"
 
 // Boolean class
-class Boolean : public BaseObject<Boolean, bool> {
+class Boolean : public Primitive<Boolean, bool> {
  private:
   // using BaseObject::BaseObject;
 
  public:
-  explicit Boolean(bool value) : BaseObject(value) {}
+  explicit Boolean(bool value) : Primitive(value) {}
 
-  operator ObjectPtr() override{
+  operator ObjectPtr() override {
     return std::make_shared<Boolean>(*this);
   };
 

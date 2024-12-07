@@ -7,22 +7,22 @@
 #include <tuple>
 #include <utility>
 
-#include "../Object/object.hpp"       // NOLINT
+#include "./Primitive.hpp"            // NOLINT
 #include "../Numeric/Integer.hpp"     // NOLINT
-#include "../Numeric/Double.hpp"       // NOLINT
+#include "../Numeric/Double.hpp"      // NOLINT
 #include "../functions.hpp"           // NOLINT
 
 // String class
-class String : public BaseObject<String, std::string> {
+class String : public Primitive<String, std::string> {
  private:
-  using BaseObject::value;
+  using Primitive::value;
 
   void init() {
     _methods["slice"] = std::bind(&String::slice, this, std::placeholders::_1);
   }
 
  public:
-  explicit String(std::string value) : BaseObject(std::move(value)) { init(); }
+  explicit String(std::string value) : Primitive(std::move(value)) { init(); }
   operator ObjectPtr() override{
     return std::make_shared<String>(*this);
   };

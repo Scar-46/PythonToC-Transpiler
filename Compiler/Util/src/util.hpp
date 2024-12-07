@@ -6,8 +6,8 @@
 
 #include "./Object/var.hpp"
 #include "./Object/object.hpp"
-#include "./Boolean/Boolean.hpp"
-#include "./String/String.hpp"
+#include "./Primitive/Boolean.hpp"
+#include "./Primitive/String.hpp"
 #include "./Numeric/Numeric.hpp"
 #include "./Numeric/Integer.hpp"
 #include "./Numeric/Double.hpp"
