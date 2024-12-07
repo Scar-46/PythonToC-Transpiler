@@ -197,15 +197,15 @@ class CodeGenerator():
 
         if operator_node.value == "in":
             code_strs.append(temp_code2)
-            code_strs.append(self.emit(".has(", add_newline=False))
+            code_strs.append(self.emit("->Call(\"has\", {", add_newline=False))
             code_strs.append(temp_code1)
-            code_strs.append(")")
+            code_strs.append("})")
         elif operator_node.value == "not in":
             code_strs.append("!")
             code_strs.append(temp_code2)
-            code_strs.append(self.emit(".has(", add_newline=False))
+            code_strs.append(self.emit("->Call(\"has\", {", add_newline=False))
             code_strs.append(temp_code1)
-            code_strs.append(")")
+            code_strs.append("})")
         else:
             code_strs.append(temp_code1)
             code_strs.append(self.emit(f" {operator_node.value} ", add_newline=False))
@@ -302,7 +302,11 @@ class CodeGenerator():
     
     def visit_unary_operation(self, node):
         operator = node.value
-        operand_code = self.visit(node.children[0])
+        if operator == "-" and node.children[0].node_type == "number":
+            operand_code = self.emit(node.children[0].value)
+            return self.emit(f"Double({operator}{operand_code})", add_newline=False)
+        else:
+            operand_code = self.visit(node.children[0])
         return self.emit(f"{operator}{operand_code}", add_newline=False)
 
 #//////////////////////// Structures Methods ////////////////////////
@@ -368,7 +372,7 @@ class CodeGenerator():
             return self.emit(str(node.value).lower(), add_newline=False)
 
     def visit_number(self, node):
-        return self.emit(str(node.value), add_newline=False)
+        return self.emit("Double(" + str(node.value) + ")", add_newline=False)
 
     def visit_string(self, node):
         escaped_string = node.value.replace('"', '\\"')  # Escape double quotes
