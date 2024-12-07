@@ -5,21 +5,18 @@
 
 // Implement orphan built in functions
 namespace Builtin {
-  var abs(const std::vector<var>& params) {
-    if (params.size() != 1) {
-      std::cerr << "abs: Invalid number of arguments\n";
-      return nullptr;
-    }
+  // Get absolute value of number
+  var abs(const std::vector<var>& params);
 
-    return params[0]->Call("__abs__", {});
-  }
+  // Get rounded number
+  var round(const std::vector<var>& params);
 
-  var round(const std::vector<var>& params) {
-    if (params.size() != 1) {
-      std::cerr << "abs: Invalid number of arguments\n";
-      return nullptr;
-    }
+  // Get power from base raised to power, modulo
+  var pow(const std::vector<var>& params);
 
-    return params[0]->Call("__round__", {});
-  }
+  // Get interpretation as integer number
+  var asInteger(const std::vector<var>& params);
+
+  // Get interpretation as double-precision floating point number
+  var asDouble(const std::vector<var>& params);
 }

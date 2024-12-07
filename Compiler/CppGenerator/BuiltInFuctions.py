@@ -8,17 +8,18 @@ BUILTIN_FUNCTIONS = {
     "sum": lambda args: f"Builtin::sum({', '.join(f"{arg}" for arg in args)})",
     "min": lambda args: f"Builtin::min({', '.join(f"{arg}" for arg in args)})",
     "max": lambda args: f"Builtin::max({', '.join(f"{arg}" for arg in args)})",
-    "sorted": lambda args: f"std::sort(std::begin({args[0]}), std::end({args[0]}))", # TODO
+    # TODO: Implement threeway comparison between objects of all types to sort containers
+    # "sorted": lambda args: f"std::sort(std::begin({args[0]}), std::end({args[0]}))",
 
     # Mathematical Functions
-    "abs": lambda args: f"std::abs({args[0]})",
-    "round": lambda args: f"std::round({args[0]})",
-    "pow": lambda args: f"std::pow({args[0]}, {args[1]})",
+    "abs": lambda args: f"Builtin::abs({', '.join(f"{arg}" for arg in args)})",
+    "round": lambda args: f"Builtin::round({', '.join(f"{arg}" for arg in args)})",
+    "pow": lambda args: f"Builtin::pow({', '.join(f"{arg}" for arg in args)})",
 
     # Type Conversion Functions
     "str": lambda args: f"std::to_string({args[0]})",
-    "int": lambda args: f"static_cast<int>({args[0]})",
-    "float": lambda args: f"static_cast<float>({args[0]})",
+    "int": lambda args: f"Builtin::asInteger({', '.join(f"{arg}" for arg in args)})",
+    "float": lambda args: f"Builtin::asDouble({', '.join(f"{arg}" for arg in args)})",
 
     # Built-in types' constructors
     "dict": lambda args: f"Map({', '.join(f"{arg}" for arg in args)})",
