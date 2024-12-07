@@ -17,58 +17,22 @@ class Tuple : public Object {       // TODO(Dwayne): var needs to be able to get
     if (index < 0) {
       index += (elements.size());
     }
-    if (index < 0 || static_cast<size_t>(index) >= elements.size()) {
-      throw std::out_of_range("Index out of bounds");
-    }
+
     return static_cast<size_t>(index);
   }
 
+  void init() override {
+    _methods["__len__"] = std::bind(&Tuple::len, this, std::placeholders::_1);
+  }
+
  public:
-  Tuple() = default;
-  template <typename... Args>
-  explicit Tuple(Args&&... args) : elements{var(std::forward<Args>(args))...} {}
-  Tuple(std::initializer_list<var> initList) : elements(initList) {}
+  Tuple() { init(); };
+  Tuple(const std::vector<var>& vars) : elements(vars) { init(); };
+  Tuple(std::initializer_list<var> initList) : elements(initList) { init(); }
 
-  // ------------------ Overrides ------------------
-  operator ObjectPtr() override{
-    return std::make_shared<Tuple>(*this);
-  };
+  // ------------------ Native overrides ------------------
 
-  // add Operator
-  ObjectPtr add(const Object& other) const override {
-    auto otherTuple = dynamic_cast<const Tuple*>(&other);
-     if (!otherTuple) {
-        throw std::invalid_argument("add method requires a Tuple");
-    }
-    Tuple result = *this + *otherTuple;
-    return std::make_shared<Tuple>(result);
-  }
-
-  // Override the subscript method to indexation
-  ObjectPtr subscript(const Object& other) const override {
-    // Attempt to cast the 'other' object to an Integer
-    auto otherObj = dynamic_cast<const Integer*>(&other);
-
-    if (otherObj) {
-      int index = otherObj->getValue();  // Assuming 'getValue' gets the integer value of the index
-      return elements[normalizeIndex(index)].operator->();
-    } else {
-      // Handle the case where 'other' is not an Integer (throw an exception, or return a default value)
-      std::cerr << "Invalid index type, expected Integer.\n";
-      return nullptr;  // Or throw an exception
-    }
-  }
-
-  // Override the equals method to compare tuples
-  bool equals(const Object& other) const override {
-    auto otherTuple = dynamic_cast<const Tuple*>(&other);
-    if (!otherTuple) {
-      return false;
-    }
-    return elements == otherTuple->elements;
-  }
-
-  // Override print to display tuple contents
+  // Print contents
   void print(std::ostream& os) const override {
     os << "(";
     for (size_t i = 0; i < elements.size(); ++i) {
@@ -80,39 +44,93 @@ class Tuple : public Object {       // TODO(Dwayne): var needs to be able to get
     os << ")";
   }
 
-  // Override clone to copy the tuple
+  // Clone self
   ObjectPtr clone() const override {
     return std::make_shared<Tuple>(*this);
   }
 
-  // ------------------ Tuple Methods ------------------
-  var getElement(size_t index) const {
-    if (index >= elements.size()) {
-      std::cerr << "Index out of bounds\n";
-      return var();
+  // ------------------ Native operators ------------------
+
+  operator ObjectPtr() override{
+    return std::make_shared<Tuple>(*this);
+  };
+
+  // Return a tuple with elements from both tuples (self, then other's)
+  ObjectPtr add(const Object& other) const override {
+    auto otherTuple = dynamic_cast<const Tuple*>(&other);
+
+     if (!otherTuple) {
+        std::cerr << "Invalid argument type, expected Tuple.\n";
+        return nullptr;
     }
-    return elements[index];
+  
+    std::vector<var> result = this->elements;
+    result.insert(
+      result.end(), otherTuple->elements.begin(), otherTuple->elements.end()
+    );
+
+    return std::make_shared<Tuple>(result);
   }
 
-  size_t size() const {
-    return elements.size();
+  // Access a given element on the tuple
+  ObjectPtr subscript(const Object& other) const override {
+    auto otherObj = dynamic_cast<const Integer*>(&other);
+
+    if (! otherObj) {
+      std::cerr << "Invalid index type, expected Integer.\n";
+      return nullptr; 
+    }
+
+    std::size_t index = normalizeIndex(otherObj->getValue());
+
+    if (static_cast<size_t>(index) >= elements.size()) {
+      std::cerr << "Invalid index, out of bounds.\n";
+      return nullptr; 
+    }
+
+    return elements[index].getValue();
   }
 
-  // ------------------ Operator Overloading ------------------
+  // Check if items in tuple match exactly those in another's (respecting order)
+  bool equals(const Object& other) const override {
+    auto otherTuple = dynamic_cast<const Tuple*>(&other);
+    if (!otherTuple) {
+      return false;
+    }
 
-  // Overload the [] operator to access elements by index
-  var operator[](int index) const {
-    return elements[normalizeIndex(index)];
+    return elements == otherTuple->elements;
   }
 
-  // Overload the + operator to concatenate two tuples
-  Tuple operator+(const Tuple& other) const {
-    Tuple result = *this;  // Start with a copy of the current tuples
-    result.elements.insert(result.elements.end(), other.elements.begin(), other.elements.end());
-    return result;
+  // ------------------ Management methods ------------------
+
+  // Return index of first ocurrence of element
+  Method::result_type index(const std::vector<ObjectPtr>& params) {
+    if (params.size() != 1) {
+      throw std::runtime_error("index: Invalid number of arguments");
+    }
+
+    var query = params[0];
+    for (size_t i = 0; i < elements.size(); ++i) {
+      if (elements[i] == query) {
+        return std::make_shared<Integer>(i);
+      }
+    }
+
+    std::cerr << "index: Value missing from list\n"; 
+    return nullptr;
+  }
+
+  // Amount of elements in tuple
+  Method::result_type len(const std::vector<ObjectPtr>& params) {
+    if (params.size() != 0) {
+      throw std::runtime_error("__len__: Invalid number of arguments");
+    }
+
+    return std::make_shared<Integer>(elements.size());
   }
 
   // ------------------ Iterator ------------------
+
   class TupleIterator : public Object::ObjectIterator {
    private:
     const Tuple& _tuple;
@@ -121,13 +139,14 @@ class Tuple : public Object {       // TODO(Dwayne): var needs to be able to get
     explicit TupleIterator(const Tuple& tuple) : _tuple(tuple), _currentIndex(0) {}
 
     bool hasNext() const override {
-      return _currentIndex < _tuple.size();
+      return _currentIndex < _tuple.elements.size();
     }
 
     ObjectPtr next() override {
       if (!this->hasNext()) {
         throw std::out_of_range("Iterator out of range");
-    }
+      }
+
       return _tuple.elements[_currentIndex++].getValue();
     }
 
@@ -136,7 +155,6 @@ class Tuple : public Object {       // TODO(Dwayne): var needs to be able to get
     }
   };
 
-  // Override iteration methods
   ObjectIt getIterator() const override {
     return std::make_unique<TupleIterator>(*this);
   }
