@@ -30,9 +30,9 @@ class List : public Object {
     _methods["append"] = std::bind(&List::append, this, std::placeholders::_1);
     _methods["insert"] = std::bind(&List::insert, this, std::placeholders::_1);
     _methods["clear"] = std::bind(&List::clear, this, std::placeholders::_1);
-    _methods["has"] = std::bind(&List::has, this, std::placeholders::_1);
+    _methods["index"] = std::bind(&List::index, this, std::placeholders::_1);
     _methods["slice"] = std::bind(&List::slice, this, std::placeholders::_1);
-    _methods["size"] = std::bind(&List::size, this, std::placeholders::_1);
+    _methods["__len__"] = std::bind(&List::len, this, std::placeholders::_1);
   }
 
  public:
@@ -153,7 +153,7 @@ class List : public Object {
 
     var element = params[1];
 
-    if (pos->getValue() < 0 || pos->getValue() > elements.size()) {
+    if (pos->getValue() < 0 || static_cast<std::size_t>(pos->getValue()) > elements.size()) {
       std::cerr << "Position out of bounds\n";
       return nullptr;
     }
@@ -162,32 +162,30 @@ class List : public Object {
     return nullptr;
   }
 
-  // Get amount of elements
-  Method::result_type size(const std::vector<ObjectPtr>& params) {
+  // Amount of elements in list
+  Method::result_type len(const std::vector<ObjectPtr>& params) {
     if (params.size() != 0) {
-      throw std::runtime_error("size: Invalid number of arguments");
+      throw std::runtime_error("__len__: Invalid number of arguments");
     }
 
     return std::make_shared<Integer>(elements.size());
   }
 
-  // Scan for element
-  Method::result_type has(const std::vector<ObjectPtr>& params) {
+  // Return index of first ocurrence of element
+  Method::result_type index(const std::vector<ObjectPtr>& params) {
     if (params.size() != 1) {
-      throw std::runtime_error("has: Invalid number of arguments");
+      throw std::runtime_error("index: Invalid number of arguments");
     }
 
-    ObjectPtr queryPtr = params[0];
-    if (!queryPtr) return std::make_shared<Boolean>(false);
-
-    auto query = var(queryPtr);
-    for (const auto& element : elements) {
-      if (element == query) {
-        return std::make_shared<Boolean>(true);
+    var query = params[0];
+    for (size_t i = 0; i < elements.size(); ++i) {
+      if (elements[i] == query) {
+        return std::make_shared<Integer>(i);
       }
     }
 
-    return std::make_shared<Boolean>(false);
+    std::cerr << "index: Value missing from list\n"; 
+    return nullptr;
   }
 
   // Return sliced list
