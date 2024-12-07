@@ -25,6 +25,9 @@ class Map : public Object {
     _methods["clear"] = std::bind(&Map::clear, this, std::placeholders::_1);
     _methods["get"] = std::bind(&Map::get, this, std::placeholders::_1);
     _methods["__len__"] = std::bind(&Map::len, this, std::placeholders::_1);
+    _methods["__min__"] = std::bind(&Map::min, this, std::placeholders::_1);
+    _methods["__max__"] = std::bind(&Map::max, this, std::placeholders::_1);
+    _methods["__sum__"] = std::bind(&Map::sum, this, std::placeholders::_1);
   }
 
  public:
@@ -171,15 +174,6 @@ class Map : public Object {
     return elements.size();
   }
 
-  // Amount of key-value entries in the map
-  Method::result_type len(const std::vector<ObjectPtr>& params) {
-    if (params.size() != 0) {
-      throw std::runtime_error("__len__: Invalid number of arguments");
-    }
-
-    return std::make_shared<Integer>(elements.size());
-  }
-
   // Returns a list of all keys in the map
   Method::result_type keys(const std::vector<ObjectPtr>& params) {
     if (params.size() != 0) {
@@ -235,6 +229,58 @@ class Map : public Object {
     
     std::cerr << "get: Key not found\n";
     return nullptr;
+  }
+
+  // Amount of key-value entries in the map
+  Method::result_type len(const std::vector<ObjectPtr>& params) {
+    if (params.size() != 0) {
+      throw std::runtime_error("__len__: Invalid number of arguments");
+    }
+
+    return std::make_shared<Integer>(elements.size());
+  }
+
+  // Smallest key in map
+  Method::result_type min(const std::vector<ObjectPtr>& params) {
+    if (params.size() != 0) {
+      throw std::runtime_error("__min__: Invalid number of arguments");
+    }
+
+    auto lesserSlot = std::min_element(std::begin(elements), std::end(elements));
+    if (lesserSlot == elements.end()) {
+      return nullptr;
+    }
+
+    return std::make_shared<Integer>(elements.size());
+  }
+
+  // Greatest key in map
+  Method::result_type max(const std::vector<ObjectPtr>& params) {
+    if (params.size() != 0) {
+      throw std::runtime_error("__max__: Invalid number of arguments");
+    }
+
+    auto greatestSlot = std::max_element(std::begin(elements), std::end(elements));
+    if (greatestSlot == elements.end()) {
+      return nullptr;
+    }
+
+    return std::make_shared<Integer>(elements.size());
+  }
+
+  // Sum of all keys in the map
+  virtual Method::result_type sum(const std::vector<ObjectPtr>& params) {
+    if (params.size() != 0) {
+      throw std::runtime_error("__sum__: Invalid number of arguments");
+    }
+
+    var result = Integer(0);
+
+    for (const auto& kv : elements) {
+      result = result->add(kv.first);
+    }
+
+    return result.getValue();
   }
 
   // ------------------ Iterator ------------------
