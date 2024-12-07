@@ -150,7 +150,7 @@ class CodeGenerator():
             code_strs.append(self.emit(f"this->{node.value}", add_newline=False))
         else:
             code_strs.append(self.visit(node.children[0]))
-            code_strs.append(self.emit(f".{node.value}", add_newline=False))
+            code_strs.append(self.emit(f"->Call(\" {node.value}\", ", add_newline=False))
         return ''.join(code_strs)
 
 #------------------------ IF ------------------------
@@ -197,15 +197,15 @@ class CodeGenerator():
 
         if operator_node.value == "in":
             code_strs.append(temp_code2)
-            code_strs.append(self.emit(".has(", add_newline=False))
+            code_strs.append(self.emit("->Call(\"has\", {", add_newline=False))
             code_strs.append(temp_code1)
-            code_strs.append(")")
+            code_strs.append("})")
         elif operator_node.value == "not in":
             code_strs.append("!")
             code_strs.append(temp_code2)
-            code_strs.append(self.emit(".has(", add_newline=False))
+            code_strs.append(self.emit("->Call(\"has\", {", add_newline=False))
             code_strs.append(temp_code1)
-            code_strs.append(")")
+            code_strs.append("})")
         else:
             code_strs.append(temp_code1)
             code_strs.append(self.emit(f" {operator_node.value} ", add_newline=False))
@@ -272,6 +272,13 @@ class CodeGenerator():
                     add_newline=False
                 )
             )
+        elif node.children[0].node_type == "attribute_access":
+            code_strs.append(self.visit(node.children[0])) # Resolve function call
+            code_strs.append(self.emit("{", add_newline=False))
+            if len(node.children) > 1:  # Arguments
+                code_strs.append(self.visit(node.children[1]))
+            code_strs.append(self.emit("})", add_newline=False))
+        
         # Otherwise, let the built-in function visitor handle the function call
         else:
             code_strs.append(self.visit(node.children[0])) # Resolve function call
@@ -302,7 +309,11 @@ class CodeGenerator():
     
     def visit_unary_operation(self, node):
         operator = node.value
-        operand_code = self.visit(node.children[0])
+        if operator == "-" and node.children[0].node_type == "number":
+            operand_code = self.emit(node.children[0].value)
+            return self.emit(f"Double({operator}{operand_code})", add_newline=False)
+        else:
+            operand_code = self.visit(node.children[0])
         return self.emit(f"{operator}{operand_code}", add_newline=False)
 
 #//////////////////////// Structures Methods ////////////////////////
@@ -368,7 +379,7 @@ class CodeGenerator():
             return self.emit(str(node.value).lower(), add_newline=False)
 
     def visit_number(self, node):
-        return self.emit(str(node.value), add_newline=False)
+        return self.emit("Double(" + str(node.value) + ")", add_newline=False)
 
     def visit_string(self, node):
         escaped_string = node.value.replace('"', '\\"')  # Escape double quotes
@@ -406,9 +417,9 @@ class CodeGenerator():
 
     def visit_subscript(self, node):
         code_strs = [self.visit(node.children[0])]  # Identifier
-        code_strs.append(self.emit("[", add_newline=False))
+        code_strs.append(self.emit("->Call(\"slice\", {", add_newline=False))
         code_strs.append(self.visit(node.children[1]))  # Slice
-        code_strs.append(self.emit("]", add_newline=False))
+        code_strs.append(self.emit("})", add_newline=False))
         return ''.join(code_strs)
 
     def visit_slice(self, node):  # TODO: Adjust for C++ style
