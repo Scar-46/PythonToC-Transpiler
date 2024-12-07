@@ -6,55 +6,40 @@
 #include <utility>
 #include <vector>
 
-#include "../Object/object.hpp"
-#include "../Object/var.hpp"
-#include "../Integer/Integer.hpp"
-
+#include "../Collections/Collection.hpp"
 #include "../functions.hpp"
 
-class List : public Object {
+class List : public Collection<List, std::vector> {
  private:
-  std::vector<var> elements;
 
-  size_t normalizeIndex(int index) const {
-    if (index < 0) {
-      index += (elements.size());
-    }
-    if (index < 0 || static_cast<size_t>(index) > elements.size()) {
-      throw std::out_of_range("Index out of bounds");
-    }
-    return static_cast<size_t>(index);
-  }
-
-  void init() override {
+  void init() {
     _methods["append"] = std::bind(&List::append, this, std::placeholders::_1);
     _methods["insert"] = std::bind(&List::insert, this, std::placeholders::_1);
-    _methods["clear"] = std::bind(&List::clear, this, std::placeholders::_1);
     _methods["index"] = std::bind(&List::index, this, std::placeholders::_1);
     _methods["slice"] = std::bind(&List::slice, this, std::placeholders::_1);
-    _methods["__len__"] = std::bind(&List::len, this, std::placeholders::_1);
   }
 
  public:
-  List() : Object() { this->init(); }
+  // Default constructor
+  List() { this->init(); }
   
   // Copy constructor
-  List(const List& other) : Object(other), elements(other.elements) {
-      this->init();  // Initialize methods for the new object
-  }
-  template <typename... Args>
-  implicit List(Args&&... args) : elements{var(std::forward<Args>(args))...} { init(); }
-  List(std::initializer_list<var> initList) : elements(initList) { init(); }
-  explicit List(std::vector<var> elements) : elements(elements) { init(); }
+  List(const List& other) : Collection<List, std::vector>(other) { this->init(); }
+  explicit List(const std::vector<var>& elements) : Collection<List, std::vector>(elements) { init(); }
+  
+  // Brace-list constructor
+  List(std::initializer_list<var> initList) : Collection<List, std::vector>(initList) { init(); }
+
+  virtual ~List() override = default;
 
   // ------------------ Native overrides -----------------
 
   // Print list contents
   void print(std::ostream& os) const override {
     os << "[";
-    for (size_t i = 0; i < elements.size(); ++i) {
-      os << elements[i];
-      if (i < elements.size() - 1) {
+    for (size_t i = 0; i < _elements.size(); ++i) {
+      os << _elements[i];
+      if (i < _elements.size() - 1) {
         os << ", ";
       }
     }
@@ -68,10 +53,14 @@ class List : public Object {
 
   // ------------------ Native operators ------------------
 
+  operator ObjectPtr() override {
+    return std::make_shared<List>(*this);
+  };
+
   // Concatenate iself and another list
   List operator+(const List& other) const {
     List result = *this;  // Start with a copy of the current list
-    result.elements.insert(result.elements.end(), other.elements.begin(), other.elements.end());
+    result._elements.insert(result._elements.end(), other._elements.begin(), other._elements.end());
     return result;
   }
 
@@ -87,26 +76,21 @@ class List : public Object {
 
   // Index-access element in list
   ObjectPtr subscript(const Object& other) const override {
-    // Attempt to cast the 'other' object to an Integer
     auto otherObj = dynamic_cast<const Integer*>(&other);
 
-    if (otherObj) {
-      int index = otherObj->getValue();  // Assuming 'getValue' gets the integer value of the index
-      return elements[normalizeIndex(index)].operator->();
-    } else {
-      // Handle the case where 'other' is not an Integer (throw an exception, or return a default value)
+    if (! otherObj) {
       std::cerr << "Invalid index type, expected Integer.\n";
-      return nullptr;  // Or throw an exception
+      return nullptr;
     }
-  }
 
-  // Compare contents of self with another list
-  bool equals(const Object& other) const override {
-    auto otherList = dynamic_cast<const List*>(&other);
-    if (!otherList) {
-      throw std::invalid_argument("add method requires a List");
+    std::size_t index = normalizeIndex(otherObj->getValue());
+
+    if (static_cast<size_t>(index) >= _elements.size()) {
+      std::cerr << "Invalid index, out of bounds.\n";
+      return nullptr; 
     }
-    return elements == otherList->elements;
+
+    return _elements[index].operator->();
   }
 
   // ------------------ Management methods ------------------
@@ -118,18 +102,8 @@ class List : public Object {
     }
 
     ObjectPtr element = params[0];
-    if (element) elements.push_back(element->clone());
+    if (element) _elements.push_back(element->clone());
 
-    return nullptr;
-  }
-
-  // Remove all elements in list
-  Method::result_type clear(const std::vector<ObjectPtr>& params) {
-    if (params.size() != 0) {
-      throw std::runtime_error("clear: Invalid number of arguments");
-    }
-
-    elements.clear();
     return nullptr;
   }
 
@@ -151,24 +125,11 @@ class List : public Object {
       return nullptr;
     }
 
+    std::size_t index = normalizeIndex(pos->getValue());
     var element = params[1];
 
-    if (pos->getValue() < 0 || static_cast<std::size_t>(pos->getValue()) > elements.size()) {
-      std::cerr << "Position out of bounds\n";
-      return nullptr;
-    }
-
-    elements.insert(pos->getValue() + elements.begin(), element);
+    _elements.insert(_elements.begin() + index, element);
     return nullptr;
-  }
-
-  // Amount of elements in list
-  Method::result_type len(const std::vector<ObjectPtr>& params) {
-    if (params.size() != 0) {
-      throw std::runtime_error("__len__: Invalid number of arguments");
-    }
-
-    return std::make_shared<Integer>(elements.size());
   }
 
   // Return index of first ocurrence of element
@@ -178,8 +139,8 @@ class List : public Object {
     }
 
     var query = params[0];
-    for (size_t i = 0; i < elements.size(); ++i) {
-      if (elements[i] == query) {
+    for (size_t i = 0; i < _elements.size(); ++i) {
+      if (_elements[i] == query) {
         return std::make_shared<Integer>(i);
       }
     }
@@ -191,7 +152,7 @@ class List : public Object {
   // Return sliced list
   Method::result_type slice(const std::vector<ObjectPtr>& params) {
     return generalizedSlice(
-      this->elements,
+      this->_elements,
       params,
       [](std::vector<var>& result, const var& element) { result.push_back(element); },
       [](const std::vector<var>& resultContainer) {
@@ -211,14 +172,14 @@ class List : public Object {
     explicit ListIterator(const List& list) : _list(list), _currentIndex(0) {}
 
     bool hasNext() const override {
-      return _currentIndex < _list.elements.size();
+      return _currentIndex < _list._elements.size();
     }
 
     ObjectPtr next() override {
       if (!this->hasNext()) {
         throw std::out_of_range("Iterator out of range");
     }
-      return _list.elements[_currentIndex++].getValue();
+      return _list._elements[_currentIndex++].getValue();
     }
 
     ObjectIt clone() const override {
