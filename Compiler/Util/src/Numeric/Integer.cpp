@@ -2,7 +2,7 @@
 #include "./Integer.hpp"
 #include "./Double.hpp"
 
-Integer::Integer(int32_t value) : BaseNumeric(value) {}
+Integer::Integer(int32_t value) : Numeric(value) {}
 
 Integer::operator ObjectPtr(){
     return std::make_shared<Integer>(*this);

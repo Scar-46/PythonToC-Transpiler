@@ -39,13 +39,13 @@
 
 // Base template class for numeric objects
 template <typename Derived, typename ValueType>
-class BaseNumeric : public Object {
+class Numeric : public Object {
  protected:
   ValueType value;
 
  public:
-  explicit BaseNumeric(ValueType value) : value(std::move(value)) {}
-  ~BaseNumeric() override = default;
+  explicit Numeric(ValueType value) : value(std::move(value)) {}
+  ~Numeric() override = default;
   inline const ValueType& getValue() const { return value; }
 
   // ------------------ Native methods ------------------

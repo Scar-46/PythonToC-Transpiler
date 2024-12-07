@@ -5,7 +5,7 @@
 
 // Integer class
 // TODO(Dwayne): Implement like division.
-class Integer : public BaseNumeric<Integer, int32_t> {
+class Integer : public Numeric<Integer, int32_t> {
 	public:
 		explicit Integer(int32_t value);
 
