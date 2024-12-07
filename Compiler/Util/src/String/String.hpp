@@ -94,7 +94,7 @@ class String : public BaseObject<String, std::string> {
     return std::make_unique<StringIterator>(value);
   }
 
-  ObjectPtr slice(std::initializer_list<ObjectPtr> params) {
+  Method::result_type slice(const std::vector<ObjectPtr>& params) {
     return generalizedSlice(
       this->value,
       params,
