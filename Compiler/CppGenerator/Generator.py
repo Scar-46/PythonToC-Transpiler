@@ -417,9 +417,9 @@ class CodeGenerator():
 
     def visit_subscript(self, node):
         code_strs = [self.visit(node.children[0])]  # Identifier
-        code_strs.append(self.emit("[", add_newline=False))
+        code_strs.append(self.emit("->Call(\"slice\", {", add_newline=False))
         code_strs.append(self.visit(node.children[1]))  # Slice
-        code_strs.append(self.emit("]", add_newline=False))
+        code_strs.append(self.emit("})", add_newline=False))
         return ''.join(code_strs)
 
     def visit_slice(self, node):  # TODO: Adjust for C++ style
