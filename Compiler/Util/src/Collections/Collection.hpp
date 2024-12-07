@@ -142,7 +142,7 @@ class Collection : public Object {
 
     auto lesserSlot = std::min_element(std::begin(_elements), std::end(_elements));
     if (lesserSlot == _elements.end()) {
-        return nullptr;
+      return nullptr;
     }
 
     return lesserSlot->getValue();
