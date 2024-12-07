@@ -16,6 +16,7 @@ class Set : public Object {
     _methods["union"] = std::bind(&Set::unionW, this, std::placeholders::_1);
     _methods["intersection"] = std::bind(&Set::intersectionW, this, std::placeholders::_1);
     _methods["difference"] = std::bind(&Set::differenceW, this, std::placeholders::_1);
+    _methods["__len__"] = std::bind(&Set::len, this, std::placeholders::_1);
   }
 
  public:
@@ -100,6 +101,15 @@ class Set : public Object {
 
     elements.clear();
     return nullptr;
+  }
+
+  // Amount of elements in the set
+  Method::result_type len(const std::vector<ObjectPtr>& params) {
+    if (params.size() != 0) {
+      throw std::runtime_error("__len__: Invalid number of arguments");
+    }
+
+    return std::make_shared<Integer>(elements.size());
   }
 
   // Return union of self and another set
