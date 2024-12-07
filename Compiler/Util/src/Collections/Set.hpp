@@ -1,37 +1,39 @@
-#pragma once
 // Copyright (c) 2024 Syntax Errors.
-#include "./Object/object.hpp"
-#include "./Object/var.hpp"
+#pragma once
+
 #include <unordered_set>
+#include "../Collections/Collection.hpp"
 
-class Set : public Object {
- private:
-  std::unordered_set<var> elements;
-
-  void init() override {
-    _methods["add"] = std::bind(&Set::add, this, std::placeholders::_1);
-    _methods["remove"] = std::bind(&Set::remove, this, std::placeholders::_1);
-    _methods["pop"] = std::bind(&Set::pop, this, std::placeholders::_1);
-    _methods["clear"] = std::bind(&Set::clear, this, std::placeholders::_1);
-    _methods["union"] = std::bind(&Set::unionW, this, std::placeholders::_1);
-    _methods["intersection"] = std::bind(&Set::intersectionW, this, std::placeholders::_1);
-    _methods["difference"] = std::bind(&Set::differenceW, this, std::placeholders::_1);
-    _methods["__len__"] = std::bind(&Set::len, this, std::placeholders::_1);
-  }
+class Set : public Collection<Set, std::unordered_set> {
+  private:
+    void init() {
+      _methods["add"] = std::bind(&Set::add, this, std::placeholders::_1);
+      _methods["union"] = std::bind(&Set::unionW, this, std::placeholders::_1);
+      _methods["intersection"] = std::bind(&Set::intersectionW, this, std::placeholders::_1);
+      _methods["difference"] = std::bind(&Set::differenceW, this, std::placeholders::_1);
+    }
 
  public:
-  Set() { this->init(); };
-  Set(const std::unordered_set<var>& set): elements(set) { this->init(); };
-  Set(const Set& other) : Object(other), elements(other.elements) { this->init(); };
+  // Default constructor
+  Set() { init(); };
+
+  // Copy-constructor
+  Set(const Set& other) : Collection<Set, std::unordered_set>(other) { init(); };
+  Set(const std::unordered_set<var>& elements): Collection<Set, std::unordered_set>(elements) { init(); };
+
+  // Brace-list constructor
+  Set(std::initializer_list<var> initList) : Collection<Set, std::unordered_set>(initList) { init(); }
+
+  virtual ~Set() override = default;
 
   // ------------------ Native overrides ------------------
 
   // Print set contents
   void print(std::ostream& os) const override {
     os << "{";
-    for (auto it = elements.begin(); it != elements.end(); ++it) {
+    for (auto it = _elements.begin(); it != _elements.end(); ++it) {
       os << *it;
-      if (std::next(it) != elements.end()) {
+      if (std::next(it) != _elements.end()) {
         os << ", ";
       }
     }
@@ -49,13 +51,11 @@ class Set : public Object {
     return std::make_shared<Set>(*this);
   };
 
-  // Check for equal contents between self and another set
   bool equals(const Object& other) const override {
     auto otherSet = dynamic_cast<const Set*>(&other);
-    if (!otherSet) {
-      throw std::invalid_argument("equals method requires a Set");
-    }
-    return elements == otherSet->elements;
+    if (! otherSet) { return false; }
+
+    return _elements == otherSet->_elements;
   }
 
   // ------------------ Management Methods ------------------
@@ -66,50 +66,18 @@ class Set : public Object {
       throw std::runtime_error("add: Invalid number of arguments");
     }
 
-    elements.insert(params[0]);
+    _elements.insert(params[0]);
     return nullptr;
   }
 
   // Remove specified element from set
-  Method::result_type remove(const std::vector<ObjectPtr>& params) {
+  Method::result_type remove(const std::vector<ObjectPtr>& params) override {
     if (params.size() != 1) {
       throw std::runtime_error("remove: Invalid number of arguments");
     }
 
-    elements.erase(params[0]);
+    _elements.erase(params[0]);
     return nullptr;
-  }
-
-  // Remove any element from set
-  Method::result_type pop(const std::vector<ObjectPtr>& params) {
-    if (params.size() != 0) {
-      throw std::runtime_error("pop: Invalid number of arguments");
-    }
-
-    if (! elements.empty()) {
-      elements.erase(elements.begin());
-    }
-
-    return nullptr;
-  }
-
-  // Remove all elements from set
-  Method::result_type clear(const std::vector<ObjectPtr>& params) {
-    if (params.size() != 0) {
-      throw std::runtime_error("clear: Invalid number of arguments");
-    }
-
-    elements.clear();
-    return nullptr;
-  }
-
-  // Amount of elements in the set
-  Method::result_type len(const std::vector<ObjectPtr>& params) {
-    if (params.size() != 0) {
-      throw std::runtime_error("__len__: Invalid number of arguments");
-    }
-
-    return std::make_shared<Integer>(elements.size());
   }
 
   // Return union of self and another set
@@ -125,8 +93,8 @@ class Set : public Object {
       return nullptr;
     }
 
-    std::unordered_set<var> result = this->elements;
-    result.insert(set->elements.begin(), set->elements.end());
+    std::unordered_set<var> result = this->_elements;
+    result.insert(set->_elements.begin(), set->_elements.end());
 
     return std::make_shared<Set>(result);
   }
@@ -146,8 +114,8 @@ class Set : public Object {
 
     std::unordered_set<var> result;
 
-    for (const var& element : this->elements) {
-      if (other->elements.contains(element)) {
+    for (const var& element : this->_elements) {
+      if (other->_elements.contains(element)) {
         result.insert(element);
       }
     }
@@ -170,8 +138,8 @@ class Set : public Object {
 
     std::unordered_set<var> result;
 
-    for (const var& element : this->elements) {
-      if (! other->elements.contains(element)) {
+    for (const var& element : this->_elements) {
+      if (! other->_elements.contains(element)) {
         result.insert(element);
       }
     }
@@ -187,10 +155,10 @@ class Set : public Object {
     std::unordered_set<var>::const_iterator _currentIt;
 
    public:
-    explicit SetIterator(const Set& set) : _set(set), _currentIt(set.elements.begin()) {}
+    explicit SetIterator(const Set& set) : _set(set), _currentIt(set._elements.begin()) {}
 
     bool hasNext() const override {
-      return _currentIt != _set.elements.end();
+      return _currentIt != _set._elements.end();
     }
 
     ObjectPtr next() override {
