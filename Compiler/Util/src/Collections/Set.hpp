@@ -171,11 +171,36 @@ class Set : public Object {
 
   // ------------------ Iterator ------------------
 
-  std::unordered_set<var>::iterator begin() {
-    return elements.begin();
-  }
+  class SetIterator : public Object::ObjectIterator {
+   private:
+    const Set& _set;
+    std::unordered_set<var>::const_iterator _currentIt;
 
-  std::unordered_set<var>::iterator end() {
-    return elements.end();
+   public:
+    explicit SetIterator(const Set& set) : _set(set), _currentIt(set.elements.begin()) {}
+
+    bool hasNext() const override {
+      return _currentIt != _set.elements.end();
+    }
+
+    ObjectPtr next() override {
+      if (!this->hasNext()) {
+        throw std::out_of_range("Iterator out of range");
+      }
+
+      var obj = *_currentIt;
+      _currentIt = std::next(_currentIt);
+
+      return obj.getValue();
+    }
+
+    ObjectIt clone() const override {
+      return std::make_unique<SetIterator>(*this);
+    }
+  };
+
+  // Override iteration methods
+  ObjectIt getIterator() const override {
+    return std::make_unique<SetIterator>(*this);
   }
 };
