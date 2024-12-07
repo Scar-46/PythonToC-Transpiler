@@ -161,4 +161,40 @@ class Collection : public Object {
 
     return greatestSlot->getValue();    
   }
+
+  // ------------------ Iteration ------------------
+
+  class CollectionIterator : public Object::ObjectIterator {
+   private:
+    const Collection<Derived, ContainerType>& _collection;
+    ContainerType<var>::const_iterator _currentIt;
+
+   public:
+    explicit CollectionIterator(const Collection<Derived, ContainerType>& collection):
+        _collection(collection), _currentIt(_collection._elements.begin()) {}
+
+    bool hasNext() const override {
+      return _currentIt != _collection._elements.end();
+    }
+
+    ObjectPtr next() override {
+      if (!this->hasNext()) {
+        throw std::out_of_range("Iterator out of range");
+      }
+
+      var obj = *_currentIt;
+      _currentIt = std::next(_currentIt);
+
+      return obj.getValue();
+    }
+
+    ObjectIt clone() const override {
+      return std::make_unique<CollectionIterator>(*this);
+    }
+  };
+
+  // Override iteration methods
+  virtual ObjectIt getIterator() const override {
+    return std::make_unique<CollectionIterator>(*this);
+  }
 };

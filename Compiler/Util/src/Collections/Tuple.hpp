@@ -134,34 +134,4 @@ class Tuple : public Collection<Tuple, std::vector> {       // TODO(Dwayne): var
     std::cerr << "index: Value missing from list\n"; 
     return nullptr;
   }
-
-  // ------------------ Iterator ------------------
-
-  class TupleIterator : public Object::ObjectIterator {
-   private:
-    const Tuple& _tuple;
-    size_t _currentIndex;
-   public:
-    explicit TupleIterator(const Tuple& tuple) : _tuple(tuple), _currentIndex(0) {}
-
-    bool hasNext() const override {
-      return _currentIndex < _tuple.elements.size();
-    }
-
-    ObjectPtr next() override {
-      if (!this->hasNext()) {
-        throw std::out_of_range("Iterator out of range");
-      }
-
-      return _tuple.elements[_currentIndex++].getValue();
-    }
-
-    ObjectIt clone() const override {
-      return std::make_unique<TupleIterator>(*this);
-    }
-  };
-
-  ObjectIt getIterator() const override {
-    return std::make_unique<TupleIterator>(*this);
-  }
 };

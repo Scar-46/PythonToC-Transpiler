@@ -180,35 +180,4 @@ class List : public Collection<List, std::vector> {
       }
     );    // NOLINT
   }
-
-  // ------------------ Iterator ------------------
-
-  class ListIterator : public Object::ObjectIterator {
-   private:
-    const List& _list;
-    size_t _currentIndex;
-
-   public:
-    explicit ListIterator(const List& list) : _list(list), _currentIndex(0) {}
-
-    bool hasNext() const override {
-      return _currentIndex < _list._elements.size();
-    }
-
-    ObjectPtr next() override {
-      if (!this->hasNext()) {
-        throw std::out_of_range("Iterator out of range");
-    }
-      return _list._elements[_currentIndex++].getValue();
-    }
-
-    ObjectIt clone() const override {
-      return std::make_unique<ListIterator>(*this);
-    }
-  };
-
-  // Override iteration methods
-  ObjectIt getIterator() const override {
-    return std::make_unique<ListIterator>(*this);
-  }
 };
