@@ -12,7 +12,7 @@
 
 class var;
 
-class Iterator {
+class Iterator : public Object{
   // Underlying object iterator
   Object::ObjectIt objectIterator;
 
@@ -26,12 +26,25 @@ class Iterator {
   // Constructor for the end iterator
   Iterator();
 
+  // Copy constructor
+  Iterator(const Iterator& other);
+
+  // Object methods intialization
+  void init();
+
+  // Inherited methods from Object 
+  void print(std::ostream& os) const override;
+  ObjectPtr clone() const override;
+
   // De-referencing
   var operator*() const;
   var operator*();
 
   // Advancing
   Iterator& operator++();
+
+  // Object Next Method
+  Method::result_type next(const std::vector<ObjectPtr>& params);
 
   // Comparison
   bool operator!=(const Iterator& other) const;
@@ -110,6 +123,8 @@ class var {
 
  public:
   // Provide `begin()` and `end()` methods for range-based for loops
+  Iterator getIterator() const;
+  
   Iterator cbegin() const;
 
   Iterator cend() const;
