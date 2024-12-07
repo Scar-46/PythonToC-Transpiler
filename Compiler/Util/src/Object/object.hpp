@@ -51,7 +51,11 @@ class Object {
     throw std::runtime_error("Comparison not supported for this type");
   }
 
-  // Arithmetic operators
+  virtual std::size_t hash() const {
+    throw std::runtime_error("Comparison not supported for this type");
+  }
+
+  // Arithmetic operations
   virtual ObjectPtr add(unused const Object& other) const {
     throw std::runtime_error("Addition not supported for this type");
   }
@@ -120,6 +124,14 @@ class Object {
   }
 };
 
+// Hashing for associative containers
+namespace std {
+  template<> struct hash<Object> {
+    size_t operator()(const Object& s) const noexcept
+    { return s.hash();}
+  };
+}
+
 // Base template class for Object
 template <typename Derived, typename ValueType>
 class BaseObject : public Object {
@@ -174,6 +186,10 @@ class BaseObject : public Object {
 
     auto otherObj = dynamic_cast<const BaseObject<Derived, ValueType>&>(other);
     return this->value > otherObj.getValue();
+  }
+
+  virtual std::size_t hash() const {
+    return std::hash<ValueType>{}(value);
   }
 };
 
@@ -230,6 +246,11 @@ class BaseNumeric : public Object {
   // Default implementation of clone
   inline ObjectPtr clone() const override {
       return std::make_shared<Derived>(value);
+  }
+
+  // Default implementation of comparisons
+  virtual std::size_t hash() const {
+    return std::hash<ValueType>{}(value);
   }
 
   DEFINE_OPERATOR(add, +, 'Addition')

@@ -133,12 +133,12 @@ class var {
     return std::dynamic_pointer_cast<ObjectType>(value);
   }
 
-
-  var operator==(const var& other) const {
+  // Comparison operators
+  bool operator==(const var& other) const {
     return value->equals(*other.value);
   }
 
-  var operator!=(const var& other) const {
+  bool operator!=(const var& other) const {
     return !value->equals(*other.value);
   }
 
@@ -149,6 +149,12 @@ class var {
     throw std::runtime_error("Failed three-way comparison");
   }
 
+  // Hashing for associative containers
+  std::size_t hash() const {
+    return value->hash();
+  }
+
+  // Arithmetic operators
   var operator+(const var& other) const {
     if (!value || !other.value) {
       throw std::runtime_error("Addition not supported for null values");
@@ -227,6 +233,14 @@ class var {
     return value->Call(name, params);
   }
 };
+
+// Hashing for var in associative containers
+namespace std {
+  template<> struct hash<var> {
+    size_t operator()(const var& s) const noexcept
+    { return s.hash();}
+  };
+}
 
 var Iterator::operator*() const {
   if (!objectIterator || isEnd || !objectIterator->hasNext()) {

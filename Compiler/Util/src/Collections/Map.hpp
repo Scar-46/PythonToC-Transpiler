@@ -1,7 +1,7 @@
 // Copyright (c) 2024 Syntax Errors.
 #pragma once
 
-#include <map>
+#include <unordered_map>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -14,7 +14,7 @@
 
 class Map : public Object {
  private:
-  std::map<var, var> elements;
+  std::unordered_map<var, var> elements;
 
   void init() override {
     _methods["keys"] = std::bind(&Map::keys, this, std::placeholders::_1);
