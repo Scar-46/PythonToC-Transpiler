@@ -38,10 +38,9 @@ class String : public BaseObject<String, std::string> {
   bool less(const Object& other) const override {
     auto otherObj = dynamic_cast<const String*>(&other);
     if (otherObj) {
-      return this->value == otherObj->getValue();
+      return this->value < otherObj->getValue();
     }
     return false;
-    return this->value < otherObj->getValue();
   }
 
   bool greater(const Object& other) const override {
@@ -52,7 +51,7 @@ class String : public BaseObject<String, std::string> {
     }
     auto otherObj = dynamic_cast<const String*>(&other);
     if (otherObj) {
-      return this->value == otherObj->getValue();
+      return this->value > otherObj->getValue();
     }
     return false;
   }
