@@ -1,6 +1,6 @@
+// Copyright (c) 2024 Syntax Errors.
 #pragma once
 
-// Copyright (c) 2024 Syntax Errors.
 #include <compare>
 #include <typeindex>
 #include <iostream>
@@ -9,59 +9,32 @@
 #include <utility>
 
 #include "./object.hpp"
-#include "./Boolean/Boolean.hpp"
-#include "./Double/Double.hpp"
-#include "./Integer/Integer.hpp"
-#include "./String/String.hpp"
 
 class var;
 
-class Iterator: public Object{
+class Iterator {
+  // Underlying object iterator
   Object::ObjectIt objectIterator;
+
+  // Whether the end has been reached or not
   bool isEnd;
 
  public:
   // Constructor for a valid iterator
-  explicit Iterator(Object::ObjectIt iterator)
-    : objectIterator(std::move(iterator)), isEnd(false) {this->init();}
+  explicit Iterator(Object::ObjectIt iterator);
 
   // Constructor for the end iterator
-  Iterator() : objectIterator(nullptr), isEnd(true) {this->init();}
+  Iterator();
 
-  // Copy constructor
-  Iterator(const Iterator& other)
-    : objectIterator(other.objectIterator), isEnd(other.isEnd) {
-    this->init();
-  }
-
-  void init() override {
-    _methods["next"] = std::bind(&Iterator::next, this, std::placeholders::_1);
-  }
-
+  // De-referencing
   var operator*() const;
   var operator*();
-  Method::result_type next(const std::vector<ObjectPtr>& params);
 
-  Iterator& operator++() {
-    if (!objectIterator || isEnd) {
-      throw std::runtime_error("Incrementing an invalid iterator");
-    }
-    if (!objectIterator->hasNext()) {
-      isEnd = true;
-    }
-    return *this;
-  }
+  // Advancing
+  Iterator& operator++();
 
-  bool operator!=(const Iterator& other) const {
-    return isEnd != other.isEnd;  // Simple end-check comparison
-  }
-
-    void print(std::ostream& os) const override {
-    os << "";
-  }
-  ObjectPtr clone() const override {
-    return nullptr;
-  }
+  // Comparison
+  bool operator!=(const Iterator& other) const;
 };
 
 class var {
@@ -69,82 +42,42 @@ class var {
   ObjectPtr value;
 
  public:
-  var() : value(nullptr) {}
+  var();
   template <typename T, typename = std::enable_if_t<std::is_base_of<Object, T>::value>>
   implicit var(const T& value) : value(std::make_shared<T>(value)) {}
 
   // Specialized constructors for base types
-  implicit var(int32_t value) : value(std::make_shared<Integer>(value)) {}
-  implicit var(double value) : value(std::make_shared<Double>(value)) {}
-  implicit var(const std::string& value) : value(std::make_shared<String>(value)) {}
-  implicit var(const char* value) : value(std::make_shared<String>(std::string(value))) {}
-  explicit var(bool value) : value(std::make_shared<Boolean>(value)) {}
+  implicit var(int32_t value);
+  implicit var(double value);
+  implicit var(const std::string& value);
+  implicit var(const char* value);
+  explicit var(bool value);
 
   // Copy constructor and assignment
-  var(const var& other) : value(other.value ? other.value->clone() : nullptr) {}
-  var& operator=(const var& other) {
-    if (this != &other) {
-      value = other.value ? other.value->clone() : nullptr;
-    }
-    return *this;
-  }
+  var(const var& other);
+  var& operator=(const var& other);
 
   // Move constructor and assignment
-  var(var&& other) noexcept : value(std::move(other.value)) {}
-  var& operator=(var&& other) noexcept {
-    if (this != &other) {
-      value = std::move(other.value);
-      other.value = nullptr;
-    }
-    return *this;
-  }
+  var(var&& other) noexcept;
 
   // Copy-assignment from ObjPtr
-  implicit var(const ObjectPtr& obj) : value(obj) {}
-  implicit var& operator=(const ObjectPtr& other) noexcept {
-    value = other;
-    return *this;
-  }
+  implicit var(const ObjectPtr& obj);
+  implicit var& operator=(const ObjectPtr& other) noexcept;
 
   // Access and basic conversion
-  explicit operator bool() const {
-    if (!value) { return false; }
-    return static_cast<bool>(*value);
-  }
+  explicit operator bool() const;
 
-  implicit operator const Object&() const {
-    if (!value) {
-      throw std::runtime_error("Cannot convert null var to Object&");
-    }
-    return *value;
-  }
+  implicit operator const Object&() const;
 
-  implicit operator Object&() {
-    if (!value) {
-      throw std::runtime_error("Cannot convert null var to Object&");
-    }
-    return *value;
-  }
+  implicit operator Object&();
 
-  explicit operator ObjectPtr&() {
-    return value;
-  }
+  explicit operator ObjectPtr&();
 
-  explicit operator const ObjectPtr&() {
-    return value;
-  }
+  explicit operator const ObjectPtr&();
 
-  ObjectPtr operator->() const {
-    return value;
-  }
+  ObjectPtr operator->() const;
 
-  // ObjectPtr operator->() const {
-  //   return value;
-  // }
-
-  inline ObjectPtr getValue() const {
-    return this->value;
-  }
+  ObjectPtr getValue() const;
 
   template<typename ObjectType>
   std::shared_ptr<ObjectType> as() {
@@ -152,112 +85,41 @@ class var {
   }
 
   // Comparison operators
-  bool operator==(const var& other) const {
-    return value->equals(*other.value);
-  }
+  bool operator==(const var& other) const;
 
-  bool operator!=(const var& other) const {
-    return !value->equals(*other.value);
-  }
+  bool operator!=(const var& other) const;
 
-  std::strong_ordering operator<=>(const var& other) const {
-    if (value->equals(*other.value)) return std::strong_ordering::equal;
-    if (value->less(*other.value)) return std::strong_ordering::less;
-    if (value->greater(*other.value)) return std::strong_ordering::greater;
-    throw std::runtime_error("Failed three-way comparison");
-  }
+  std::strong_ordering operator<=>(const var& other) const;
 
   // Hashing for associative containers
-  std::size_t hash() const {
-    return value->hash();
-  }
+  std::size_t hash() const;
 
   // Arithmetic operators
-  var operator+(const var& other) const {
-    if (!value || !other.value) {
-      throw std::runtime_error("Addition not supported for null values");
-    }
-    return var(value->add(*other.value));
-  }
+  var operator+(const var& other) const;
 
-  var operator-(const var& other) const {
-    if (!value || !other.value) {
-      throw std::runtime_error("Substraction not supported for null values");
-    }
-    return var(value->subtract(*other.value));
-  }
+  var operator-(const var& other) const;
 
-  var operator*(const var& other) const {
-    if (!value || !other.value) {
-      throw std::runtime_error("Multiplication not supported for null values");
-    }
-    return var(value->multiply(*other.value));
-  }
+  var operator*(const var& other) const;
 
-  var operator/(const var& other) const {
-    if (!value || !other.value) {
-      throw std::runtime_error("Division not supported for null values");
-    }
-    return var(value->divide(*other.value));
-  }
+  var operator/(const var& other) const;
 
-  var operator[](const var& other) const {
-    if (!value || !other.value) {
-      throw std::runtime_error("Subscript not supported for null values");
-    }
-    return var(value->subscript(*other.value));
-  }
+  var operator[](const var& other) const;
 
   // Print for output
-  friend std::ostream& operator<<(std::ostream& os, const var& variable) {
-    if (variable.value) {
-      variable.value->print(os);
-    } else {
-      os << "null";
-    }
-    return os;
-  }
+  friend std::ostream& operator<<(std::ostream& os, const var& variable);
 
  public:
   // Provide `begin()` and `end()` methods for range-based for loops
+  Iterator cbegin() const;
 
-  Iterator getIterator() const {
-    if (!value) {
-      throw std::runtime_error("Cannot retrieve iterator from null var");
-    }
-    return Iterator(value->getIterator());
-  }
+  Iterator cend() const;
 
-  Iterator cbegin() const {
-    if (!value) {
-      throw std::runtime_error("Cannot iterate over null var");
-    }
-    return Iterator(value->getIterator());
-  }
+  Iterator begin();
 
-  Iterator cend() const {
-    return Iterator();
-  }
-
-  Iterator begin() {
-    if (!value) {
-      throw std::runtime_error("Cannot iterate over null var");
-    }
-    return Iterator(value->getIterator());
-  }
-
-  Iterator end() {
-    return Iterator();
-  }
+  Iterator end();
 
   // Specific methods per instance
-  ObjectPtr Call(const std::string& name, std::initializer_list<ObjectPtr> params) {
-    if (!value) {
-      throw std::runtime_error("Cannot call method on null var");
-    }
-
-    return value->Call(name, params);
-  }
+  ObjectPtr Call(const std::string& name, std::initializer_list<ObjectPtr> params);
 };
 
 // Hashing for var in associative containers
@@ -266,27 +128,4 @@ namespace std {
     size_t operator()(const var& s) const noexcept
     { return s.hash();}
   };
-}
-
-var Iterator::operator*() const {
-  if (!objectIterator || isEnd || !objectIterator->hasNext()) {
-    throw std::runtime_error("Dereferencing an invalid iterator");
-  }
-  return var(objectIterator->next());
-}
-
-var Iterator::operator*() {
-  if (!objectIterator || isEnd || !objectIterator->hasNext()) {
-    throw std::runtime_error("Dereferencing an invalid iterator");
-  }
-  return var(objectIterator->next());
-}
-
-ObjectPtr Iterator::next(const std::vector<ObjectPtr>& params)  {
-  if (isEnd || !objectIterator) {
-    throw std::runtime_error("No more elements to iterate over");
-  }
-  var current = **this;
-  ++(*this);
-  return current.getValue();
 }

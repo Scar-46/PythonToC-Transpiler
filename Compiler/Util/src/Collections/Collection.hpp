@@ -6,7 +6,7 @@
 
 #include "../Object/object.hpp"
 #include "../Object/var.hpp"
-#include "../Integer/Integer.hpp"
+#include "../Numeric/Integer.hpp"
 
 // Base template class containers of variables
 template <typename Derived, template <typename...> typename ContainerType>

@@ -4,14 +4,17 @@
 #include <string>
 #include <iostream>
 
-#include "./Object/object.hpp"
 #include "./Object/var.hpp"
-#include "./Boolean/Boolean.hpp"
-#include "./Double/Double.hpp"
-#include "./Integer/Integer.hpp"
-#include "./String/String.hpp"
+#include "./Object/object.hpp"
+#include "./Primitive/Boolean.hpp"
+#include "./Primitive/String.hpp"
+#include "./Numeric/Numeric.hpp"
+#include "./Numeric/Integer.hpp"
+#include "./Numeric/Double.hpp"
+#include "./Numeric/Builtin.hpp"
 #include "./Collections/List.hpp"
 #include "./Collections/Tuple.hpp"
 #include "./Collections/Map.hpp"
 #include "./Collections/Set.hpp"
 #include "./Collections/Pair.hpp"
+#include "./Collections/Builtin.hpp"

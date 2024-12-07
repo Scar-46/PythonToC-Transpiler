@@ -16,7 +16,7 @@ class Map : public Object {
  private:
   std::unordered_map<var, var> elements;
 
-  void init() override {
+  void init() {
     _methods["keys"] = std::bind(&Map::keys, this, std::placeholders::_1);
     _methods["values"] = std::bind(&Map::values, this, std::placeholders::_1);
     _methods["items"] = std::bind(&Map::items, this, std::placeholders::_1);

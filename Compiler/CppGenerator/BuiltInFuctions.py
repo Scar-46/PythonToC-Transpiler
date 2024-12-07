@@ -4,16 +4,16 @@ BUILTIN_FUNCTIONS = {
     "input": lambda args: "std::cin >> " + args[0] if args else "std::cin",
 
     # Sequence and Container Functions
-    "len": lambda args: f"std::size({args[0]})",
-    "sum": lambda args: f"std::accumulate(std::begin({args[0]}), std::end({args[0]}), 0)",
-    "min": lambda args: f"*std::min_element(std::begin({args[0]}), std::end({args[0]}))",
-    "max": lambda args: f"*std::max_element(std::begin({args[0]}), std::end({args[0]}))",
-    "sorted": lambda args: f"std::sort(std::begin({args[0]}), std::end({args[0]}))",
+    "len": lambda args: f"Builtin::len({', '.join(f"{arg}" for arg in args)})",
+    "sum": lambda args: f"Builtin::sum({', '.join(f"{arg}" for arg in args)})",
+    "min": lambda args: f"Builtin::min({', '.join(f"{arg}" for arg in args)})",
+    "max": lambda args: f"Builtin::max({', '.join(f"{arg}" for arg in args)})",
+    "sorted": lambda args: f"std::sort(std::begin({args[0]}), std::end({args[0]}))", # TODO
 
     # Mathematical Functions
     "abs": lambda args: f"std::abs({args[0]})",
-    "pow": lambda args: f"std::pow({args[0]}, {args[1]})",
     "round": lambda args: f"std::round({args[0]})",
+    "pow": lambda args: f"std::pow({args[0]}, {args[1]})",
 
     # Type Conversion Functions
     "str": lambda args: f"std::to_string({args[0]})",
@@ -21,9 +21,9 @@ BUILTIN_FUNCTIONS = {
     "float": lambda args: f"static_cast<float>({args[0]})",
 
     # Built-in types' constructors
-    "dict": lambda args: f"Map({f"{args[0]}, " + ', '.join(f"{arg}" for arg in args[1:]) if args else ''})",
-    "set": lambda args: f"Set({f"{args[0]}, " + ', '.join(f"{arg}" for arg in args[1:]) if args else ''})",
-    "list": lambda args: f"List({f"{args[0]}, " + ', '.join(f"{arg}" for arg in args[1:]) if args else ''})",
+    "dict": lambda args: f"Map({', '.join(f"{arg}" for arg in args)})",
+    "set": lambda args: f"Set({', '.join(f"{arg}" for arg in args)})",
+    "list": lambda args: f"List({', '.join(f"{arg}" for arg in args)})",
 }
 
 def translate_function(name, arguments):
