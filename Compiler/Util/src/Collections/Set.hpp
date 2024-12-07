@@ -2,33 +2,30 @@
 // Copyright (c) 2024 Syntax Errors.
 #include "./Object/object.hpp"
 #include "./Object/var.hpp"
-#include <set>
+#include <unordered_set>
 
 class Set : public Object {
  private:
-  std::set<var> elements;
+  std::unordered_set<var> elements;
 
- public:
-  Set() = default;
-  template <typename... Args>
-  Set(Args&&... args) : elements{var(std::forward<Args>(args))...} {}
-  Set(std::initializer_list<var> initList) : elements(initList) {}
-
-  // ------------------ Overrides ------------------
-  operator ObjectPtr() override{
-    return std::make_shared<Set>(*this);
-  };
-
-  // Override the equals method to compare sets
-  bool equals(const Object& other) const override {
-    auto otherSet = dynamic_cast<const Set*>(&other);
-    if (!otherSet) {
-      throw std::invalid_argument("equals method requires a Set");
-    }
-    return elements == otherSet->elements;
+  void init() override {
+    _methods["add"] = std::bind(&Set::add, this, std::placeholders::_1);
+    _methods["remove"] = std::bind(&Set::remove, this, std::placeholders::_1);
+    _methods["pop"] = std::bind(&Set::pop, this, std::placeholders::_1);
+    _methods["clear"] = std::bind(&Set::clear, this, std::placeholders::_1);
+    _methods["union"] = std::bind(&Set::unionW, this, std::placeholders::_1);
+    _methods["intersection"] = std::bind(&Set::intersectionW, this, std::placeholders::_1);
+    _methods["difference"] = std::bind(&Set::differenceW, this, std::placeholders::_1);
   }
 
-  // Override print to display set contents
+ public:
+  Set() { this->init(); };
+  Set(const std::unordered_set<var>& set): elements(set) { this->init(); };
+  Set(const Set& other) : Object(other), elements(other.elements) { this->init(); };
+
+  // ------------------ Native overrides ------------------
+
+  // Print set contents
   void print(std::ostream& os) const override {
     os << "{";
     for (auto it = elements.begin(); it != elements.end(); ++it) {
@@ -40,69 +37,145 @@ class Set : public Object {
     os << "} \n";
   }
 
-  // Override clone to copy the set
+  // Clone self
   ObjectPtr clone() const override {
     return std::make_shared<Set>(*this);
   }
 
-  // ------------------ Set Methods ------------------
+  // ------------------ Native operators ------------------
 
-  bool addElement(const var& element) {
-    return elements.insert(element).second; // Returns true if insertion was successful (element was unique)
+  operator ObjectPtr() override{
+    return std::make_shared<Set>(*this);
+  };
+
+  // Check for equal contents between self and another set
+  bool equals(const Object& other) const override {
+    auto otherSet = dynamic_cast<const Set*>(&other);
+    if (!otherSet) {
+      throw std::invalid_argument("equals method requires a Set");
+    }
+    return elements == otherSet->elements;
   }
 
-  bool removeElement(const var& element) {
-    return elements.erase(element) > 0; // Returns true if an element was removed
+  // ------------------ Management Methods ------------------
+
+  // Add element to set
+  Method::result_type add(const std::vector<ObjectPtr>& params) {
+    if (params.size() != 1) {
+      throw std::runtime_error("add: Invalid number of arguments");
+    }
+
+    elements.insert(params[0]);
+    return nullptr;
   }
 
-  void clear() {
+  // Remove specified element from set
+  Method::result_type remove(const std::vector<ObjectPtr>& params) {
+    if (params.size() != 1) {
+      throw std::runtime_error("remove: Invalid number of arguments");
+    }
+
+    elements.erase(params[0]);
+    return nullptr;
+  }
+
+  // Remove any element from set
+  Method::result_type pop(const std::vector<ObjectPtr>& params) {
+    if (params.size() != 0) {
+      throw std::runtime_error("pop: Invalid number of arguments");
+    }
+
+    if (! elements.empty()) {
+      elements.erase(elements.begin());
+    }
+
+    return nullptr;
+  }
+
+  // Remove all elements from set
+  Method::result_type clear(const std::vector<ObjectPtr>& params) {
+    if (params.size() != 0) {
+      throw std::runtime_error("clear: Invalid number of arguments");
+    }
+
     elements.clear();
+    return nullptr;
   }
 
-  bool contains(const var& element) const {
-    return elements.find(element) != elements.end();
-  }
-
-  size_t size() const {
-    return elements.size();
-  }
-
-  Set unionW(const Set& other) const {
-    Set result = *this;
-    for (const auto& el : other.elements) {
-      result.addElement(el);
+  // Return union of self and another set
+  Method::result_type unionW(const std::vector<ObjectPtr>& params) {
+    if (params.size() != 1) {
+      throw std::runtime_error("union: Invalid number of arguments");
     }
-    return result;
+
+    const Set* set = dynamic_cast<const Set*>(params[0].get());
+
+    if (! set ) {
+      std::cerr << "union: Parameter must be Set"; 
+      return nullptr;
+    }
+
+    std::unordered_set<var> result = this->elements;
+    result.insert(set->elements.begin(), set->elements.end());
+
+    return std::make_shared<Set>(result);
   }
 
-  Set intersectionW(const Set& other) const {
-    Set result;
-    for (const auto& el : elements) {
-      if (other.contains(el)) {
-        result.addElement(el);
+  // Return intersection of self and another set
+  Method::result_type intersectionW(const std::vector<ObjectPtr>& params) {
+    if (params.size() != 1) {
+      throw std::runtime_error("intersection: Invalid number of arguments");
+    }
+
+    const Set* other = dynamic_cast<const Set*>(params[0].get());
+
+    if (! other ) {
+      std::cerr << "intersection: Parameter must be Set"; 
+      return nullptr;
+    }
+
+    std::unordered_set<var> result;
+
+    for (const var& element : this->elements) {
+      if (other->elements.contains(element)) {
+        result.insert(element);
       }
     }
-    return result;
+
+    return std::make_shared<Set>(result);
   }
 
-  Set differenceW(const Set& other) const {
-    Set result;
-    for (const auto& el : elements) {
-      if (!other.contains(el)) {
-        result.addElement(el);
+  // Difference between this set (lhs) and another set (rhs)
+  Method::result_type differenceW(const std::vector<ObjectPtr>& params) {
+    if (params.size() != 1) {
+      throw std::runtime_error("difference: Invalid number of arguments");
+    }
+
+    const Set* other = dynamic_cast<const Set*>(params[0].get());
+
+    if (! other ) {
+      std::cerr << "difference: Parameter must be Set"; 
+      return nullptr;
+    }
+
+    std::unordered_set<var> result;
+
+    for (const var& element : this->elements) {
+      if (! other->elements.contains(element)) {
+        result.insert(element);
       }
     }
-    return result;
-  }
 
-  // ------------------ Operator Overloading ------------------
+    return std::make_shared<Set>(result);
+  }
 
   // ------------------ Iterator ------------------
-  std::set<var>::iterator begin() {
+
+  std::unordered_set<var>::iterator begin() {
     return elements.begin();
   }
 
-  std::set<var>::iterator end() {
+  std::unordered_set<var>::iterator end() {
     return elements.end();
   }
 };
