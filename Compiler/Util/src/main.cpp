@@ -15,9 +15,9 @@ int main() {
   var list = List();
   var map = Map();
 
-  map.as<Map>()->addPair({string, floating});
-  map.as<Map>()->addPair({integer, boolean});
-
+  map->Call("addElement", {string.getValue(), floating.getValue()});
+  map->Call("addElement", {integer.getValue(), boolean.getValue()});
+  
   list->Call("append", {string.getValue()});
   list->Call("append", {integer.getValue()});
   list->Call("append", {floating.getValue()});
