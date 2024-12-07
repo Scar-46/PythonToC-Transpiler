@@ -4,9 +4,9 @@
 #include "./Numeric.hpp"
 
 // Double precision floating point numbers
-class Double : public BaseNumeric<Double, double> {
+class Double : public Numeric<Double, double> {
  public:
-  explicit Double(double value) : BaseNumeric(value) {}
+  explicit Double(double value) : Numeric(value) {}
   operator ObjectPtr() override{
     return std::make_shared<Double>(*this);
   };

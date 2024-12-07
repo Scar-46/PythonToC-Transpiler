@@ -2,136 +2,56 @@
 #pragma once
 
 #include <map>
-#include <memory>
 #include <utility>
 #include <vector>
 
 #include "./Object/object.hpp"
 #include "./Object/var.hpp"
 
+#include "./Collection.hpp"
+
 class Tuple : public Collection<Tuple, std::vector> {       // TODO(Dwayne): var needs to be able to get tup = {}
  private:
   std::vector<var> elements;
 
-  void init() {
-    _methods.erase("pop");
-    _methods.erase("clear");
-    _methods.erase("remove");
-    _methods["index"] = std::bind(&Tuple::index, this, std::placeholders::_1);
-  }
+  void init();
 
  public:
   // Default constructor
-  Tuple() { init(); };
+  Tuple();
 
   // Copy-constructor
-  Tuple(const Tuple& other) : Collection<Tuple, std::vector>(other) { init(); };
-  explicit Tuple(const std::vector<var>& elements) : Collection<Tuple, std::vector>(elements) { init(); }
+  Tuple(const Tuple& other);
+  explicit Tuple(const std::vector<var>& elements);
 
   // Brace-list constructor
-  Tuple(std::initializer_list<var> initList) : elements(initList) { init(); }
+  Tuple(std::initializer_list<var> initList);
 
-  virtual ~Tuple() override = default;
+  ~Tuple() override = default;
 
   // ------------------ Native overrides ------------------
-
   // Print contents
-  void print(std::ostream& os) const override {
-    os << "(";
-    for (size_t i = 0; i < elements.size(); ++i) {
-      os << elements[i];
-      if (i < elements.size() - 1) {
-        os << ", ";
-      }
-    }
-    os << ")";
-  }
+  void print(std::ostream& os) const override;
 
   // Clone self
-  ObjectPtr clone() const override {
-    return std::make_shared<Tuple>(*this);
-  }
+  ObjectPtr clone() const override;
 
   // ------------------ Native operators ------------------
+  operator ObjectPtr() override;
 
-  operator ObjectPtr() override {
-    return std::make_shared<Tuple>(*this);
-  };
+  bool equals(const Object& other) const override;
 
-  bool equals(const Object& other) const override {
-    auto otherTuple = dynamic_cast<const Tuple*>(&other);
-    if (! otherTuple) { return false; }
+  bool less(const Object& other) const override;
 
-    return _elements == otherTuple->_elements;
-  }
-
-  bool less(const Object& other) const override {
-    auto otherTuple = dynamic_cast<const Tuple*>(&other);
-    if (! otherTuple) { return false; }
-
-    return this->_elements < otherTuple->_elements;
-  }
-
-  bool greater(const Object& other) const override {
-    auto otherTuple = dynamic_cast<const Tuple*>(&other);
-    if (! otherTuple) { return false; }
-
-    return this->_elements > otherTuple->_elements;
-  }
+  bool greater(const Object& other) const override;
 
   // Return a tuple with elements from both tuples (self, then other's)
-  ObjectPtr add(const Object& other) const override {
-    auto otherTuple = dynamic_cast<const Tuple*>(&other);
+  ObjectPtr add(const Object& other) const override;
 
-     if (!otherTuple) {
-      std::cerr << "Invalid argument type, expected Tuple.\n";
-      return nullptr;
-    }
-  
-    std::vector<var> result = this->elements;
-    result.insert(
-      result.end(), otherTuple->elements.begin(), otherTuple->elements.end()
-    );
-
-    return std::make_shared<Tuple>(result);
-  }
-
-  
   // Access a given element on the collection by index
-  ObjectPtr subscript(const Object& other) const override {
-    auto otherObj = dynamic_cast<const Integer*>(&other);
-
-    if (! otherObj) {
-      std::cerr << "Invalid index type, expected Integer.\n";
-      return nullptr; 
-    }
-
-    std::size_t index = normalizeIndex(otherObj->getValue());
-
-    if (static_cast<size_t>(index) >= _elements.size()) {
-      std::cerr << "Invalid index, out of bounds.\n";
-      return nullptr; 
-    }
-
-    return _elements[index].getValue();
-  }
+  ObjectPtr subscript(const Object& other) const override;
 
   // ------------------ Management methods ------------------
-
   // Return index of first ocurrence of element
-  Method::result_type index(const std::vector<ObjectPtr>& params) {
-    if (params.size() != 1) {
-      throw std::runtime_error("index: Invalid number of arguments");
-    }
-
-    var query = params[0];
-    for (size_t i = 0; i < elements.size(); ++i) {
-      if (elements[i] == query) {
-        return std::make_shared<Integer>(i);
-      }
-    }
-
-    std::cerr << "index: Value missing from list\n"; 
-    return nullptr;
-  }
+  Object::Method::result_type index(const std::vector<ObjectPtr>& params);
 };
