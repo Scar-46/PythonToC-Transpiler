@@ -22,6 +22,8 @@ int main() {
   list->Call("append", {integer.getValue()});
   list->Call("append", {floating.getValue()});
   list->Call("append", {boolean.getValue()});
+  list->Call("insert", {Integer(0), String("Wow")});
+  list->Call("insert", {list->Call("size", {}), String("Help")});
 
   std::cout << "List: " << list << std::endl;
   // All of this is broken for some reason
