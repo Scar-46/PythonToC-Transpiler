@@ -3,11 +3,11 @@
 
 #include <memory>
 
-#include "../Object/object.hpp"
-#include "../Double/Double.hpp"
+#include "./Numeric.hpp"
+#include "./Double.hpp"
 
 // Integer class
-// TODO(Dwayne): Implmenet like division.
+// TODO(Dwayne): Implement like division.
 class Integer : public BaseNumeric<Integer, int32_t> {
  public:
   explicit Integer(int32_t value) : BaseNumeric(value) {}
@@ -61,10 +61,8 @@ class Integer : public BaseNumeric<Integer, int32_t> {
     if (otherObj) {
       return value < otherObj->getValue();
     }
-    return lessHelperWithString(other);
+    return false;
   }
-
-  bool lessHelperWithString(const Object& other) const;
 
   bool greaterHelper(const Object& other) const override {
     auto otherObj = dynamic_cast<const Double*>(&other);
@@ -74,12 +72,3 @@ class Integer : public BaseNumeric<Integer, int32_t> {
     return false;
   }
 };
-
-#include "../String/String.hpp"
-bool Integer::lessHelperWithString(const Object& other) const {
-  auto otherString = dynamic_cast<const String*>(&other);
-  if (otherString) {
-    return true;
-  }
-  return false;
-}

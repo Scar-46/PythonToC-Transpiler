@@ -5,7 +5,7 @@
 #include <tuple>
 
 #include "./Object/object.hpp"
-#include "./Integer/Integer.hpp"
+#include "./Numeric/Integer.hpp"
 
 // Helper to safely extract a value or use a default
 template <typename T>
@@ -75,4 +75,3 @@ ObjectPtr generalizedSlice(
   // Use the result factory function to create the final ObjectPtr
   return resultFactoryFn(resultContainer);
 }
-

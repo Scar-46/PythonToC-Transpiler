@@ -8,8 +8,8 @@
 #include <utility>
 
 #include "../Object/object.hpp"       // NOLINT
-#include "../Integer/Integer.hpp"     // NOLINT
-#include "../Double/Double.hpp"       // NOLINT
+#include "../Numeric/Integer.hpp"     // NOLINT
+#include "../Numeric/Double.hpp"       // NOLINT
 #include "../functions.hpp"           // NOLINT
 
 // String class

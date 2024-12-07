@@ -1,6 +1,6 @@
+// Copyright (c) 2024 Syntax Errors.
 #pragma once
 
-// Copyright (c) 2024 Syntax Errors.
 #include <compare>
 #include <typeindex>
 #include <iostream>
@@ -9,10 +9,6 @@
 #include <utility>
 
 #include "./object.hpp"
-#include "./Boolean/Boolean.hpp"
-#include "./Double/Double.hpp"
-#include "./Integer/Integer.hpp"
-#include "./String/String.hpp"
 
 class var;
 
@@ -28,22 +24,15 @@ class Iterator {
   // Constructor for the end iterator
   Iterator() : objectIterator(nullptr), isEnd(true) {}
 
+  // De-referencing
   var operator*() const;
   var operator*();
 
-  Iterator& operator++() {
-    if (!objectIterator || isEnd) {
-      throw std::runtime_error("Incrementing an invalid iterator");
-    }
-    if (!objectIterator->hasNext()) {
-      isEnd = true;
-    }
-    return *this;
-  }
+  // Advancing
+  Iterator& operator++();
 
-  bool operator!=(const Iterator& other) const {
-    return isEnd != other.isEnd;  // Simple end-check comparison
-  }
+  // Comparison
+  bool operator!=(const Iterator& other) const;
 };
 
 class var {
@@ -56,11 +45,11 @@ class var {
   implicit var(const T& value) : value(std::make_shared<T>(value)) {}
 
   // Specialized constructors for base types
-  implicit var(int32_t value) : value(std::make_shared<Integer>(value)) {}
-  implicit var(double value) : value(std::make_shared<Double>(value)) {}
-  implicit var(const std::string& value) : value(std::make_shared<String>(value)) {}
-  implicit var(const char* value) : value(std::make_shared<String>(std::string(value))) {}
-  explicit var(bool value) : value(std::make_shared<Boolean>(value)) {}
+  implicit var(int32_t value);
+  implicit var(double value);
+  implicit var(const std::string& value);
+  implicit var(const char* value);
+  explicit var(bool value);
 
   // Copy constructor and assignment
   var(const var& other) : value(other.value ? other.value->clone() : nullptr) {}
@@ -119,10 +108,6 @@ class var {
   ObjectPtr operator->() const {
     return value;
   }
-
-  // ObjectPtr operator->() const {
-  //   return value;
-  // }
 
   inline ObjectPtr getValue() const {
     return this->value;
@@ -240,18 +225,4 @@ namespace std {
     size_t operator()(const var& s) const noexcept
     { return s.hash();}
   };
-}
-
-var Iterator::operator*() const {
-  if (!objectIterator || isEnd || !objectIterator->hasNext()) {
-    throw std::runtime_error("Dereferencing an invalid iterator");
-  }
-  return var(objectIterator->next());
-}
-
-var Iterator::operator*() {
-  if (!objectIterator || isEnd || !objectIterator->hasNext()) {
-    throw std::runtime_error("Dereferencing an invalid iterator");
-  }
-  return var(objectIterator->next());
 }

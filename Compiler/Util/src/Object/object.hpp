@@ -25,8 +25,6 @@ class Object {
   using Method = std::function<ObjectPtr(const std::vector<ObjectPtr>&)>;
   std::map<std::string, Method> _methods;
 
-  virtual void init() {}
-
  public:
   virtual ~Object() = default;
   virtual operator ObjectPtr() {
@@ -125,7 +123,6 @@ class Object {
     virtual ~ObjectIterator() = default;
 
     virtual bool hasNext() const = 0;
-    // virtual ObjectPtr next() const = 0;
     virtual ObjectPtr next() = 0;
     virtual ObjectIt clone() const = 0;
   };
@@ -206,80 +203,4 @@ class BaseObject : public Object {
     auto otherObj = dynamic_cast<const BaseObject<Derived, ValueType>&>(other);
     return this->value > otherObj.getValue();
   }  
-};
-
-#define DEFINE_OPERATOR(OP_NAME, OP_SYMBOL, ERROR_MESSAGE) \
-  ObjectPtr OP_NAME(const Object& other) const override { \
-    auto otherObj = dynamic_cast<const Derived*>(&other); \
-    if (otherObj) { \
-      return std::make_shared<Derived>(value OP_SYMBOL otherObj->getValue()); \
-    } \
-    return OP_NAME##Helper(other); \
-  } \
-  \
-  virtual ObjectPtr OP_NAME##Helper(unused const Object& other) const { \
-      throw std::runtime_error(#ERROR_MESSAGE " not supported for different types"); \
-  }
-
-#define DEFINE_COMPARISON_OPERATOR(OP_NAME, OP_SYMBOL, ERROR_MESSAGE) \
-  bool OP_NAME(const Object& other) const override { \
-    auto otherObj = dynamic_cast<const Derived*>(&other); \
-    if (otherObj) { \
-      return value OP_SYMBOL otherObj->getValue(); \
-    } \
-    return OP_NAME##Helper(other); \
-  } \
-  \
-  virtual bool OP_NAME##Helper(unused const Object& other) const { \
-      return false; \
-  }
-
-// Base template class for numeric Object
-template <typename Derived, typename ValueType>
-class BaseNumeric : public Object {
- protected:
-  ValueType value;
-
- public:
-  explicit BaseNumeric(ValueType value) : value(std::move(value)) {}
-  ~BaseNumeric() override = default;
-  inline const ValueType& getValue() const { return value; }
-
-  // ------------------ Native methods ------------------
-
-  // Print inner number
-  inline void print(std::ostream& os) const override {
-    #ifdef DEBUG
-      os << typeid(Derived).name() << ": " << value;
-    #else
-      os << value;
-    #endif
-  }
-
-  inline ObjectPtr clone() const override {
-      return std::make_shared<Derived>(value);
-  }
-
-  // ------------------ Native operators ------------------
-
-  // Cast inner number into bool
-  explicit operator bool() const override {
-    return static_cast<bool>(value);
-  }
-
-  // Hash inner number
-  virtual std::size_t hash() const {
-    return std::hash<ValueType>{}(value);
-  }
-
-  // Arithmethic between numbers
-  DEFINE_OPERATOR(add, +, 'Addition')
-  DEFINE_OPERATOR(subtract, -, 'Subtraction')
-  DEFINE_OPERATOR(multiply, *, 'Multiplication')
-  DEFINE_OPERATOR(divide, /, 'Division')
-
-  // Comparison between numbers
-  DEFINE_COMPARISON_OPERATOR(equals, ==, 'Equality')
-  DEFINE_COMPARISON_OPERATOR(less, <, 'Less than')
-  DEFINE_COMPARISON_OPERATOR(greater, >, 'Greater than')
 };

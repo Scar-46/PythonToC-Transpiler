@@ -6,7 +6,7 @@
 #include <utility>
 #include <vector>
 
-#include "../Collections/Collection.hpp"
+#include "./Collection.hpp"
 #include "../functions.hpp"
 
 class List : public Collection<List, std::vector> {
