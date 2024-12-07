@@ -24,7 +24,7 @@ Set::Set(const std::unordered_set<var>& elements)
 };
 
 // Brace-list constructor
-Set(std::initializer_list<var> initList)
+Set::Set(std::initializer_list<var> initList)
   : Collection<Set, std::unordered_set>(initList) {
   init();
 }
