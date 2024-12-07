@@ -24,6 +24,7 @@ class Map : public Object {
     _methods["pop"] = std::bind(&Map::pop, this, std::placeholders::_1);
     _methods["clear"] = std::bind(&Map::clear, this, std::placeholders::_1);
     _methods["get"] = std::bind(&Map::get, this, std::placeholders::_1);
+    _methods["__len__"] = std::bind(&Map::len, this, std::placeholders::_1);
   }
 
  public:
@@ -170,7 +171,14 @@ class Map : public Object {
     return elements.size();
   }
 
-  // ------------------ Keys, Values, and Items Methods ------------------
+  // Amount of key-value entries in the map
+  Method::result_type len(const std::vector<ObjectPtr>& params) {
+    if (params.size() != 0) {
+      throw std::runtime_error("__len__: Invalid number of arguments");
+    }
+
+    return std::make_shared<Integer>(elements.size());
+  }
 
   // Returns a list of all keys in the map
   Method::result_type keys(const std::vector<ObjectPtr>& params) {
@@ -230,6 +238,7 @@ class Map : public Object {
   }
 
   // ------------------ Iterator ------------------
+
   class MapIterator : public Object::ObjectIterator {
    private:
     const Map& _map;
