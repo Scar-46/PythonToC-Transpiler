@@ -140,7 +140,7 @@ class Map : public Object {
   // Remove key-value entry by given key
   Method::result_type pop(const std::vector<ObjectPtr>& params) {
     if (params.size() != 1) {
-      throw std::runtime_error("removeElement: Invalid number of arguments");
+      throw std::runtime_error("pop: Invalid number of arguments");
     }
 
     var key = params[0];
