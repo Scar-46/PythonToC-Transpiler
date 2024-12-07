@@ -150,7 +150,7 @@ class CodeGenerator():
             code_strs.append(self.emit(f"this->{node.value}", add_newline=False))
         else:
             code_strs.append(self.visit(node.children[0]))
-            code_strs.append(self.emit(f".{node.value}", add_newline=False))
+            code_strs.append(self.emit(f"->Call(\" {node.value}\", ", add_newline=False))
         return ''.join(code_strs)
 
 #------------------------ IF ------------------------
@@ -272,6 +272,13 @@ class CodeGenerator():
                     add_newline=False
                 )
             )
+        elif node.children[0].node_type == "attribute_access":
+            code_strs.append(self.visit(node.children[0])) # Resolve function call
+            code_strs.append(self.emit("{", add_newline=False))
+            if len(node.children) > 1:  # Arguments
+                code_strs.append(self.visit(node.children[1]))
+            code_strs.append(self.emit("})", add_newline=False))
+        
         # Otherwise, let the built-in function visitor handle the function call
         else:
             code_strs.append(self.visit(node.children[0])) # Resolve function call
