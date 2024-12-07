@@ -33,9 +33,16 @@ class Object {
     throw std::runtime_error("ObjectPtr conversion is not defined by this object");
   }
 
+  // ------------------ Native operators ------------------
+
   // Conversion operator to bool (can be customized based on logic)
   virtual explicit operator bool() const {
     throw std::runtime_error("Boolean conversion not supported for this type");
+  }
+
+  // Conversion to hash (for associative containers)
+  virtual std::size_t hash() const {
+    throw std::runtime_error("Comparison not supported for this type");
   }
 
   // Comparison operators
@@ -51,49 +58,52 @@ class Object {
     throw std::runtime_error("Comparison not supported for this type");
   }
 
-  virtual std::size_t hash() const {
-    throw std::runtime_error("Comparison not supported for this type");
-  }
-
   // Arithmetic operations
-  virtual Method::result_type add(unused const Object& other) const {
+  virtual ObjectPtr add(unused const Object& other) const {
     throw std::runtime_error("Addition not supported for this type");
   }
 
-  virtual Method::result_type subtract(unused const Object& other) const {
+  virtual ObjectPtr subtract(unused const Object& other) const {
     throw std::runtime_error("Subtraction not supported for this type");
   }
 
-  virtual Method::result_type multiply(unused const Object& other) const {
+  virtual ObjectPtr multiply(unused const Object& other) const {
     throw std::runtime_error("Multiplication not supported for this type");
   }
 
-  virtual Method::result_type divide(unused const Object& other) const {
+  virtual ObjectPtr divide(unused const Object& other) const {
     throw std::runtime_error("Division not supported for this type");
   }
 
-  virtual Method::result_type subscript(unused const Object& other) const {
+  virtual ObjectPtr subscript(unused const Object& other) const {
     throw std::runtime_error("Subscript not supported for this type");
   }
 
   // Shift operations
-  virtual Method::result_type shiftLeft(unused const Object& other) const {
+  virtual ObjectPtr shiftLeft(unused const Object& other) const {
     throw std::runtime_error("Shift left not supported for this type");
   }
 
-  virtual Method::result_type shiftRight(unused const Object& other) const {
+  virtual ObjectPtr shiftRight(unused const Object& other) const {
     throw std::runtime_error("Shift right not supported for this type");
   }
 
-  // Methods to be implemented by all classes
+  // ------------------ Native methods ------------------
+
+  // Print contents
   virtual void print(std::ostream& os) const = 0;
+  
+  // Clone itself
   virtual ObjectPtr clone() const = 0;
 
+  // Check type equivalence
   virtual bool isSameType(const Object& other) const {
     return typeid(*this) == typeid(other);
   }
 
-  // Specific methods per instance
+  // ------------------ Per-instance methods ------------------
+
+  // Call method supported by object instance
   ObjectPtr Call(const std::string& name, std::initializer_list<ObjectPtr> params) {
     auto matchedMethod = _methods.find(name);
 
@@ -104,7 +114,8 @@ class Object {
       return matchedMethod->second(params);
   }
 
-  // Iterators
+  // ------------------ Iterator ------------------
+
   class ObjectIterator;
   using ObjectIt = std::unique_ptr<Object::ObjectIterator>;
 
@@ -143,8 +154,9 @@ class BaseObject : public Object {
   ~BaseObject() override = default;
   inline const ValueType& getValue() const { return value; }
 
+  // ------------------ Native methods ------------------
 
-  // Default implementation of print
+  // Print inner value contents
   inline void print(std::ostream& os) const override {
     #ifdef DEBUG
       os << typeid(Derived).name() << ": " << value;
@@ -153,6 +165,14 @@ class BaseObject : public Object {
     #endif
   }
 
+  // Clone self
+  inline ObjectPtr clone() const override {
+    return std::make_shared<Derived>(value);
+  }
+
+  // ------------------ Native operators ------------------
+
+  // Cast inner value into bool
   explicit operator bool() const override {
     if constexpr (std::is_convertible_v<ValueType, bool>) {
       return static_cast<bool>(value);
@@ -161,12 +181,11 @@ class BaseObject : public Object {
     throw std::runtime_error("Boolean conversion not supported for this type");
   }
 
-  // Default implementation of clone
-  inline ObjectPtr clone() const override {
-    return std::make_shared<Derived>(value);
+  // Hash inner value
+  virtual std::size_t hash() const {
+    return std::hash<ValueType>{}(value);
   }
 
-  // Default implementation of comparisons
   virtual bool equals(const Object& other) const {
     if (!isSameType(other)) { return false ;}
 
@@ -186,11 +205,7 @@ class BaseObject : public Object {
 
     auto otherObj = dynamic_cast<const BaseObject<Derived, ValueType>&>(other);
     return this->value > otherObj.getValue();
-  }
-
-  virtual std::size_t hash() const {
-    return std::hash<ValueType>{}(value);
-  }
+  }  
 };
 
 #define DEFINE_OPERATOR(OP_NAME, OP_SYMBOL, ERROR_MESSAGE) \
@@ -230,11 +245,9 @@ class BaseNumeric : public Object {
   ~BaseNumeric() override = default;
   inline const ValueType& getValue() const { return value; }
 
-  explicit operator bool() const override {
-    return static_cast<bool>(value);
-  }
+  // ------------------ Native methods ------------------
 
-  // Default implementation of print
+  // Print inner number
   inline void print(std::ostream& os) const override {
     #ifdef DEBUG
       os << typeid(Derived).name() << ": " << value;
@@ -243,21 +256,29 @@ class BaseNumeric : public Object {
     #endif
   }
 
-  // Default implementation of clone
   inline ObjectPtr clone() const override {
       return std::make_shared<Derived>(value);
   }
 
-  // Default implementation of comparisons
+  // ------------------ Native operators ------------------
+
+  // Cast inner number into bool
+  explicit operator bool() const override {
+    return static_cast<bool>(value);
+  }
+
+  // Hash inner number
   virtual std::size_t hash() const {
     return std::hash<ValueType>{}(value);
   }
 
+  // Arithmethic between numbers
   DEFINE_OPERATOR(add, +, 'Addition')
   DEFINE_OPERATOR(subtract, -, 'Subtraction')
   DEFINE_OPERATOR(multiply, *, 'Multiplication')
   DEFINE_OPERATOR(divide, /, 'Division')
 
+  // Comparison between numbers
   DEFINE_COMPARISON_OPERATOR(equals, ==, 'Equality')
   DEFINE_COMPARISON_OPERATOR(less, <, 'Less than')
   DEFINE_COMPARISON_OPERATOR(greater, >, 'Greater than')
