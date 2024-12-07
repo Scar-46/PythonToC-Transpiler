@@ -91,6 +91,28 @@ class Map : public Object {
     return std::make_shared<Map>(*this);
   }
 
+  // ------------------ Native operators ------------------
+
+  // Access elements in key-value pairs by key
+  var operator[](const var& key) const {
+    auto it = elements.find(key);
+    if (it != elements.end()) {
+      return it->second;
+    } else {
+      std::cerr << "Key not found\n";
+      return var();  // Or throw an exception
+    }
+  }
+
+  // Return merge of itself and another map
+  Map operator+(const Map& other) const {
+    Map result = *this;   // Start with a copy of the current map
+    for (const auto& pair : other.elements) {
+      result.elements[pair.first] = pair.second;  // Overwrite or insert new key-value pairs
+    }
+    return result;
+  }
+
   // ------------------ Management Methods ------------------
 
   // Add key-value entry 
@@ -205,28 +227,6 @@ class Map : public Object {
     
     std::cerr << "get: Key not found\n";
     return nullptr;
-  }
-
-  // ------------------ Operator Overloading ------------------
-
-  // Access elements in key-value pairs by key
-  var operator[](const var& key) const {
-    auto it = elements.find(key);
-    if (it != elements.end()) {
-      return it->second;
-    } else {
-      std::cerr << "Key not found\n";
-      return var();  // Or throw an exception
-    }
-  }
-
-  // Return merge of itself and another map
-  Map operator+(const Map& other) const {
-    Map result = *this;   // Start with a copy of the current map
-    for (const auto& pair : other.elements) {
-      result.elements[pair.first] = pair.second;  // Overwrite or insert new key-value pairs
-    }
-    return result;
   }
 
   // ------------------ Iterator ------------------
