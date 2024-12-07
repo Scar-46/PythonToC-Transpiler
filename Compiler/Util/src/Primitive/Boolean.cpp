@@ -1,6 +1,4 @@
 // Copyright (c) 2024 Syntax Errors.
-#include <memory>
-
 #include "./Boolean.hpp"
 
 Boolean::Boolean(bool value) : Primitive(value) {}
