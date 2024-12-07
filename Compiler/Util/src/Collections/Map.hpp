@@ -122,23 +122,23 @@ class Map : public Object {
 
   // ------------------ Keys, Values, and Items Methods ------------------
 
-    // Returns a list of all keys in the map
-    ObjectPtr keys(unused std::initializer_list<ObjectPtr> params) {
-      std::vector<var> keyList;
-      for (const auto& kv : elements) {
-        keyList.push_back(kv.first);
-      }
-      return std::make_shared<List>(keyList);
+  // Returns a list of all keys in the map
+  ObjectPtr keys(unused std::initializer_list<ObjectPtr> params) {
+    std::vector<var> keyList;
+    for (const auto& kv : elements) {
+      keyList.push_back(kv.first);
     }
+    return std::make_shared<List>(keyList);
+  }
 
-    // Returns a list of all values in the map
-    ObjectPtr values(unused std::initializer_list<ObjectPtr> params) {
-      std::vector<var> valueList;
-      for (const auto& kv : elements) {
-        valueList.push_back(kv.second);
-      }
-      return std::make_shared<List>(valueList);
+  // Returns a list of all values in the map
+  ObjectPtr values(unused std::initializer_list<ObjectPtr> params) {
+    std::vector<var> valueList;
+    for (const auto& kv : elements) {
+      valueList.push_back(kv.second);
     }
+    return std::make_shared<List>(valueList);
+  }
 
   // Returns a list of key-value pairs as Pair objects
   ObjectPtr items(unused std::initializer_list<ObjectPtr> params) {
@@ -148,7 +148,6 @@ class Map : public Object {
     }
     return std::make_shared<List>(itemList);
   }
-
 
   // ------------------ Operator Overloading ------------------
   // Overload the [] operator to access elements by key
@@ -200,6 +199,7 @@ class Map : public Object {
       return std::make_unique<MapIterator>(*this);
     }
   };
+
   // Override iteration methods
   ObjectIt getIterator() const override {
     return std::make_unique<MapIterator>(*this);
