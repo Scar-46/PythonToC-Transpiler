@@ -22,7 +22,7 @@ using ObjectPtr = std::shared_ptr<Object>;
 class Object {
  protected:
   // Callable methods by name and parameters
-  using Method = std::function<ObjectPtr(std::initializer_list<ObjectPtr>)>;
+  using Method = std::function<ObjectPtr(const std::vector<ObjectPtr>&)>;
   std::map<std::string, Method> _methods;
 
   virtual void init() {}
@@ -38,7 +38,7 @@ class Object {
     throw std::runtime_error("Boolean conversion not supported for this type");
   }
 
-  // Compare operators
+  // Comparison operators
   virtual bool equals(unused const Object& other) const {
     throw std::runtime_error("Comparison not supported for this type");
   }
@@ -56,32 +56,32 @@ class Object {
   }
 
   // Arithmetic operations
-  virtual ObjectPtr add(unused const Object& other) const {
+  virtual Method::result_type add(unused const Object& other) const {
     throw std::runtime_error("Addition not supported for this type");
   }
 
-  virtual ObjectPtr subtract(unused const Object& other) const {
+  virtual Method::result_type subtract(unused const Object& other) const {
     throw std::runtime_error("Subtraction not supported for this type");
   }
 
-  virtual ObjectPtr multiply(unused const Object& other) const {
+  virtual Method::result_type multiply(unused const Object& other) const {
     throw std::runtime_error("Multiplication not supported for this type");
   }
 
-  virtual ObjectPtr divide(unused const Object& other) const {
+  virtual Method::result_type divide(unused const Object& other) const {
     throw std::runtime_error("Division not supported for this type");
   }
 
-  virtual ObjectPtr subscript(unused const Object& other) const {
+  virtual Method::result_type subscript(unused const Object& other) const {
     throw std::runtime_error("Subscript not supported for this type");
   }
 
   // Shift operations
-  virtual std::shared_ptr<Object> shiftLeft(unused const Object& other) const {
+  virtual Method::result_type shiftLeft(unused const Object& other) const {
     throw std::runtime_error("Shift left not supported for this type");
   }
 
-  virtual std::shared_ptr<Object> shiftRight(unused const Object& other) const {
+  virtual Method::result_type shiftRight(unused const Object& other) const {
     throw std::runtime_error("Shift right not supported for this type");
   }
 

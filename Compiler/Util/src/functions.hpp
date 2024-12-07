@@ -27,7 +27,7 @@ void assignValues(Tuple& values, Iterator& it, Iterator end) {  // NOLINT
 template <typename Container, typename AddElementFn, typename ResultFactoryFn>
 ObjectPtr generalizedSlice(
   const Container& container,
-  std::initializer_list<ObjectPtr> params,
+  std::vector<ObjectPtr> params,
   AddElementFn addElementFn,
   ResultFactoryFn resultFactoryFn) {
   // Default values for start, end, and step

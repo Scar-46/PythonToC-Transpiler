@@ -10,7 +10,7 @@
 #include "../Object/var.hpp"
 #include "./Pair.hpp"
 #include "./List.hpp"
-
+#include <list>
 
 class Map : public Object {
  private:
@@ -20,6 +20,9 @@ class Map : public Object {
     _methods["keys"] = std::bind(&Map::keys, this, std::placeholders::_1);
     _methods["values"] = std::bind(&Map::values, this, std::placeholders::_1);
     _methods["items"] = std::bind(&Map::items, this, std::placeholders::_1);
+    _methods["addElement"] = std::bind(&Map::addElement, this, std::placeholders::_1);
+    _methods["popElement"] = std::bind(&Map::popElement, this, std::placeholders::_1);
+    _methods["clear"] = std::bind(&Map::clear, this, std::placeholders::_1);
   }
 
  public:
@@ -89,31 +92,52 @@ class Map : public Object {
   }
 
   // ------------------ Map Methods ------------------
-  void addElement(const var& key, const var& value) {
+  Method::result_type addElement(const std::vector<ObjectPtr>& params) {
+    if (params.size() != 2) {
+      throw std::runtime_error("Invalid number of arguments");
+    }
+
+    var key = params[0];
+    var value = params[1];
+
     if (!key) {
       throw std::runtime_error("Map: cannot add null key");
     }
+
     auto it = this->elements.find(key);
     if (it == this->elements.end()) {
       std::cout << "New Key" << std::endl;
       this->elements.insert({key, value});
     }
+
+    return nullptr;
   }
 
-  var popElement(const var& key) {
+  Method::result_type popElement(const std::vector<ObjectPtr>& params) {
+    if (params.size() != 1) {
+      throw std::runtime_error("Invalid number of arguments");
+    }
+
+    var key = params[0];
     auto it = elements.find(key);
+
     if (it != elements.end()) {
       var removedElement = it->second;
       elements.erase(it);
-      return removedElement;
+      return removedElement.getValue();
     } else {
       std::cerr << "Key not found\n";
-      return var();
+      return nullptr;
     }
   }
 
-  void clear() {
+  Method::result_type clear(const std::vector<ObjectPtr>& params) {
+    if (params.size() != 0) {
+      throw std::runtime_error("Invalid number of arguments");
+    }
+
     elements.clear();
+    return nullptr;
   }
 
   size_t size() const {
@@ -123,7 +147,7 @@ class Map : public Object {
   // ------------------ Keys, Values, and Items Methods ------------------
 
   // Returns a list of all keys in the map
-  ObjectPtr keys(unused std::initializer_list<ObjectPtr> params) {
+  Method::result_type keys(unused const std::vector<ObjectPtr>& params) {
     std::vector<var> keyList;
     for (const auto& kv : elements) {
       keyList.push_back(kv.first);
@@ -132,7 +156,7 @@ class Map : public Object {
   }
 
   // Returns a list of all values in the map
-  ObjectPtr values(unused std::initializer_list<ObjectPtr> params) {
+  Method::result_type values(unused const std::vector<ObjectPtr>&) {
     std::vector<var> valueList;
     for (const auto& kv : elements) {
       valueList.push_back(kv.second);
@@ -141,7 +165,7 @@ class Map : public Object {
   }
 
   // Returns a list of key-value pairs as Pair objects
-  ObjectPtr items(unused std::initializer_list<ObjectPtr> params) {
+  Method::result_type items(unused const std::vector<ObjectPtr>&) {
     std::vector<var> itemList;
     for (const auto& kv : elements) {
       itemList.push_back(var(Pair(kv.first, kv.second)));

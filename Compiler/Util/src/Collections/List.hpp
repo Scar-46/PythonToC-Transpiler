@@ -166,7 +166,7 @@ class List : public Object {
   }
 
   // ------------------ List Methods for Bind ------------------
-  ObjectPtr has(std::initializer_list<ObjectPtr> params) {
+  Method::result_type has(const std::vector<ObjectPtr>& params) {
     Boolean result = Boolean(false);
     if (params.size() <= 0) return std::make_shared<Boolean>(result);
     auto queryPtr = *(params.begin());
@@ -181,7 +181,7 @@ class List : public Object {
     return std::make_shared<Boolean>(result);
   }
 
-  ObjectPtr append(std::initializer_list<ObjectPtr> params) {
+  Method::result_type append(const std::vector<ObjectPtr>& params) {
     if (params.size() <= 0) return nullptr;
     ObjectPtr element = *(params.begin());
     if (element) elements.push_back(var(element->clone()));
@@ -189,7 +189,7 @@ class List : public Object {
     return nullptr;
   }
 
-  ObjectPtr slice(std::initializer_list<ObjectPtr> params) {
+  Method::result_type slice(const std::vector<ObjectPtr>& params) {
     return generalizedSlice(
       this->elements,
       params,
