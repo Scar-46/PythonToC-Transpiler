@@ -2,7 +2,6 @@
 #include "Map.hpp"
 
 // ------------------ Private methods ------------------
-
 void Map::init() {
   _methods["keys"] = std::bind(&Map::keys, this, std::placeholders::_1);
   _methods["values"] = std::bind(&Map::values, this, std::placeholders::_1);
