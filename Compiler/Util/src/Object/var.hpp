@@ -23,13 +23,18 @@ class Iterator: public Object{
  public:
   // Constructor for a valid iterator
   explicit Iterator(Object::ObjectIt iterator)
-    : objectIterator(std::move(iterator)), isEnd(false) {}
+    : objectIterator(std::move(iterator)), isEnd(false) {this->init();}
 
   // Constructor for the end iterator
-  Iterator() : objectIterator(nullptr), isEnd(true) {}
+  Iterator() : objectIterator(nullptr), isEnd(true) {this->init();}
 
   var operator*() const;
   var operator*();
+  ObjectPtr next(std::initializer_list<ObjectPtr> params);
+
+  void init() override {
+    _methods["next"] = std::bind(&Iterator::next, this, std::placeholders::_1);
+  }
 
   Iterator& operator++() {
     if (!objectIterator || isEnd) {
@@ -269,4 +274,13 @@ var Iterator::operator*() {
     throw std::runtime_error("Dereferencing an invalid iterator");
   }
   return var(objectIterator->next());
+}
+
+ObjectPtr Iterator::next(std::initializer_list<ObjectPtr> params) {
+  if (isEnd || !objectIterator) {
+    throw std::runtime_error("No more elements to iterate over");
+  }
+  var current = **this;
+  ++(*this);
+  return nullptr;
 }
