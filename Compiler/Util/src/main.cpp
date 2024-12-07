@@ -36,7 +36,7 @@ int main() {
   }
 
   std::cout << "Map: " << map << std::endl << " | Keys: " << var(map->Call("keys", {}))
-    << std::endl << " | Values: " << var(map->Call("keys", {})) << std::endl;
+    << std::endl << " | Values: " << var(map->Call("values", {})) << std::endl;
 
   // var slice = list->Call("slice", {Integer(0), Integer(1)})->Call("has", {string.getValue()});
   var slice = list->Call("slice", {Integer(0), Integer(1)});
