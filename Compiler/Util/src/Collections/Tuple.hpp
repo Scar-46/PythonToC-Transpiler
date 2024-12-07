@@ -9,26 +9,29 @@
 #include "./Object/object.hpp"
 #include "./Object/var.hpp"
 
-class Tuple : public Object {       // TODO(Dwayne): var needs to be able to get tup = {}
+class Tuple : public Collection<Tuple, std::vector> {       // TODO(Dwayne): var needs to be able to get tup = {}
  private:
   std::vector<var> elements;
 
-  size_t normalizeIndex(int index) const {
-    if (index < 0) {
-      index += (elements.size());
-    }
-
-    return static_cast<size_t>(index);
-  }
-
-  void init() override {
-    _methods["__len__"] = std::bind(&Tuple::len, this, std::placeholders::_1);
+  void init() {
+    _methods.erase("pop");
+    _methods.erase("clear");
+    _methods.erase("remove");
+    _methods["index"] = std::bind(&Tuple::index, this, std::placeholders::_1);
   }
 
  public:
+  // Default constructor
   Tuple() { init(); };
-  Tuple(const std::vector<var>& vars) : elements(vars) { init(); };
+
+  // Copy-constructor
+  Tuple(const Tuple& other) : Collection<Tuple, std::vector>(other) { init(); };
+  explicit Tuple(const std::vector<var>& elements) : Collection<Tuple, std::vector>(elements) { init(); }
+
+  // Brace-list constructor
   Tuple(std::initializer_list<var> initList) : elements(initList) { init(); }
+
+  virtual ~Tuple() override = default;
 
   // ------------------ Native overrides ------------------
 
@@ -51,7 +54,7 @@ class Tuple : public Object {       // TODO(Dwayne): var needs to be able to get
 
   // ------------------ Native operators ------------------
 
-  operator ObjectPtr() override{
+  operator ObjectPtr() override {
     return std::make_shared<Tuple>(*this);
   };
 
@@ -91,16 +94,6 @@ class Tuple : public Object {       // TODO(Dwayne): var needs to be able to get
     return elements[index].getValue();
   }
 
-  // Check if items in tuple match exactly those in another's (respecting order)
-  bool equals(const Object& other) const override {
-    auto otherTuple = dynamic_cast<const Tuple*>(&other);
-    if (!otherTuple) {
-      return false;
-    }
-
-    return elements == otherTuple->elements;
-  }
-
   // ------------------ Management methods ------------------
 
   // Return index of first ocurrence of element
@@ -118,15 +111,6 @@ class Tuple : public Object {       // TODO(Dwayne): var needs to be able to get
 
     std::cerr << "index: Value missing from list\n"; 
     return nullptr;
-  }
-
-  // Amount of elements in tuple
-  Method::result_type len(const std::vector<ObjectPtr>& params) {
-    if (params.size() != 0) {
-      throw std::runtime_error("__len__: Invalid number of arguments");
-    }
-
-    return std::make_shared<Integer>(elements.size());
   }
 
   // ------------------ Iterator ------------------
