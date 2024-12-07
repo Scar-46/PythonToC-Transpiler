@@ -21,7 +21,7 @@ class Map : public Object {
     _methods["values"] = std::bind(&Map::values, this, std::placeholders::_1);
     _methods["items"] = std::bind(&Map::items, this, std::placeholders::_1);
     _methods["addElement"] = std::bind(&Map::addElement, this, std::placeholders::_1);
-    _methods["popElement"] = std::bind(&Map::popElement, this, std::placeholders::_1);
+    _methods["pop"] = std::bind(&Map::pop, this, std::placeholders::_1);
     _methods["clear"] = std::bind(&Map::clear, this, std::placeholders::_1);
     _methods["get"] = std::bind(&Map::get, this, std::placeholders::_1);
   }
@@ -138,7 +138,7 @@ class Map : public Object {
   }
 
   // Remove key-value entry by given key
-  Method::result_type popElement(const std::vector<ObjectPtr>& params) {
+  Method::result_type pop(const std::vector<ObjectPtr>& params) {
     if (params.size() != 1) {
       throw std::runtime_error("removeElement: Invalid number of arguments");
     }
