@@ -27,64 +27,39 @@ class Object {
 
  public:
   virtual ~Object() = default;
-  virtual operator ObjectPtr() {
-    throw std::runtime_error("ObjectPtr conversion is not defined by this object");
-  }
 
   // ------------------ Native operators ------------------
+  
+  virtual operator ObjectPtr();
 
   // Conversion operator to bool (can be customized based on logic)
-  virtual explicit operator bool() const {
-    throw std::runtime_error("Boolean conversion not supported for this type");
-  }
+  virtual explicit operator bool() const;
 
   // Conversion to hash (for associative containers)
-  virtual std::size_t hash() const {
-    throw std::runtime_error("Comparison not supported for this type");
-  }
+  virtual std::size_t hash() const;
 
   // Comparison operators
-  virtual bool equals(unused const Object& other) const {
-    throw std::runtime_error("Comparison not supported for this type");
-  }
+  virtual bool equals(unused const Object& other) const;
 
-  virtual bool less(unused const Object& other) const {
-    throw std::runtime_error("Comparison not supported for this type");
-  }
+  virtual bool less(unused const Object& other) const;
 
-  virtual bool greater(unused const Object& other) const {
-    throw std::runtime_error("Comparison not supported for this type");
-  }
+  virtual bool greater(unused const Object& other) const;
 
   // Arithmetic operations
-  virtual ObjectPtr add(unused const Object& other) const {
-    throw std::runtime_error("Addition not supported for this type");
-  }
+  virtual ObjectPtr add(unused const Object& other) const;
 
-  virtual ObjectPtr subtract(unused const Object& other) const {
-    throw std::runtime_error("Subtraction not supported for this type");
-  }
+  virtual ObjectPtr subtract(unused const Object& other) const;
 
-  virtual ObjectPtr multiply(unused const Object& other) const {
-    throw std::runtime_error("Multiplication not supported for this type");
-  }
+  virtual ObjectPtr multiply(unused const Object& other) const;
 
-  virtual ObjectPtr divide(unused const Object& other) const {
-    throw std::runtime_error("Division not supported for this type");
-  }
+  virtual ObjectPtr divide(unused const Object& other) const;
 
-  virtual ObjectPtr subscript(unused const Object& other) const {
-    throw std::runtime_error("Subscript not supported for this type");
-  }
+  virtual ObjectPtr subscript(unused const Object& other) const;
 
   // Shift operations
-  virtual ObjectPtr shiftLeft(unused const Object& other) const {
-    throw std::runtime_error("Shift left not supported for this type");
-  }
+  virtual ObjectPtr shiftLeft(unused const Object& other) const;
 
-  virtual ObjectPtr shiftRight(unused const Object& other) const {
-    throw std::runtime_error("Shift right not supported for this type");
-  }
+  virtual ObjectPtr shiftRight(unused const Object& other) const;
 
   // ------------------ Native methods ------------------
 
@@ -95,22 +70,12 @@ class Object {
   virtual ObjectPtr clone() const = 0;
 
   // Check type equivalence
-  virtual bool isSameType(const Object& other) const {
-    return typeid(*this) == typeid(other);
-  }
+  virtual bool isSameType(const Object& other) const;
 
   // ------------------ Per-instance methods ------------------
 
   // Call method supported by object instance
-  ObjectPtr Call(const std::string& name, std::initializer_list<ObjectPtr> params) {
-    auto matchedMethod = _methods.find(name);
-
-      if (matchedMethod == _methods.end()) {
-          throw std::runtime_error("Object has no method " + name);
-      }
-
-      return matchedMethod->second(params);
-  }
+  ObjectPtr Call(const std::string& name, std::initializer_list<ObjectPtr> params);
 
   // ------------------ Iterator ------------------
 
@@ -127,9 +92,7 @@ class Object {
     virtual ObjectIt clone() const = 0;
   };
 
-  virtual ObjectIt getIterator() const {
-    throw std::runtime_error("This object does not support iteration");
-  }
+  virtual ObjectIt getIterator() const;
 };
 
 // Hashing for associative containers
