@@ -10,6 +10,7 @@ void Map::init() {
   _methods["pop"] = std::bind(&Map::pop, this, std::placeholders::_1);
   _methods["clear"] = std::bind(&Map::clear, this, std::placeholders::_1);
   _methods["get"] = std::bind(&Map::get, this, std::placeholders::_1);
+  _methods["slice"] = std::bind(&Map::slice, this, std::placeholders::_1);
   _methods["__len__"] = std::bind(&Map::len, this, std::placeholders::_1);
   _methods["__min__"] = std::bind(&Map::min, this, std::placeholders::_1);
   _methods["__max__"] = std::bind(&Map::max, this, std::placeholders::_1);
@@ -27,7 +28,7 @@ Map::Map(const Map& other) : Object(other), elements(other.elements) {
 
 Map::Map(const std::vector<Pair>& pairs) {
   for (const Pair& pair : pairs) {
-    elements[pair.getFirst()] = elements[pair.getSecond()];
+    elements[pair.getFirst()] = pair.getSecond();
   }
 } 
 
@@ -109,7 +110,6 @@ Method::result_type Map::addElement(const std::vector<ObjectPtr>& params) {
 
   auto it = this->elements.find(key);
   if (it == this->elements.end()) {
-    std::cout << "New Key" << std::endl;
     this->elements.insert({key, value});
   }
 
@@ -199,6 +199,14 @@ Method::result_type Map::get(const std::vector<ObjectPtr>& params) {
   std::cerr << "get: Key not found\n";
   return nullptr;
 }
+
+ObjectPtr Map::slice(const std::vector<ObjectPtr>& params) {
+  if (params.size() != 1) {
+    throw std::runtime_error("Map: Invalid number of arguments");
+  }
+  return this->get(params);
+}
+
 
 Method::result_type Map::len(const std::vector<ObjectPtr>& params) {
   if (params.size() != 0) {
@@ -315,9 +323,9 @@ ObjectPtr Map::MapIterator::next() {
 }
 
 ObjectIt Map::MapIterator::clone() const {
-  return std::make_unique<MapIterator>(*this);
+  return std::make_shared<MapIterator>(*this);
 }
 
 ObjectIt Map::getIterator() const {
-  return std::make_unique<MapIterator>(*this);
+  return std::make_shared<MapIterator>(*this);
 }

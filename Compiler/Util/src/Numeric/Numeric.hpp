@@ -81,7 +81,7 @@ class Numeric : public Object {
   }
 
   // Hash inner number
-  virtual std::size_t hash() const {
+  std::size_t hash() const override {
     return std::hash<ValueType>{}(value);
   }
 

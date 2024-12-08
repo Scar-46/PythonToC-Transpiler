@@ -60,6 +60,8 @@ class Map : public Object {
   Method::result_type items(const std::vector<ObjectPtr>& params);
   // Get value associated with key-value pair by key
   Method::result_type get(const std::vector<ObjectPtr>& params);
+  // Get a value from key
+  Method::result_type slice(const std::vector<ObjectPtr>& params);
   // Amount of key-value entries in the map
   Method::result_type len(const std::vector<ObjectPtr>& params);
   // Smallest key in map

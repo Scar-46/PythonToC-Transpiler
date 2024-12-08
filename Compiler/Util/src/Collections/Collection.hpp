@@ -8,6 +8,7 @@
 #include "../Object/var.hpp"
 #include "../Numeric/Integer.hpp"
 #include "../Primitive/Boolean.hpp"
+#include "../functions.hpp"
 
 // Base template class containers of variables
 template <typename Derived, template <typename...> typename ContainerType>
@@ -18,6 +19,7 @@ class Collection : public Object {
     _methods["pop"] = std::bind(&Collection::pop, this, std::placeholders::_1);
     _methods["clear"] = std::bind(&Collection::clear, this, std::placeholders::_1);
     _methods["remove"] = std::bind(&Collection::remove, this, std::placeholders::_1);
+    // _methods["slice"] = std::bind(&Collection::slice, this, std::placeholders::_1);
     _methods["__len__"] = std::bind(&Collection::len, this, std::placeholders::_1);
     _methods["__min__"] = std::bind(&Collection::min, this, std::placeholders::_1);
     _methods["__max__"] = std::bind(&Collection::max, this, std::placeholders::_1);
@@ -99,6 +101,17 @@ class Collection : public Object {
 
     return nullptr;
   }
+
+  // Get a slice of the elements on the collection
+  // virtual Method::result_type slice(const std::vector<ObjectPtr>& params) {
+  //   return generalizedSlice(
+  //     _elements,
+  //     params,
+  //     [&](ContainerType<var>& result, const var& element) { result.insert(_elements.end(), element); },
+  //     [](const ContainerType<var>& resultContainer) {
+  //       return std::make_shared<Derived>(resultContainer);
+  //     });
+  // }
 
   // Remove all elements from collection
   virtual Method::result_type clear(const std::vector<ObjectPtr>& params) {
@@ -196,12 +209,12 @@ class Collection : public Object {
     }
 
     ObjectIt clone() const override {
-      return std::make_unique<CollectionIterator>(*this);
+      return std::make_shared<CollectionIterator>(*this);
     }
   };
 
   // Override iteration methods
   virtual ObjectIt getIterator() const override {
-    return std::make_unique<CollectionIterator>(*this);
+    return std::make_shared<CollectionIterator>(*this);
   }
 };

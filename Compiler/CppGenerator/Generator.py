@@ -150,7 +150,7 @@ class CodeGenerator():
             code_strs.append(self.emit(f"this->{node.value}", add_newline=False))
         else:
             code_strs.append(self.visit(node.children[0]))
-            code_strs.append(self.emit(f"->Call(\" {node.value}\", ", add_newline=False))
+            code_strs.append(self.emit(f"->Call(\"{node.value}\", ", add_newline=False))
         return ''.join(code_strs)
 
 #------------------------ IF ------------------------

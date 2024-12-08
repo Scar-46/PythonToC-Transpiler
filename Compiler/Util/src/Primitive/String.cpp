@@ -90,11 +90,11 @@ ObjectPtr String::StringIterator::next()  {
 }
 
 String::ObjectIt String::StringIterator::clone() const {
-    return std::make_unique<StringIterator>(*this);
+    return std::make_shared<StringIterator>(*this);
 }
 
 String::ObjectIt String::getIterator() const  {
-    return std::make_unique<StringIterator>(value);
+    return std::make_shared<StringIterator>(value);
 }
 
 // ------------------ Management Methods ------------------

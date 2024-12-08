@@ -17,7 +17,7 @@ var::var(const char* value) : value(std::make_shared<String>(std::string(value))
 var::var(bool value) : value(std::make_shared<Boolean>(value)) {  }
 
 // Copy constructor and assignment
-var::var(const var& other) : value(other.value ? other.value->clone() : nullptr) {  }
+var::var(const var& other) : value(other.value ? other.value->clone() : nullptr) { }
 
 var& var::operator=(const var& other) {
     if (this != &other) {
@@ -205,9 +205,11 @@ Iterator::Iterator(Object::ObjectIt iterator): objectIterator(std::move(iterator
 
 Iterator::Iterator() : objectIterator(nullptr), isEnd(true) {this->init();}
 
-Iterator::  Iterator(const Iterator& other)
+Iterator::Iterator(const Iterator& other)
     : objectIterator(other.objectIterator), isEnd(other.isEnd) {
     this->init();
+
+    std::cout << "Iterator::Iterator(const Iterator& other)" << std::endl;
 }
 
 Iterator& Iterator::operator++() {
@@ -259,6 +261,7 @@ Object::Method::result_type Iterator::next(const std::vector<ObjectPtr>& params)
     }
 
     var current = **this;
+
     ++(*this);
     return current.getValue();
 }

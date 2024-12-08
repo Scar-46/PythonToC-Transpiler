@@ -46,7 +46,11 @@ class Tuple : public Collection<Tuple, std::vector> {
   // Access a given element on the collection by index
   ObjectPtr subscript(const Object& other) const override;
 
+  Method::result_type slice(const std::vector<ObjectPtr>& params);
   // ------------------ Management methods ------------------
+  // Return sliced tuple
+  // Method::result_type slice(const std::vector<ObjectPtr>& params);
+  
   // Return index of first ocurrence of element
   Object::Method::result_type index(const std::vector<ObjectPtr>& params);
 

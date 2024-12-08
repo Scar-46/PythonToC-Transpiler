@@ -1,111 +1,122 @@
-// Copyright (c) 2024 Syntax Errors.
-#include <vector>
-#include <iostream>
-
 #include "./util.hpp"
-
-void TestVar() {
-  printf("\n\n========== VAR ==========\n\n");
-  var string = "Hello world";
-  var integer = 123;
-  var floating = 123.456;
-  var boolean = false;
-  var null;
-
-  std::cout << "nullptr == nullptr ?: " << var(null == null) << std::endl;
-  std::cout << integer << " == nullptr ?: " << var(integer == null) << std::endl;
-
-  printf("Done\n");
+var se_random_operation(var se_a, var se_b);
+var se_fibonacci(var se_n);
+var se_fibonacci_d(var se_n);
+var se_iter_example();
+var se_map_ex();
+var se_default_ex(var se_a);
+var se_set_ex();
+var se_tuple_ex();
+var se_slices_ex();
+var se_string_ex();
+var se_random_operation(var se_a, var se_b){
+    var se_c;
+    se_c = se_a + se_b;
+    return se_c + se_a * se_b + var(2.6548);
+    return var();
 }
-
-void TestList() {
-  printf("\n\n========== LIST ==========\n\n");
-
-  var list = List();
-
-  list->Call("append", {String("Bring")});
-  list->Call("append", {Integer(2)});
-  list->Call("append", {String("friends")});
-  list->Call("insert", {Integer(0), String("No!")});
-  list->Call("insert", {list->Call("__len__", {}), String("to the party")});
-  list->Call("append", {Boolean(true)});
-
-  std::cout << "List: " << list << std::endl;
-  for (const auto& item : list) {
-    std::cout << "Item: " << item << std::endl;
-  }
-
-  var slice = list->Call("slice", {Integer(0), Integer(1)});
-  std::cout << "List slice: " << slice[Integer(0)] << std::endl;
-  
-  var query = String("friends");
-  if (auto val = var(slice->Call("index", {query.getValue()}))) {
-    std::cout << query << " found in slice! At index " << val << std::endl;
-  } else {
-    std::cout << query  << " not found in slice" << std::endl;
-  }
+var se_fibonacci(var se_n){
+    if((se_n == var(1) || se_n == var(2))) {
+        return var(1);
+    }
+    else if(se_n == var(0)) {
+        return se_n / var(0);
+    }
+    else{
+        return se_fibonacci(se_n - var(1)) + se_fibonacci(se_n - var(2));
+    }
+    return var();
 }
-
-void TestString() {
-  printf("\n\n========== STRING ==========\n\n");
-
-  var string = "Hello World";
-  std::cout << "String: " << string << std::endl;
-
-  var slice = string->Call("slice", {Integer(0), Integer(5)});
-  std::cout << "String slice: " << slice << std::endl;
+var se_fibonacci_d(var se_n){
+    var se_n_1;
+    var se_n_2;
+    var se_new;
+    se_n_1 = var(1);
+    se_n_2 = var(1);
+    while(se_n_1 < se_n){
+        se_new = se_n_1 + se_n_2;
+        se_n_2 = se_n_1;
+        se_n_1 = se_new;
+    }
+    return se_n_1;
+    return var();
 }
-
-void TestSet() {
-  printf("\n\n========== SET ==========\n\n");
-
-  var set = Set();
-
-  set->Call("add", {Integer(0)});
-  set->Call("add", {Integer(100)});
-  set->Call("add", {String("Zero")});
-  set->Call("add", {String("Hundred")});
-
-  std::cout << "Set: " << set << std::endl;
-  for (const auto& item : set) {
-    std::cout << "Set item: " << item << std::endl;
-  }
-  if (var result = set->Call("has", {Integer(0)})) {
-    std::cout << "Set has " << result << std::endl;
-  }
+var se_iter_example(){
+    var se_l;
+    var se_it;
+    se_l = Builtin::inlineList({var(1), var(2.5), var(3), var("hola"), var(5), var("mundo")});
+    se_it = Builtin::iter({se_l});
+    for (auto se_i : (var) se_l){
+        // std::cout << Builtin::next({se_it}) << std::endl;
+    }
+    return true;
+    return var();
 }
-
-void TestMap() {
-  printf("\n\n========== MAP ==========\n\n");
-
-  var map = Map();
-
-  map->Call("addElement", {String("Hello"), String("World")});
-  map->Call("addElement", {Integer(1), Double(3.1415)});
-  try {
-    map->Call("addElement", {nullptr, Double(3.1415)});
-  } catch (std::runtime_error& e) {
-    std::cout << "Tried and failed to add nullptr to map" << std::endl;
-  }
-
-  std::cout << "Map: " << map << std::endl << " | Keys: " << var(map->Call("keys", {}))
-    << std::endl << " | Values: " << var(map->Call("values", {})) << std::endl;
-
-  var query = String("Something impossible");
-  if (auto val = var(map->Call("get", {query.getValue()}))) {
-    std::cout << query << " has assigned a value in map: " << val << std::endl;
-  } else {
-    std::cout << query  << " not found in map" << std::endl;
-  }
+var se_map_ex(){
+    var se_d;
+    se_d = Builtin::inlineDict({
+        Pair(var("hola"), var("mundo")),
+        Pair(var(1), Builtin::inlineList({var(1), var(2), var(3), var(4), var(5)})),
+        Pair(var("dict"), Builtin::inlineDict({
+            Pair(var("adios"), var(":D"))
+        }))
+    });
+    for (auto se_k : (var) se_d->Call("keys", {})){
+        std::cout << var(se_d->Call("slice", {se_k})) << std::endl;
+    }
+    return var("hola") + var("mundo");
+    return var();
 }
-
-int main() {
-  // Variables of different types
-  TestVar();
-  TestString();
-  TestList();
-  TestSet();
-  TestMap();
-
-  return 0;
+var se_default_ex(var se_a = var("hola")){
+    return se_a;
+    return var();
+}
+var se_set_ex(){
+    var se_a;
+    se_a = Builtin::inlineSet({var(1), var(2), var("hola"), var(4), var(5)});
+    return var(se_a->Call("has", {var(2)}));
+    return var();
+}
+var se_tuple_ex(){
+    var se_a;
+    var se_b;
+    se_a = Builtin::inlineTuple({var(5), var(6), var("joseph")});
+    se_b = Builtin::inlineTuple({var(1), var(2), var("valverde")});
+    return se_a + se_b;
+    return var();
+}
+var se_slices_ex(){
+    var se_l;
+    var se_k;
+    se_l = Builtin::inlineList({var(1), var(2), var(3), var(4), var(5), var(6), var(7), var(7), var(8), var(9)});
+    std::cout << var(se_l->Call("slice", {var(-2)})) << std::endl;
+    std::cout << var(se_l->Call("slice", {var(1), var(-2)})) << std::endl;
+    se_k = var(se_l->Call("slice", {var(1), var(2)})) + var(se_l->Call("slice", {var(-3), var(-4)}));
+    return se_k;
+    return var();
+}
+var se_string_ex(){
+    std::cout << var(var("profe")->Call("slice", {var(2), var(4)})) << std::endl;
+    std::cout << var(var("profe")->Call("slice", {var(2), var(4)})) + var(var("profe")->Call("slice", {var(0), var(2)})) + var(var("profe")->Call("slice", {var(-1)})) << std::endl;
+    std::cout << se_random_operation(var(5), var(6)) << std::endl;
+    return var();
+}
+int main(){
+    std::cout << se_fibonacci(var(4)) << std::endl;
+    std::cout << "se_fibonacci(var(4))" << std::endl;
+    std::cout << se_iter_example() << std::endl;
+    std::cout << "se_iter_example()" << std::endl;
+    std::cout << se_map_ex() << std::endl;
+    std::cout << "se_map_ex()" << std::endl;
+    std::cout << se_default_ex() << std::endl;
+    std::cout << "se_default_ex()" << std::endl;
+    std::cout << se_tuple_ex() << std::endl;
+    std::cout << "se_tuple_ex()" << std::endl;
+    std::cout << se_set_ex() << std::endl;
+    std::cout << "se_set_ex()" << std::endl;
+    std::cout << se_slices_ex() << std::endl;
+    std::cout << "se_slices_ex()" << std::endl;
+    se_string_ex();
+    std::cout << "se_string_ex()" << std::endl;
+    return 0;
 }

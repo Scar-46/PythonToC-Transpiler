@@ -9,6 +9,7 @@ void Tuple::init() {
   _methods.erase("pop");
   _methods.erase("clear");
   _methods.erase("remove");
+  _methods["slice"] = std::bind(&Tuple::slice, this, std::placeholders::_1);
   _methods["index"] = std::bind(&Tuple::index, this, std::placeholders::_1);
   _methods["__str__"] = std::bind(&Tuple::asString, this, std::placeholders::_1);
 }
@@ -105,6 +106,16 @@ ObjectPtr Tuple::subscript(const Object& other) const {
   }
 
   return _elements[index].getValue();
+}
+
+ObjectPtr Tuple::slice(const std::vector<ObjectPtr>& params) {
+  return generalizedSlice(
+    _elements,
+    params,
+    [](std::vector<var>& result, const var& element) { result.push_back(element); },
+    [](const std::vector<var>& resultContainer) {
+      return std::make_shared<Tuple>(resultContainer);
+    });
 }
 
 // ------------------ Management methods ------------------
