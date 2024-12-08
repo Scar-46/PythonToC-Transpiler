@@ -320,17 +320,17 @@ class CodeGenerator():
 
 # ------------------------ Tuple ------------------------
     def visit_tuple(self, node):
-        code_strs = [self.emit("Builtin::inlineTuple(", add_newline=False)]
+        code_strs = [self.emit("Builtin::inlineTuple({", add_newline=False)]
         for i, child in enumerate(node.children):
             code_strs.append(self.visit(child))
             if i < len(node.children) - 1:
                 code_strs.append(self.emit(", ", add_newline=False))
-        code_strs.append(self.emit(")", add_newline=False))
+        code_strs.append(self.emit("})", add_newline=False))
         return ''.join(code_strs)
 
 # ------------------------ Dictionary ------------------------
     def visit_dictionary(self, node):
-        code_strs = [self.emit("Builtin::inlineDict(", add_newline=True)]
+        code_strs = [self.emit("Builtin::inlineDict({", add_newline=True)]
         self.indent_level += 1
         for i, child in enumerate(node.children[0].children):
             code_strs.append(self.visit(child))
@@ -338,7 +338,7 @@ class CodeGenerator():
                 code_strs.append(self.emit(",", add_newline=True))
         self.indent_level -= 1
         self.emit("", add_newline=True)
-        code_strs.append(self.emit(")", add_newline=False))
+        code_strs.append(self.emit("})", add_newline=False))
         return ''.join(code_strs)
 
     def visit_key_value_pair(self, node):
@@ -351,24 +351,24 @@ class CodeGenerator():
     
 # ------------------------ List ------------------------
     def visit_list(self, node):
-        code_strs = [self.emit("Builtin::inlineList(", add_newline=False)]
+        code_strs = [self.emit("Builtin::inlineList({", add_newline=False)]
         
         for i, child in enumerate(node.children):
             if i > 0:
                 code_strs.append(self.emit(", ", add_newline=False))
             code_strs.append(self.visit(child))
         
-        code_strs.append(self.emit(")", add_newline=False))
+        code_strs.append(self.emit("})", add_newline=False))
         return ''.join(code_strs)
     
 # ------------------------ Set ------------------------
     def visit_set(self, node):
-        code_strs = [self.emit("Builtin::inlineSet(", add_newline=False)]
+        code_strs = [self.emit("Builtin::inlineSet({", add_newline=False)]
         for i, child in enumerate(node.children):
             if i > 0:
                 code_strs.append(self.emit(", ", add_newline=False))
             code_strs.append(self.visit(child))
-        code_strs.append(self.emit(")", add_newline=False))
+        code_strs.append(self.emit("})", add_newline=False))
         return ''.join(code_strs)
 
 #//////////////////////// Atomic Methods ////////////////////////
