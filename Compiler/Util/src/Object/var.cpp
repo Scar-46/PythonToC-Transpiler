@@ -75,15 +75,27 @@ ObjectPtr var::getValue() const {
 
 // Comparison operators
 bool var::operator==(const var& other) const {
+    if (!value || !other.value) {
+        if (value == other.value) {
+            return true;
+        }
+        return false;
+    }
     return value->equals(*other.value);
 }
 
 bool var::operator!=(const var& other) const {
+    if (!value || !other.value) {
+        if (value == other.value) {
+            return false;
+        }
+        return true;
+    }
     return !value->equals(*other.value);
 }
 
 std::strong_ordering var::operator<=>(const var& other) const {
-    if (value->equals(*other.value)) return std::strong_ordering::equal;
+    if (*this == other) return std::strong_ordering::equal;
     if (value->less(*other.value)) return std::strong_ordering::less;
     if (value->greater(*other.value)) return std::strong_ordering::greater;
 
@@ -141,7 +153,7 @@ std::ostream& operator<<(std::ostream& os, const var& variable) {
     if (variable.value) {
         variable.value->print(os);
     } else {
-        os << "null";
+        os << "None";
     }
     return os;
 }

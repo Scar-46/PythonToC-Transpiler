@@ -10,6 +10,10 @@ void TestVar() {
   var integer = 123;
   var floating = 123.456;
   var boolean = false;
+  var null;
+
+  std::cout << "nullptr == nullptr ?: " << var(null == null) << std::endl;
+  std::cout << integer << " == nullptr ?: " << var(integer == null) << std::endl;
 
   printf("Done\n");
 }
