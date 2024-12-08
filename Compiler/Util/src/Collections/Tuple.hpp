@@ -10,10 +10,8 @@
 
 #include "./Collection.hpp"
 
-class Tuple : public Collection<Tuple, std::vector> {       // TODO(Dwayne): var needs to be able to get tup = {}
+class Tuple : public Collection<Tuple, std::vector> {
  private:
-  std::vector<var> elements;
-
   void init();
 
  public:

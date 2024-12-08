@@ -1,10 +1,12 @@
 // Copyright (c) 2024 Syntax Errors.
-
 #include "Set.hpp"
+
+#include <string>
 
 // ------------------ Private methods ------------------
 void Set::init() {
   _methods["add"] = std::bind(&Set::add, this, std::placeholders::_1);
+  _methods["has"] = std::bind(&Set::has, this, std::placeholders::_1);
   _methods["union"] = std::bind(&Set::unionW, this, std::placeholders::_1);
   _methods["intersection"] = std::bind(&Set::intersectionW, this, std::placeholders::_1);
   _methods["difference"] = std::bind(&Set::differenceW, this, std::placeholders::_1);
@@ -58,6 +60,18 @@ Method::result_type Set::add(const std::vector<ObjectPtr>& params) {
   return nullptr;
 }
 
+Method::result_type Set::has(const std::vector<ObjectPtr>& params) {
+  if (params.size() != 1) {
+    throw std::runtime_error("has: Invalid number of arguments");
+  }
+  auto elementToFind = var(params[0]);
+  auto result = Boolean(
+    (elementToFind)? _elements.find(elementToFind) != _elements.end() : false
+  );  // NOLINT
+
+  return std::make_shared<Boolean>(result);
+}
+
 Method::result_type Set::remove(const std::vector<ObjectPtr>& params) {
   if (params.size() != 1) {
     throw std::runtime_error("remove: Invalid number of arguments");
@@ -90,7 +104,7 @@ Method::result_type Set::intersectionW(const std::vector<ObjectPtr>& params) {
 
     const Set* other = dynamic_cast<const Set*>(params[0].get());
 
-    if (! other) {
+    if (!other) {
       std::cerr << "intersection: Parameter must be Set";
       return nullptr;
     }
@@ -113,7 +127,7 @@ Method::result_type Set::differenceW(const std::vector<ObjectPtr>& params) {
 
   const Set* other = dynamic_cast<const Set*>(params[0].get());
 
-  if (! other) {
+  if (!other) {
     std::cerr << "difference: Parameter must be Set";
     return nullptr;
   }
@@ -121,13 +135,13 @@ Method::result_type Set::differenceW(const std::vector<ObjectPtr>& params) {
   std::unordered_set<var> result;
 
   for (const var& element : this->_elements) {
-    if (! other->_elements.contains(element)) {
+    if (!other->_elements.contains(element)) {
       result.insert(element);
     }
   }
 
   return std::make_shared<Set>(result);
-}  
+}
 
 // Get string representation of set
 Object::Method::result_type Set::asString(const std::vector<ObjectPtr>& params) {
@@ -137,7 +151,7 @@ Object::Method::result_type Set::asString(const std::vector<ObjectPtr>& params) 
 
   std::string result;
   result.append("{");
-  
+
   for (auto it = _elements.begin(); it != _elements.end(); ++it) {
     if (
       auto stringPtr = std::dynamic_pointer_cast<String>(

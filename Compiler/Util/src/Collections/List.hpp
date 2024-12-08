@@ -11,7 +11,6 @@
 
 class List : public Collection<List, std::vector> {
  private:
-  std::vector<var> elements;
   void init();
 
  public:
@@ -23,10 +22,9 @@ class List : public Collection<List, std::vector> {
   List(const List& other);
   explicit List(const std::vector<var>& elements);
   // Destructor
-  virtual ~List() override;
+  ~List() override;
 
   // ------------------ Native overrides -----------------
-
   // Print list contents
   void print(std::ostream& os) const override;
   // Clone self

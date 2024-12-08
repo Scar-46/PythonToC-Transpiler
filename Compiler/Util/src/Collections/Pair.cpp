@@ -1,7 +1,12 @@
+// Copyright (c) 2024 Syntax Errors.
 #include "Pair.hpp"
+
+#include <string>
+
 #include "../Primitive/String.hpp"
 #include "../Primitive/Boolean.hpp"
 #include "../Numeric/Integer.hpp"
+
 
 Pair::Pair() { init(); }
 
@@ -141,16 +146,16 @@ Object::Method::result_type Pair::asString(const std::vector<ObjectPtr>& params)
   }
 
   std::string result;
-  
+
   result.append("(");
-  
+
   if (
     auto stringPtr = std::dynamic_pointer_cast<String>(
       this->value.first.Call("__str__", {})
     )
   ) {
     result.append(stringPtr->getValue());
-  };
+  }
 
   result.append(", ");
 
@@ -160,7 +165,7 @@ Object::Method::result_type Pair::asString(const std::vector<ObjectPtr>& params)
     )
   ) {
     result.append(stringPtr->getValue());
-  };
+  }
 
   result.append(")");
 

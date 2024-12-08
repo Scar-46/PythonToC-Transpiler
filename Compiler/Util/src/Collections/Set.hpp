@@ -10,8 +10,8 @@
 #include "../Collections/Collection.hpp"
 
 class Set : public Collection<Set, std::unordered_set> {
-  private:
-    void init();
+ private:
+  void init();
 
  public:
   // Default constructor
@@ -19,9 +19,9 @@ class Set : public Collection<Set, std::unordered_set> {
 
   // Copy-constructor
   Set(const Set& other);
-  Set(const std::unordered_set<var>& elements);
+  implicit Set(const std::unordered_set<var>& elements);
 
-  virtual ~Set() override = default;
+  ~Set() override = default;
 
   // ------------------ Native overrides ------------------
 
@@ -38,9 +38,11 @@ class Set : public Collection<Set, std::unordered_set> {
   bool equals(const Object& other) const override;
 
   // ------------------ Management Methods ------------------
-
   // Add element to set
   Method::result_type add(const std::vector<ObjectPtr>& params);
+
+  // Lookup an element in set
+  Method::result_type has(const std::vector<ObjectPtr>& params);
 
   // Remove specified element from set
   Method::result_type remove(const std::vector<ObjectPtr>& params) override;

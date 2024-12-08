@@ -3,6 +3,8 @@
 
 #include <memory>
 #include <utility>
+#include <vector>
+
 #include "../Object/object.hpp"
 #include "../Object/var.hpp"
 

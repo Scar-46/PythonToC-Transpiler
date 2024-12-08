@@ -15,7 +15,6 @@
 class Map : public Object {
  private:
   std::unordered_map<var, var> elements;
-
   void init();
 
  public:
@@ -24,7 +23,6 @@ class Map : public Object {
   Map(const std::vector<Pair>& pairs);
 
   // ------------------ Native overrides ------------------
-
   // Override the addition method to implement map addition
   ObjectPtr add(unused const Object& other) const override;
   // Get value from associated key-value pair
@@ -46,7 +44,6 @@ class Map : public Object {
   Map operator+(const Map& other) const;
 
   // ------------------ Management Methods ------------------
-
   // Add key-value entry 
   Method::result_type addElement(const std::vector<ObjectPtr>& params);
   // Remove key-value entry by given key

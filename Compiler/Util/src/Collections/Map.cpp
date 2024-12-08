@@ -296,7 +296,8 @@ Method::result_type Map::asString(const std::vector<ObjectPtr>& params) {
 // ------------------ Iterator ------------------
 using ObjectIt = std::shared_ptr<Object::ObjectIterator>;
 
-Map::MapIterator::MapIterator(const Map& list) : _map(list), _currentIndex(0) {}
+Map::MapIterator::MapIterator(const Map& list)
+  : _map(list), _currentIndex(0) {}
 
 bool Map::MapIterator::hasNext() const {
   return _currentIndex < _map.size();
