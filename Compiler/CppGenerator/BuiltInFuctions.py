@@ -4,6 +4,8 @@ BUILTIN_FUNCTIONS = {
     "input": lambda args: "std::cin >> " + args[0] if args else "std::cin",
 
     # Sequence and Container Functions
+    "iter": lambda args: f"Builtin::iter({', '.join(f"{arg}" for arg in args)})",
+    "next": lambda args: f"Builtin::next({', '.join(f"{arg}" for arg in args)})",
     "len": lambda args: f"Builtin::len({', '.join(f"{arg}" for arg in args)})",
     "sum": lambda args: f"Builtin::sum({', '.join(f"{arg}" for arg in args)})",
     "min": lambda args: f"Builtin::min({', '.join(f"{arg}" for arg in args)})",
