@@ -342,11 +342,11 @@ class CodeGenerator():
         return ''.join(code_strs)
 
     def visit_key_value_pair(self, node):
-        code_strs = [self.emit("var(Pair(", add_newline=False)]
+        code_strs = [self.emit("Pair(", add_newline=False)]
         code_strs.append(self.visit(node.children[0]))  # Key
         code_strs.append(self.emit(", ", add_newline=False))
         code_strs.append(self.visit(node.children[1]))  # Value
-        code_strs.append(self.emit("))", add_newline=False))
+        code_strs.append(self.emit(")", add_newline=False))
         return ''.join(code_strs)
     
 # ------------------------ List ------------------------
