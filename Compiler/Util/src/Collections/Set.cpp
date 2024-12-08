@@ -56,7 +56,7 @@ Method::result_type Set::add(const std::vector<ObjectPtr>& params) {
   if (params.size() != 1) {
     throw std::runtime_error("add: Invalid number of arguments");
   }
-  _elements.insert(params[0]);
+  if (params[0]) _elements.insert(params[0]);
   return nullptr;
 }
 
