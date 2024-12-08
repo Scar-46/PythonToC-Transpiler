@@ -88,9 +88,9 @@ class var {
 
   implicit operator Object&();
 
-  explicit operator ObjectPtr&();
+  implicit operator ObjectPtr&();
 
-  explicit operator const ObjectPtr&();
+  implicit operator const ObjectPtr&();
 
   ObjectPtr operator->() const;
 

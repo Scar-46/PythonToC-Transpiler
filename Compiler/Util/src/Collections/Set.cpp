@@ -65,7 +65,9 @@ Method::result_type Set::has(const std::vector<ObjectPtr>& params) {
     throw std::runtime_error("has: Invalid number of arguments");
   }
   auto elementToFind = var(params[0]);
-  auto result = Boolean(_elements.find(elementToFind) != _elements.end());
+  auto result = Boolean(
+    (elementToFind)? _elements.find(elementToFind) != _elements.end() : false
+  );  // NOLINT
 
   return std::make_shared<Boolean>(result);
 }
