@@ -196,16 +196,17 @@ class CodeGenerator():
         temp_code2 = self.visit(operator_node.children[0])  # Right operand
 
         if operator_node.value == "in":
+            code_strs.append("var(")
             code_strs.append(temp_code2)
             code_strs.append(self.emit("->Call(\"has\", {", add_newline=False))
             code_strs.append(temp_code1)
-            code_strs.append("})")
+            code_strs.append("}))")
         elif operator_node.value == "not in":
-            code_strs.append("!")
+            code_strs.append("! var(")
             code_strs.append(temp_code2)
             code_strs.append(self.emit("->Call(\"has\", {", add_newline=False))
             code_strs.append(temp_code1)
-            code_strs.append("})")
+            code_strs.append("}))")
         else:
             code_strs.append(temp_code1)
             code_strs.append(self.emit(f" {operator_node.value} ", add_newline=False))
@@ -246,7 +247,7 @@ class CodeGenerator():
         self.emit("", add_newline=False) #TODO: Improve this solution
         iterable = self.visit(node.children[1])  # Get the iterable
         self.emit("", add_newline=True)
-        code_strs = [self.emit(f"for (auto se_{target} : {iterable})", add_newline=False)]
+        code_strs = [self.emit(f"for (auto se_{target} : (var) {iterable})", add_newline=False)]
         code_strs.append(self.emit("{", add_newline=True))
         code_strs.append(self.visit(node.children[2]))  # Loop body
         code_strs.append(self.emit("}", add_newline=True))
@@ -311,7 +312,7 @@ class CodeGenerator():
         operator = node.value
         if operator == "-" and node.children[0].node_type == "number":
             operand_code = self.emit(node.children[0].value)
-            return self.emit(f"Double({operator}{operand_code})", add_newline=False)
+            return self.emit(f"var({operator}{operand_code})", add_newline=False)
         else:
             operand_code = self.visit(node.children[0])
         return self.emit(f"{operator}{operand_code}", add_newline=False)
@@ -379,11 +380,11 @@ class CodeGenerator():
             return self.emit(str(node.value).lower(), add_newline=False)
 
     def visit_number(self, node):
-        return self.emit("var(Double(" + str(node.value) + "))", add_newline=False)
+        return self.emit("var(" + str(node.value) + ")", add_newline=False)
 
     def visit_string(self, node):
         escaped_string = node.value.replace('"', '\\"')  # Escape double quotes
-        return self.emit(f"var(String(\"{escaped_string}\"))", add_newline=False)
+        return self.emit(f"var(\"{escaped_string}\")", add_newline=False)
 
     def visit_group(self, node):
         code_strs = [self.emit("(", add_newline=False)]
@@ -416,10 +417,10 @@ class CodeGenerator():
         return ''.join(code_strs)
 
     def visit_subscript(self, node):
-        code_strs = [self.visit(node.children[0])]  # Identifier
+        code_strs = [self.emit("var("), self.visit(node.children[0])]  # Identifier
         code_strs.append(self.emit("->Call(\"slice\", {", add_newline=False))
         code_strs.append(self.visit(node.children[1]))  # Slice
-        code_strs.append(self.emit("})", add_newline=False))
+        code_strs.append(self.emit("}))", add_newline=False))
         return ''.join(code_strs)
 
     def visit_slice(self, node):  # TODO: Adjust for C++ style
