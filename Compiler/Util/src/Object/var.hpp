@@ -12,12 +12,16 @@
 
 class var;
 
-class Iterator {
-  // Underlying object iterator
-  Object::ObjectIt objectIterator;
+class Iterator : public Object{
+  private:
+    // Underlying object iterator
+    Object::ObjectIt objectIterator;
 
-  // Whether the end has been reached or not
-  bool isEnd;
+    // Whether the end has been reached or not
+    bool isEnd;
+
+    // Register methods
+    void init();
 
  public:
   // Constructor for a valid iterator
@@ -26,12 +30,25 @@ class Iterator {
   // Constructor for the end iterator
   Iterator();
 
+  // Copy constructor
+  Iterator(const Iterator& other);
+
+  // Inherited methods from Object 
+  void print(std::ostream& os) const override;
+  ObjectPtr clone() const override;
+
   // De-referencing
   var operator*() const;
   var operator*();
 
   // Advancing
   Iterator& operator++();
+
+  // Get next iterator after this one
+  Method::result_type next(const std::vector<ObjectPtr>& params);
+
+  // True if this iterator has a next one
+  Method::result_type asBoolean(const std::vector<ObjectPtr>& params);
 
   // Comparison
   bool operator!=(const Iterator& other) const;
@@ -44,7 +61,7 @@ class var {
  public:
   var();
   template <typename T, typename = std::enable_if_t<std::is_base_of<Object, T>::value>>
-  implicit var(const T& value) : value(std::make_shared<T>(value)) {}
+  implicit var(const T& value) : value(std::make_shared<T>(value)) { }
 
   // Specialized constructors for base types
   implicit var(int32_t value);
@@ -110,6 +127,8 @@ class var {
 
  public:
   // Provide `begin()` and `end()` methods for range-based for loops
+  Iterator getIterator() const;
+  
   Iterator cbegin() const;
 
   Iterator cend() const;

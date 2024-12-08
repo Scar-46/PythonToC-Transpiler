@@ -75,12 +75,12 @@ class Object {
   // ------------------ Per-instance methods ------------------
 
   // Call method supported by object instance
-  ObjectPtr Call(const std::string& name, std::initializer_list<ObjectPtr> params);
+  Method::result_type Call(const std::string& name, std::initializer_list<ObjectPtr> params);
 
   // ------------------ Iterator ------------------
 
   class ObjectIterator;
-  using ObjectIt = std::unique_ptr<Object::ObjectIterator>;
+  using ObjectIt = std::shared_ptr<Object::ObjectIterator>;
 
   // Default iteration behavior
   class ObjectIterator {

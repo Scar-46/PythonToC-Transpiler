@@ -10,14 +10,14 @@
 var::var() : value(nullptr) {}
 
 // Specialized constructors for base types
-var::var(int32_t value) : value(std::make_shared<Integer>(value)) {}
-var::var(double value) : value(std::make_shared<Double>(value)) {}
-var::var(const std::string& value) : value(std::make_shared<String>(value)) {}
-var::var(const char* value) : value(std::make_shared<String>(std::string(value))) {}
-var::var(bool value) : value(std::make_shared<Boolean>(value)) {}
+var::var(int32_t value) : value(std::make_shared<Integer>(value)) {  }
+var::var(double value) : value(std::make_shared<Double>(value)) {  }
+var::var(const std::string& value) : value(std::make_shared<String>(value)) {  }
+var::var(const char* value) : value(std::make_shared<String>(std::string(value))) {  }
+var::var(bool value) : value(std::make_shared<Boolean>(value)) {  }
 
 // Copy constructor and assignment
-var::var(const var& other) : value(other.value ? other.value->clone() : nullptr) {}
+var::var(const var& other) : value(other.value ? other.value->clone() : nullptr) {  }
 
 var& var::operator=(const var& other) {
     if (this != &other) {
@@ -27,10 +27,10 @@ var& var::operator=(const var& other) {
 }
 
 // Move constructor and assignment
-var::var(var&& other) noexcept : value(std::move(other.value)) {}
+var::var(var&& other) noexcept : value(std::move(other.value)) {  }
 
 // Copy-assignment from ObjPtr
-var::var(const ObjectPtr& obj) : value(obj) {}
+var::var(const ObjectPtr& obj) : value(obj) {  }
 
 var& var::operator=(const ObjectPtr& other) noexcept {
     value = other;
@@ -147,6 +147,14 @@ std::ostream& operator<<(std::ostream& os, const var& variable) {
 }
 
 // Iterators
+
+Iterator var::getIterator() const {
+if (!value) {
+    throw std::runtime_error("Cannot retrieve iterator from null var");
+}
+return Iterator(value->getIterator());
+}
+
 Iterator var::cbegin() const {
     if (!value) {
         throw std::runtime_error("Cannot iterate over null var");
@@ -181,9 +189,14 @@ ObjectPtr var::Call(const std::string& name, std::initializer_list<ObjectPtr> pa
 
 // ------------------ Iterator ------------------
 
-Iterator::Iterator(Object::ObjectIt iterator): objectIterator(std::move(iterator)), isEnd(false) {}
+Iterator::Iterator(Object::ObjectIt iterator): objectIterator(std::move(iterator)), isEnd(false) {this->init();}
 
-Iterator::Iterator() : objectIterator(nullptr), isEnd(true) {}
+Iterator::Iterator() : objectIterator(nullptr), isEnd(true) {this->init();}
+
+Iterator::  Iterator(const Iterator& other)
+    : objectIterator(other.objectIterator), isEnd(other.isEnd) {
+    this->init();
+}
 
 Iterator& Iterator::operator++() {
     if (!objectIterator || isEnd) {
@@ -207,10 +220,41 @@ var Iterator::operator*() const {
     return var(objectIterator->next());
 }
 
+void Iterator::print(std::ostream& os) const { os << ""; }
+
+ObjectPtr Iterator::clone() const { return nullptr; }
+
 var Iterator::operator*() {
     if (!objectIterator || isEnd || !objectIterator->hasNext()) {
         throw std::runtime_error("Dereferencing an invalid iterator");
     }
 
     return var(objectIterator->next());
+}
+
+void Iterator::init() {
+    _methods["__next__"] = std::bind(&Iterator::next, this, std::placeholders::_1);
+    _methods["__bool__"] = std::bind(&Iterator::asBoolean, this, std::placeholders::_1);
+}
+
+Object::Method::result_type Iterator::next(const std::vector<ObjectPtr>& params) {
+    if (params.size() != 0) {
+        throw std::runtime_error("__next__: Invalid number of arguments");
+    }
+
+    if (isEnd || !objectIterator) {
+        throw std::runtime_error("No more elements to iterate over");
+    }
+
+    var current = **this;
+    ++(*this);
+    return current.getValue();
+}
+
+Object::Method::result_type Iterator::asBoolean(const std::vector<ObjectPtr>& params) {
+    if (params.size() != 0) {
+        throw std::runtime_error("__bool__: Invalid number of arguments");
+    }
+
+    return std::make_shared<Boolean>(!isEnd && !objectIterator);
 }

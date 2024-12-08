@@ -1,6 +1,7 @@
 // Copyright (c) 2024 Syntax Errors.
-#include "Map.hpp"
+#include "./Map.hpp"
 
+// ------------------ Private methods ------------------
 void Map::init() {
   _methods["keys"] = std::bind(&Map::keys, this, std::placeholders::_1);
   _methods["values"] = std::bind(&Map::values, this, std::placeholders::_1);
@@ -13,42 +14,29 @@ void Map::init() {
   _methods["__min__"] = std::bind(&Map::min, this, std::placeholders::_1);
   _methods["__max__"] = std::bind(&Map::max, this, std::placeholders::_1);
   _methods["__sum__"] = std::bind(&Map::sum, this, std::placeholders::_1);
+  _methods["__str__"] = std::bind(&Map::asString, this, std::placeholders::_1);
+  _methods["__bool__"] = std::bind(&Map::asBoolean, this, std::placeholders::_1);
 }
 
-Map::Map()
-  : elements() {
+// ------------------ Constructors and destructor ------------------
+Map::Map() : elements() { init(); }
+
+Map::Map(const Map& other) : Object(other), elements(other.elements) {
   this->init();
 }
 
-Map::Map(const Map& other)
-  : Object(other)
-  , elements(other.elements) {
-  this->init();  // Initialize methods for the new object
-}
-
-Map::Map(std::initializer_list<std::pair<var, var>> initList) {
-  for (const auto& pair : initList) {
-    elements[pair.first] = pair.second;
+Map::Map(const std::vector<Pair>& pairs) {
+  for (const Pair& pair : pairs) {
+    elements[pair.getFirst()] = elements[pair.getSecond()];
   }
-  this->init();
-}
-
-template <typename... Args>
-Map::Map(Args&&... args) {
-  if constexpr (sizeof...(args) > 0) {
-    (addPair(std::forward<Args>(args)), ...);
-  }
-  this->init();
-}
+} 
 
 // ------------------ Native overrides ------------------
-// Override the addition method to implement map addition
+
 ObjectPtr Map::add(unused const Object& other) const {
-  // Implement map addition logic
   return std::make_shared<Map>(*this);
 }
 
-// Get value from associated key-value pair
 ObjectPtr Map::subscript(const Object& other) const {
   for (const auto& kv : this->elements) {
     if (kv.first->equals(other)) {
@@ -59,16 +47,14 @@ ObjectPtr Map::subscript(const Object& other) const {
   return nullptr;
 }
 
-// Test equality with other maps
 bool Map::equals(const Object& other) const {
-  auto otherMap  = dynamic_cast<const Map*>(&other);
+  auto otherMap = dynamic_cast<const Map*>(&other);
   if (!otherMap) {
     throw std::invalid_argument("Cannot compare map with given type");
   }
   return elements == otherMap->elements;
 }
 
-// Print contents
 void Map::print(std::ostream& os) const {
   os << "{";
   for (auto it = elements.begin(); it != elements.end(); ++it) {
@@ -80,36 +66,36 @@ void Map::print(std::ostream& os) const {
   os << "}";
 }
 
-// Clone itself
 ObjectPtr Map::clone() const {
   return std::make_shared<Map>(*this);
 }
 
-  // ------------------ Native operators ------------------
+const std::unordered_map<var, var>& Map::getValue() { return elements; }
 
-// Access elements in key-value pairs by key
+// ------------------ Native operators ------------------
+
 var Map::operator[](const var& key) const {
   auto it = elements.find(key);
   if (it != elements.end()) {
     return it->second;
   } else {
     std::cerr << "Key not found\n";
-    return var();  // Or throw an exception
+    return var();
   }
 }
 
-// Return merge of itself and another map
 Map Map::operator+(const Map& other) const {
-  Map result = *this;   // Start with a copy of the current map
+  Map result = *this;
   for (const auto& pair : other.elements) {
-    result.elements[pair.first] = pair.second;  // Overwrite or insert new key-value pairs
+    result.elements[pair.first] = pair.second;
   }
   return result;
 }
 
 // ------------------ Management Methods ------------------
-// Add key-value entry
-Object::Method::result_type Map::addElement(const std::vector<ObjectPtr>& params) {
+using Method = std::function<ObjectPtr(const std::vector<ObjectPtr>&)>;
+
+Method::result_type Map::addElement(const std::vector<ObjectPtr>& params) {
   if (params.size() != 2) {
     throw std::runtime_error("addElement: Invalid number of arguments");
   }
@@ -130,8 +116,7 @@ Object::Method::result_type Map::addElement(const std::vector<ObjectPtr>& params
   return nullptr;
 }
 
-// Remove key-value entry by given key
-Object::Method::result_type Map::pop(const std::vector<ObjectPtr>& params) {
+Method::result_type Map::pop(const std::vector<ObjectPtr>& params) {
   if (params.size() != 1) {
     throw std::runtime_error("pop: Invalid number of arguments");
   }
@@ -149,8 +134,7 @@ Object::Method::result_type Map::pop(const std::vector<ObjectPtr>& params) {
   }
 }
 
-// Remove all key-value entries
-Object::Method::result_type Map::clear(const std::vector<ObjectPtr>& params) {
+Method::result_type Map::clear(const std::vector<ObjectPtr>& params) {
   if (params.size() != 0) {
     throw std::runtime_error("clear: Invalid number of arguments");
   }
@@ -163,8 +147,7 @@ size_t Map::size() const {
   return elements.size();
 }
 
-// Returns a list of all keys in the map
-Object::Method::result_type Map::keys(const std::vector<ObjectPtr>& params) {
+Method::result_type Map::keys(const std::vector<ObjectPtr>& params) {
   if (params.size() != 0) {
     throw std::runtime_error("keys: Invalid number of arguments");
   }
@@ -176,8 +159,7 @@ Object::Method::result_type Map::keys(const std::vector<ObjectPtr>& params) {
   return std::make_shared<List>(keyList);
 }
 
-// Returns a list of all values in the map
-Object::Method::result_type Map::values(const std::vector<ObjectPtr>& params) {
+Method::result_type Map::values(const std::vector<ObjectPtr>& params) {
   if (params.size() != 0) {
     throw std::runtime_error("values: Invalid number of arguments");
   }
@@ -189,8 +171,7 @@ Object::Method::result_type Map::values(const std::vector<ObjectPtr>& params) {
   return std::make_shared<List>(valueList);
 }
 
-// Returns a list of key-value pairs as Pair objects
-Object::Method::result_type Map::items(const std::vector<ObjectPtr>& params) {
+Method::result_type Map::items(const std::vector<ObjectPtr>& params) {
   if (params.size() != 0) {
     throw std::runtime_error("items: Invalid number of arguments");
   }
@@ -202,8 +183,7 @@ Object::Method::result_type Map::items(const std::vector<ObjectPtr>& params) {
   return std::make_shared<List>(itemList);
 }
 
-// Get value associated with key-value pair by key
-Object::Method::result_type Map::get(const std::vector<ObjectPtr>& params) {
+Method::result_type Map::get(const std::vector<ObjectPtr>& params) {
   if (params.size() != 1) {
     throw std::runtime_error("get: Invalid number of arguments");
   }
@@ -215,13 +195,12 @@ Object::Method::result_type Map::get(const std::vector<ObjectPtr>& params) {
     var match = it->second;
     return match.getValue();
   }
-
+  
   std::cerr << "get: Key not found\n";
   return nullptr;
 }
 
-  // Amount of key-value entries in the map
-Object::Method::result_type Map::len(const std::vector<ObjectPtr>& params) {
+Method::result_type Map::len(const std::vector<ObjectPtr>& params) {
   if (params.size() != 0) {
     throw std::runtime_error("__len__: Invalid number of arguments");
   }
@@ -229,8 +208,7 @@ Object::Method::result_type Map::len(const std::vector<ObjectPtr>& params) {
   return std::make_shared<Integer>(elements.size());
 }
 
-// Smallest key in map
-Object::Method::result_type Map::min(const std::vector<ObjectPtr>& params) {
+Method::result_type Map::min(const std::vector<ObjectPtr>& params) {
   if (params.size() != 0) {
     throw std::runtime_error("__min__: Invalid number of arguments");
   }
@@ -243,8 +221,7 @@ Object::Method::result_type Map::min(const std::vector<ObjectPtr>& params) {
   return std::make_shared<Integer>(elements.size());
 }
 
-// Greatest key in map
-Object::Method::result_type Map::max(const std::vector<ObjectPtr>& params) {
+Method::result_type Map::max(const std::vector<ObjectPtr>& params) {
   if (params.size() != 0) {
     throw std::runtime_error("__max__: Invalid number of arguments");
   }
@@ -257,8 +234,7 @@ Object::Method::result_type Map::max(const std::vector<ObjectPtr>& params) {
   return std::make_shared<Integer>(elements.size());
 }
 
-// Sum of all keys in the map
-Object::Method::result_type Map::sum(const std::vector<ObjectPtr>& params) {
+Method::result_type Map::sum(const std::vector<ObjectPtr>& params) {
   if (params.size() != 0) {
     throw std::runtime_error("__sum__: Invalid number of arguments");
   }
@@ -272,8 +248,56 @@ Object::Method::result_type Map::sum(const std::vector<ObjectPtr>& params) {
   return result.getValue();
 }
 
+Method::result_type Map::asBoolean(const std::vector<ObjectPtr>& params) {
+  if (params.size() != 0) {
+    throw std::runtime_error("__bool__: Invalid number of arguments");
+  }
+
+  return std::make_shared<Boolean>(! this->elements.empty());
+}
+
+Method::result_type Map::asString(const std::vector<ObjectPtr>& params) {
+  if (params.size() != 0) {
+    throw std::runtime_error("__str__: Invalid number of arguments");
+  }
+
+  std::string result;
+
+  result.append("{");
+
+  for (auto it = elements.begin(); it != elements.end(); ++it) {
+    if (
+      auto stringPtr = std::dynamic_pointer_cast<String>(
+        it->first->Call("__str__", {})
+      )
+    ) {
+      result.append(stringPtr->getValue());
+      result.append(": ");
+    }
+
+    if (
+      auto stringPtr = std::dynamic_pointer_cast<String>(
+        it->second->Call("__str__", {})
+      )
+    ) {
+      result.append(stringPtr->getValue());
+    }
+
+    if (std::next(it) != elements.end()) {
+      result.append(", ");
+    }
+  }
+
+  result.append("}");
+
+  return std::make_shared<String>(result);
+}
+
 // ------------------ Iterator ------------------
-Map::MapIterator::MapIterator(const Map& list) : _map(list), _currentIndex(0) {}
+using ObjectIt = std::shared_ptr<Object::ObjectIterator>;
+
+Map::MapIterator::MapIterator(const Map& list)
+  : _map(list), _currentIndex(0) {}
 
 bool Map::MapIterator::hasNext() const {
   return _currentIndex < _map.size();
@@ -290,11 +314,10 @@ ObjectPtr Map::MapIterator::next() {
   return std::make_shared<Pair>(it->first, it->second);
 }
 
-Object::ObjectIt Map::MapIterator::clone() const {
+ObjectIt Map::MapIterator::clone() const {
   return std::make_unique<MapIterator>(*this);
 }
 
-// Override iteration methods
-Object::ObjectIt Map::getIterator() const  {
+ObjectIt Map::getIterator() const {
   return std::make_unique<MapIterator>(*this);
 }

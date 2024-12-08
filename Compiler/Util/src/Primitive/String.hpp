@@ -49,4 +49,7 @@ class String : public Primitive<String, std::string> {
 		ObjectIt getIterator() const override;
 
 		Method::result_type slice(const std::vector<ObjectPtr>& params);
+		Method::result_type len(const std::vector<ObjectPtr>& params);
+		Method::result_type asBool(const std::vector<ObjectPtr>& params);
+		Method::result_type asString(const std::vector<ObjectPtr>& params);
 };

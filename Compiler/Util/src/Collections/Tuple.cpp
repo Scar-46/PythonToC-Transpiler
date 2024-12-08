@@ -9,6 +9,7 @@ void Tuple::init() {
   _methods.erase("clear");
   _methods.erase("remove");
   _methods["index"] = std::bind(&Tuple::index, this, std::placeholders::_1);
+  _methods["__str__"] = std::bind(&Tuple::asString, this, std::placeholders::_1);
 }
 
 // Default constructor
@@ -22,11 +23,6 @@ Tuple::Tuple(const Tuple& other) : Collection<Tuple, std::vector>(other) {
 }
 
 Tuple::Tuple(const std::vector<var>& elements) : Collection<Tuple, std::vector>(elements) {
-  init();
-}
-
-// Brace-list constructor
-Tuple::Tuple(std::initializer_list<var> initList) : elements(initList) {
   init();
 }
 
@@ -126,4 +122,31 @@ Object::Method::result_type Tuple::index(const std::vector<ObjectPtr>& params) {
 
   std::cerr << "index: Value missing from list" << std::endl;
   return nullptr;
+}
+
+Object::Method::result_type Tuple::asString(const std::vector<ObjectPtr>& params) {
+  if (params.size() != 0) {
+    throw std::runtime_error("__str__: Invalid number of arguments");
+  }
+
+  std::string result;
+  result.append("(");
+  
+  for (size_t i = 0; i < elements.size(); ++i) {
+    if (
+      auto stringPtr = std::dynamic_pointer_cast<String>(
+        elements[i]->Call("__str__", {})
+      )
+    ) {
+      result.append(stringPtr->getValue());
+
+      if (i + 1 != elements.size()) {
+        result.append(", ");
+      }
+    }
+  }
+
+  result.append(")");
+
+  return std::make_shared<String>(result);
 }

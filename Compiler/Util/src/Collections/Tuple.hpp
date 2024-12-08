@@ -10,7 +10,7 @@
 
 #include "./Collection.hpp"
 
-class Tuple : public Collection<Tuple, std::vector> {       // TODO(Dwayne): var needs to be able to get tup = {}
+class Tuple : public Collection<Tuple, std::vector> {
  private:
   std::vector<var> elements;
 
@@ -23,9 +23,6 @@ class Tuple : public Collection<Tuple, std::vector> {       // TODO(Dwayne): var
   // Copy-constructor
   Tuple(const Tuple& other);
   explicit Tuple(const std::vector<var>& elements);
-
-  // Brace-list constructor
-  Tuple(std::initializer_list<var> initList);
 
   ~Tuple() override = default;
 
@@ -54,4 +51,7 @@ class Tuple : public Collection<Tuple, std::vector> {       // TODO(Dwayne): var
   // ------------------ Management methods ------------------
   // Return index of first ocurrence of element
   Object::Method::result_type index(const std::vector<ObjectPtr>& params);
+
+  // Return string representation of tuple
+  Object::Method::result_type asString(const std::vector<ObjectPtr>& params);
 };

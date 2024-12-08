@@ -5,6 +5,8 @@
 #include <iostream>
 
 #include "../Object/object.hpp"
+#include "../Primitive/Boolean.hpp"
+#include "../Primitive/String.hpp"
 
 #define implicit
 #define unused [[maybe_unused]]
@@ -43,6 +45,8 @@ class Numeric : public Object {
  private: 
   void init() {
     _methods["__abs__"] = std::bind(&Numeric::abs, this, std::placeholders::_1);
+    _methods["__bool__"] = std::bind(&Numeric::asBoolean, this, std::placeholders::_1);
+    _methods["__str__"] = std::bind(&Numeric::asString, this, std::placeholders::_1);
   }
 
  protected:
@@ -93,11 +97,28 @@ class Numeric : public Object {
   DEFINE_COMPARISON_OPERATOR(greater, >, 'Greater than')
 
   // ------------------ Management methods ------------------
+
   virtual Method::result_type abs(const std::vector<ObjectPtr>& params) {
     if (params.size() != 0) {
-      throw std::runtime_error("abs: Invalid number of arguments");
+      throw std::runtime_error("__abs__: Invalid number of arguments");
     }
 
     return std::make_shared<Derived>(std::abs(this->value));
+  }
+
+  virtual Method::result_type asBoolean(const std::vector<ObjectPtr>& params) {
+    if (params.size() != 0) {
+      throw std::runtime_error("__bool__: Invalid number of arguments");
+    }
+
+    return std::make_shared<Boolean>(this->value != 0);
+  }
+
+  virtual Method::result_type asString(const std::vector<ObjectPtr>& params) {
+    if (params.size() != 0) {
+      throw std::runtime_error("__str__: Invalid number of arguments");
+    }
+
+    return std::make_shared<String>(std::to_string(value));
   }
 };

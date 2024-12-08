@@ -5,6 +5,8 @@
 
 // Boolean class
 class Boolean : public Primitive<Boolean, bool> {
+ private:
+  void init();
  public:
   explicit Boolean(bool value);
 
@@ -13,4 +15,8 @@ class Boolean : public Primitive<Boolean, bool> {
   operator bool() const override;
 
   void print(std::ostream& os) const override;
+
+  Method::result_type asBool(const std::vector<ObjectPtr>& params);
+
+  Method::result_type asString(const std::vector<ObjectPtr>& params);
 };

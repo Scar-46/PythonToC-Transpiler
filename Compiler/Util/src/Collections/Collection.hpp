@@ -7,6 +7,7 @@
 #include "../Object/object.hpp"
 #include "../Object/var.hpp"
 #include "../Numeric/Integer.hpp"
+#include "../Primitive/Boolean.hpp"
 
 // Base template class containers of variables
 template <typename Derived, template <typename...> typename ContainerType>
@@ -21,6 +22,7 @@ class Collection : public Object {
     _methods["__min__"] = std::bind(&Collection::min, this, std::placeholders::_1);
     _methods["__max__"] = std::bind(&Collection::max, this, std::placeholders::_1);
     _methods["__sum__"] = std::bind(&Collection::max, this, std::placeholders::_1);
+    _methods["__bool__"] = std::bind(&Collection::asBoolean, this, std::placeholders::_1);
   }
  
  protected:
@@ -44,10 +46,6 @@ class Collection : public Object {
   // Copy constructor
   explicit Collection(const ContainerType<var>& elements) : _elements(elements) { init(); }
   explicit Collection(const Collection<Derived, ContainerType>& other) : Object(other), _elements(other._elements) { init(); }
-  
-  // Brace-list constructor
-  template <typename... Args>
-  explicit Collection(std::initializer_list<var> initList) : _elements(initList) { init(); }
   
   virtual ~Collection() override = default;
 
@@ -119,6 +117,15 @@ class Collection : public Object {
     }
 
     return std::make_shared<Integer>(_elements.size());
+  }
+
+  // Returns true if collection is not empty
+  virtual Method::result_type asBoolean(const std::vector<ObjectPtr>& params) {
+    if (params.size() != 0) {
+      throw std::runtime_error("__bool__: Invalid number of arguments");
+    }
+
+    return std::make_shared<Boolean>(_elements.size() != 0);
   }
 
   // Sum of all elements in the collection

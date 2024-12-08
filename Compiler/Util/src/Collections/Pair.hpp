@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <utility>
+#include <vector>
 
 #include "../Object/object.hpp"
 #include "../Object/var.hpp"
@@ -10,12 +11,13 @@
 class Pair : public Object {
  private:
   std::pair<var, var> value;
+  void init();
 
  public:
   // Default constructor
-  Pair() = default;
+  Pair();
 
-  operator ObjectPtr();
+  operator ObjectPtr() override;
 
   // Parameterized constructor
   Pair(var first, var second);
@@ -47,11 +49,11 @@ class Pair : public Object {
 
   bool less(const Object& other) const override;
 
+  bool greater(const Object& other) const override;
+
   bool operator<=(const Pair& other) const;
 
   bool operator>(const Pair& other) const;
-
-  bool greater(const Object& other) const override;
 
   bool operator>=(const Pair& other) const;
 
@@ -71,9 +73,12 @@ class Pair : public Object {
 
   // Print function
   void print(std::ostream& os) const override;
+
+  // Management methods
+  Object::Method::result_type len(const std::vector<ObjectPtr>& params);
+  Object::Method::result_type asString(const std::vector<ObjectPtr>& params);
+  Object::Method::result_type asBoolean(const std::vector<ObjectPtr>& params);
 };
 
 // Non-member swap for ADL
-inline void swap(Pair& lhs, Pair& rhs) noexcept {
-  lhs.swap(rhs);
-}
+inline void swap(Pair& lhs, Pair& rhs) noexcept;
