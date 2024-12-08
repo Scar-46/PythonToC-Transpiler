@@ -4,7 +4,7 @@
 #include "./String.hpp"
 
 namespace Builtin {
-    var asString(const std::vector<var> &params) {
+    var asString(const std::vector<ObjectPtr> &params) {
         if (params.size() == 0) {
             return (var) std::make_shared<String>("");
         }
@@ -14,7 +14,7 @@ namespace Builtin {
             return nullptr;
         }
 
-        ObjectPtr obj = params[0].getValue();
+        ObjectPtr obj = params[0];
         if (! obj) {
             std::cerr << "str: Invalid None parameter.\n";
             return nullptr;
@@ -23,7 +23,7 @@ namespace Builtin {
         return (var) obj->Call("__str__", {});
     }
 
-    var asBoolean(const std::vector<var>& params) {
+    var asBoolean(const std::vector<ObjectPtr>& params) {
         if (params.size() == 0) {
             return (var) std::make_shared<Boolean>(false);
         }
@@ -33,7 +33,7 @@ namespace Builtin {
             return nullptr;
         }
 
-        ObjectPtr obj = params[0].getValue();
+        ObjectPtr obj = params[0];
         if (! obj) {
             std::cerr << "bool: Invalid None parameter.\n";
             return nullptr;

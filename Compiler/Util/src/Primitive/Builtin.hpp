@@ -6,8 +6,8 @@
 // Implement orphan built in functions
 namespace Builtin {
   // Get variable representation as string
-  var asString(const std::vector<var>& params);
+  var asString(const std::vector<ObjectPtr>& params);
 
   // Get variable representation as boolean
-  var asBoolean(const std::vector<var>& params);
+  var asBoolean(const std::vector<ObjectPtr>& params);
 }

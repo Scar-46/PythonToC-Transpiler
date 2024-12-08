@@ -6,17 +6,17 @@
 // Implement orphan built in functions
 namespace Builtin {
   // Get absolute value of number
-  var abs(const std::vector<var>& params);
+  var abs(const std::vector<ObjectPtr>& params);
 
   // Get rounded number
-  var round(const std::vector<var>& params);
+  var round(const std::vector<ObjectPtr>& params);
 
   // Get power from base raised to power, modulo
-  var pow(const std::vector<var>& params);
+  var pow(const std::vector<ObjectPtr>& params);
 
   // Get interpretation as integer number
-  var asInteger(const std::vector<var>& params);
+  var asInteger(const std::vector<ObjectPtr>& params);
 
   // Get interpretation as double-precision floating point number
-  var asDouble(const std::vector<var>& params);
+  var asDouble(const std::vector<ObjectPtr>& params);
 }

@@ -8,13 +8,13 @@
 
 // Implement orphan built in functions
 namespace Builtin {
-  var abs(const std::vector<var>& params) {
+  var abs(const std::vector<ObjectPtr>& params) {
     if (params.size() != 1) {
       std::cerr << "abs: Invalid number of arguments\n";
       return nullptr;
     }
 
-    ObjectPtr obj = params[0].getValue();
+    ObjectPtr obj = params[0];
 
     if (
         ! dynamic_cast<const Double*>(obj.get())
@@ -25,13 +25,13 @@ namespace Builtin {
     return obj->Call("__abs__", {});
   }
 
-  var round(const std::vector<var>& params) {
+  var round(const std::vector<ObjectPtr>& params) {
     if (params.size() != 1) {
       std::cerr << "round: Invalid number of arguments\n";
       return nullptr;
     }
 
-    ObjectPtr obj = params[0].getValue();
+    ObjectPtr obj = params[0];
 
     {
       auto doubleObj = dynamic_cast<const Double*>(obj.get());
@@ -51,7 +51,7 @@ namespace Builtin {
     return nullptr;
   }
 
-  var pow(const std::vector<var>& params) {
+  var pow(const std::vector<ObjectPtr>& params) {
     if (params.size() < 2 || params.size() > 3) {
       std::cerr << "pow: Invalid number of arguments\n";
       return nullptr;
@@ -61,7 +61,7 @@ namespace Builtin {
 
     long double base;
     {
-        ObjectPtr obj = params[0].getValue();
+        ObjectPtr obj = params[0];
 
         if (auto objNumeric = dynamic_cast<const Double*>(obj.get()) ) { 
             base = objNumeric->getValue();
@@ -80,7 +80,7 @@ namespace Builtin {
 
     long double exponent;
     {
-        ObjectPtr obj = params[1].getValue();
+        ObjectPtr obj = params[1];
 
         if (auto objNumeric = dynamic_cast<const Double*>(obj.get()) ) { 
             exponent = objNumeric->getValue();
@@ -104,7 +104,7 @@ namespace Builtin {
             return nullptr;
         }
 
-        ObjectPtr obj = params[2].getValue();
+        ObjectPtr obj = params[2];
 
         if (auto objNumeric = dynamic_cast<const Integer*>(obj.get()) ) { 
             auto passedModulo = objNumeric->getValue();
@@ -131,7 +131,7 @@ namespace Builtin {
     return (var) std::make_shared<Double>(std::pow(base, exponent));
   }
 
-  var asInteger(const std::vector<var>& params) {
+  var asInteger(const std::vector<ObjectPtr>& params) {
     if (params.size() == 0) {
         return (var) std::make_shared<Integer>(0);
     }
@@ -141,7 +141,7 @@ namespace Builtin {
       return nullptr;
     }
 
-    ObjectPtr obj = params[0].getValue();
+    ObjectPtr obj = params[0];
     {
         auto objDouble = dynamic_cast<const Double*>(obj.get());
         auto objInteger = dynamic_cast<const Integer*>(obj.get());
@@ -171,7 +171,7 @@ namespace Builtin {
     std::size_t base = 10;
 
     if (params.size() == 2) {
-        ObjectPtr obj = params[1].getValue();
+        ObjectPtr obj = params[1];
         auto objInteger = dynamic_cast<const Integer*>(obj.get());
 
         if (! objInteger) {
@@ -201,7 +201,7 @@ namespace Builtin {
     return nullptr;
   }
 
-  var asDouble(const std::vector<var>& params) {
+  var asDouble(const std::vector<ObjectPtr>& params) {
     if (params.size() == 0) {
         return (var) std::make_shared<Double>(0.0);
     }
@@ -211,7 +211,7 @@ namespace Builtin {
       return nullptr;
     }
 
-    ObjectPtr obj = params[0].getValue();
+    ObjectPtr obj = params[0];
     
     if (auto objDouble = dynamic_cast<const Double*>(obj.get())) {
         return (var) objDouble;

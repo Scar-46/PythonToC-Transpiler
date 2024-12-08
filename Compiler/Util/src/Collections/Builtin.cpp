@@ -6,7 +6,7 @@
 #include "../Collections/Map.hpp"
 
 namespace Builtin {
-  var iter(const std::vector<var>& params) {
+  var iter(const std::vector<ObjectPtr>& params) {
     if (params.size() != 1) {
       std::cerr << "iter: Invalid number of arguments\n";
       return nullptr;
@@ -15,7 +15,7 @@ namespace Builtin {
     return (Iterator) params[0]->getIterator();
   }
 
-  var next(const std::vector<var>& params) {
+  var next(const std::vector<ObjectPtr>& params) {
     if (params.size() != 1) {
       std::cerr << "next: Invalid number of arguments\n";
       return nullptr;
@@ -24,7 +24,7 @@ namespace Builtin {
     return params[0]->Call("__next__", {});
   }
 
-  var len(const std::vector<var>& params) {
+  var len(const std::vector<ObjectPtr>& params) {
     if (params.size() != 1) {
       std::cerr << "len: Invalid number of arguments\n";
       return nullptr;
@@ -33,7 +33,7 @@ namespace Builtin {
     return params[0]->Call("__len__", {});
   }
 
-  var sum(const std::vector<var>& params) {
+  var sum(const std::vector<ObjectPtr>& params) {
     if (params.size() != 1) {
       std::cerr << "sum: Invalid number of arguments\n";
       return nullptr;
@@ -42,7 +42,7 @@ namespace Builtin {
     return params[0]->Call("__sum__", {});
   }
 
-  var min(const std::vector<var>& params) {
+  var min(const std::vector<ObjectPtr>& params) {
     if (params.size() != 1) {
       std::cerr << "min: Invalid number of arguments\n";
       return nullptr;
@@ -51,7 +51,7 @@ namespace Builtin {
     return params[0]->Call("__min__", {});
   }
 
-  var max(const std::vector<var>& params) {
+  var max(const std::vector<ObjectPtr>& params) {
     if (params.size() != 1) {
       std::cerr << "max: Invalid number of arguments\n";
       return nullptr;
@@ -60,7 +60,7 @@ namespace Builtin {
     return params[0]->Call("__max__", {});
   }
 
-  var tuple(const std::vector<var>& params) {
+  var tuple(const std::vector<ObjectPtr>& params) {
     if (params.size() > 1) {
       std::cerr << "tuple: Invalid number of arguments\n";
       return nullptr;
@@ -70,7 +70,7 @@ namespace Builtin {
       return (var) std::make_shared<Tuple>();
     }
 
-    auto obj = params[0].getValue();
+    auto obj = params[0];
 
     // From None
     if (! obj) {
@@ -120,7 +120,7 @@ namespace Builtin {
     return nullptr;
   }
 
-  var list(const std::vector<var>& params) {
+  var list(const std::vector<ObjectPtr>& params) {
     if (params.size() > 1) {
       std::cerr << "list: Invalid number of arguments\n";
       return nullptr;
@@ -130,7 +130,7 @@ namespace Builtin {
       return (var) std::make_shared<List>();
     }
 
-    auto obj = params[0].getValue();
+    auto obj = params[0];
 
     // From None
     if (! obj) {
@@ -180,7 +180,7 @@ namespace Builtin {
     return nullptr;
   }
 
-  var set(const std::vector<var>& params) {
+  var set(const std::vector<ObjectPtr>& params) {
     if (params.size() > 1) {
       std::cerr << "set: Invalid number of arguments\n";
       return nullptr;
@@ -190,7 +190,7 @@ namespace Builtin {
       return (var) std::make_shared<Set>();
     }
 
-    auto obj = params[0].getValue();
+    auto obj = params[0];
 
     // From None
     if (! obj) {
@@ -246,7 +246,7 @@ namespace Builtin {
     return nullptr;
   }
 
-  var dict(const std::vector<var>& params) {
+  var dict(const std::vector<ObjectPtr>& params) {
     if (params.size() > 1) {
       std::cerr << "dict: Invalid number of arguments\n";
       return nullptr;
@@ -256,7 +256,7 @@ namespace Builtin {
         return (var) std::make_shared<Map>();
     }
 
-    auto obj = params[0].getValue();
+    auto obj = params[0];
 
     // From None
     if (! obj) {
@@ -385,18 +385,34 @@ namespace Builtin {
     return (var) std::make_shared<Map>(pairs);
   }
 
-  var inlineTuple(const std::vector<var>& params) {
-    return (var) std::make_shared<Tuple>(params);
+  var inlineTuple(const std::vector<ObjectPtr>& params) {
+    std::vector<var> elements;
+
+    for (const ObjectPtr& obj : params) {
+      elements.push_back(obj);
+    }
+
+    return (var) std::make_shared<Tuple>(elements);
   }
 
-  var inlineList(const std::vector<var>& params) {
-    return (var) std::make_shared<List>(params);
+  var inlineList(const std::vector<ObjectPtr>& params) {
+    std::vector<var> elements;
+
+    for (const ObjectPtr& obj : params) {
+      elements.push_back(obj);
+    }
+
+    return (var) std::make_shared<List>(elements);
   }
 
-  var inlineSet(const std::vector<var>& params) {
-    return (var) std::make_shared<Set>(
-      std::unordered_set<var>(params.begin(), params.end())
-    );
+  var inlineSet(const std::vector<ObjectPtr>& params) {
+    std::unordered_set<var> elements;
+
+    for (const ObjectPtr& obj : params) {
+      elements.insert(obj);
+    }
+
+    return (var) std::make_shared<Set>(elements);
   }
 
   var inlineDict(const std::vector<Pair>& params) {
