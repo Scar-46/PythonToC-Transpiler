@@ -8,6 +8,7 @@ void Set::init() {
   _methods["union"] = std::bind(&Set::unionW, this, std::placeholders::_1);
   _methods["intersection"] = std::bind(&Set::intersectionW, this, std::placeholders::_1);
   _methods["difference"] = std::bind(&Set::differenceW, this, std::placeholders::_1);
+  _methods["__str__"] = std::bind(&Set::asString, this, std::placeholders::_1);
 }
 
 // ------------------ Constructors and destructor ------------------
@@ -18,9 +19,10 @@ Set::Set(const Set& other) : Collection<Set, std::unordered_set>(other) { init()
 Set::Set(const std::unordered_set<var>& elements) : Collection<Set, std::unordered_set>(elements) { init(); }
 
 // Brace-list constructor
-Set::Set(std::initializer_list<var> initList) : Collection<Set, std::unordered_set>(initList) { init(); }
-
-Set::~Set() = default;
+Set::Set(std::initializer_list<var> initList)
+  : Collection<Set, std::unordered_set>(initList) {
+  init();
+}
 
 // ------------------ Native overrides ------------------
 void Set::print(std::ostream& os) const {
@@ -92,11 +94,12 @@ Method::result_type Set::intersectionW(const std::vector<ObjectPtr>& params) {
     throw std::runtime_error("intersection: Invalid number of arguments");
   }
 
-  const Set* other = dynamic_cast<const Set*>(params[0].get());
-  if (!other) {
-    std::cerr << "intersection: Parameter must be Set";
-    return nullptr;
-  }
+    const Set* other = dynamic_cast<const Set*>(params[0].get());
+
+    if (! other) {
+      std::cerr << "intersection: Parameter must be Set";
+      return nullptr;
+    }
 
   std::unordered_set<var> result;
 }
@@ -108,8 +111,8 @@ Method::result_type Set::differenceW(const std::vector<ObjectPtr>& params) {
 
   const Set* other = dynamic_cast<const Set*>(params[0].get());
 
-  if (! other ) {
-    std::cerr << "difference: Parameter must be Set"; 
+  if (! other) {
+    std::cerr << "difference: Parameter must be Set";
     return nullptr;
   }
 
@@ -123,3 +126,30 @@ Method::result_type Set::differenceW(const std::vector<ObjectPtr>& params) {
 
   return std::make_shared<Set>(result);
 }  
+
+// Get string representation of set
+Object::Method::result_type Set::asString(const std::vector<ObjectPtr>& params) {
+  if (params.size() != 0) {
+    throw std::runtime_error("__str__: Invalid number of arguments");
+  }
+
+  std::string result;
+  result.append("{");
+  
+  for (auto it = _elements.begin(); it != _elements.end(); ++it) {
+    ObjectPtr stringElement = (*it)->Call("__str__", {});
+
+    if (auto stringPtr = dynamic_cast<const String*>(stringElement.get())) {
+      result.append(stringPtr->getValue());
+      result.append(", ");
+    }
+  }
+
+  if (result.size() > 2) { // Remove trailing comma, if any placed
+    result.erase(result.size()-2, 2);
+  }
+
+  result.append("}");
+
+  return std::make_shared<String>(result);
+}

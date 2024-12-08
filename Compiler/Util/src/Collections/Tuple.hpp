@@ -54,4 +54,7 @@ class Tuple : public Collection<Tuple, std::vector> {       // TODO(Dwayne): var
   // ------------------ Management methods ------------------
   // Return index of first ocurrence of element
   Object::Method::result_type index(const std::vector<ObjectPtr>& params);
+
+  // Return string representation of tuple
+  Object::Method::result_type asString(const std::vector<ObjectPtr>& params);
 };

@@ -9,6 +9,7 @@ void Tuple::init() {
   _methods.erase("clear");
   _methods.erase("remove");
   _methods["index"] = std::bind(&Tuple::index, this, std::placeholders::_1);
+  _methods["__str__"] = std::bind(&Tuple::asString, this, std::placeholders::_1);
 }
 
 // Default constructor
@@ -126,4 +127,30 @@ Object::Method::result_type Tuple::index(const std::vector<ObjectPtr>& params) {
 
   std::cerr << "index: Value missing from list" << std::endl;
   return nullptr;
+}
+
+Object::Method::result_type Tuple::asString(const std::vector<ObjectPtr>& params) {
+  if (params.size() != 0) {
+    throw std::runtime_error("__str__: Invalid number of arguments");
+  }
+
+  std::string result;
+  result.append("(");
+  
+  for (size_t i = 0; i < elements.size(); ++i) {
+    ObjectPtr stringElement = elements[i]->Call("__str__", {});
+
+    if (auto stringPtr = dynamic_cast<const String*>(stringElement.get())) {
+      result.append(stringPtr->getValue());
+      result.append(", ");
+    }
+  }
+
+  if (result.size() > 2) { // Remove trailing comma, if any placed
+    result.erase(result.size()-2, 2);
+  }
+
+  result.append(")");
+
+  return std::make_shared<String>(result);
 }

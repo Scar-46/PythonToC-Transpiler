@@ -7,58 +7,71 @@
 #include "../Object/var.hpp"
 
 class Pair : public Object {
-private:
-    std::pair<var, var> value;
+ private:
+  std::pair<var, var> value;
+  void init();
 
-public:
-  // ------------------ Constructors and destructor ------------------
+ public:
+  // Default constructor
+  Pair();
 
-    // Default constructor
-    Pair();
-    // Parameterized constructor
-    Pair(var first, var second);
-    // Copy constructor
-    Pair(const Pair& other);
-    // Move constructor
-    Pair(Pair&& other) noexcept;
-    // Destructor
-    ~Pair() noexcept override;
+  operator ObjectPtr() override;
 
-  // ------------------ Native overrides ------------------
+  // Parameterized constructor
+  Pair(var first, var second);
 
-    operator ObjectPtr() override;
-    // Clone method
-    ObjectPtr clone() const override;
+  // Copy constructor
+  Pair(const Pair& other);
 
-    // Print function
-    void print(std::ostream& os) const override;
+  // Move constructor
+  Pair(Pair&& other) noexcept;
 
-  // ------------------ Native operators ------------------
-  
-    // Copy assignment operator
-    Pair& operator=(const Pair& other);
-    // Move assignment operator
-    Pair& operator=(Pair&& other) noexcept;
-    // Equality operators
-    bool operator==(const Pair& other) const;
-    bool operator!=(const Pair& other) const;
-    // Comparison operators
-    bool operator<(const Pair& other) const;
-    bool operator<=(const Pair& other) const;
-    bool operator>(const Pair& other) const;
-    bool operator>=(const Pair& other) const;
-    bool equals(const Object& other) const override;
-    bool less(const Object& other) const override;
-    bool greater(const Object& other) const override;
+  // Destructor
+  ~Pair() noexcept override = default;
 
-  // ------------------ Accessors ------------------
-    var getFirst() const;
-    void setFirst(const var& first);
-    var getSecond() const;
-    void setSecond(const var& second);
-    // Swap method
-    void swap(Pair& other) noexcept;
+  // Copy assignment operator
+  Pair& operator=(const Pair& other);
 
+  // Move assignment operator
+  Pair& operator=(Pair&& other) noexcept;
+
+  // Equality operators
+  inline bool operator==(const Pair& other) const;
+
+  bool equals(const Object& other) const;
+
+  bool operator!=(const Pair& other) const;
+
+  // Comparison operators
+  bool operator<(const Pair& other) const;
+
+  bool less(const Object& other) const override;
+
+  bool greater(const Object& other) const override;
+
+  bool operator<=(const Pair& other) const;
+
+  bool operator>(const Pair& other) const;
+
+  bool operator>=(const Pair& other) const;
+
+  // Accessors
+  var getFirst() const;
+
+  void setFirst(const var& first);
+
+  var getSecond() const;
+
+  void setSecond(const var& second);
+
+  ObjectPtr clone() const override;
+
+  // Swap method
+  void swap(Pair& other) noexcept;
+
+  // Print function
+  void print(std::ostream& os) const override;
 };
+
 // Non-member swap for ADL
 inline void swap(Pair& lhs, Pair& rhs) noexcept;

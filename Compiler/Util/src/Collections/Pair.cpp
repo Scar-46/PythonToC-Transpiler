@@ -1,29 +1,23 @@
 #include "Pair.hpp"
 
-// ------------------ Constructors and destructor ------------------
-Pair::Pair() : value() {}
-Pair::Pair(var first, var second) : value(std::make_pair(first, second)) {}
-Pair::Pair(const Pair& other) : value(other.value) {}
-Pair::Pair(Pair&& other) noexcept : value(std::move(other.value)) {}
-Pair::~Pair() noexcept = default;
+Pair::Pair() { init(); }
 
-// ------------------ Native overrides ------------------
 Pair::operator ObjectPtr() {
+  init();
   return std::make_shared<Pair>(*this);
 }
 
+// Parameterized constructor
+Pair::Pair(var first, var second)
+  : value(std::make_pair(first, second)) { init(); }
 
-ObjectPtr Pair::clone() const {
-  return std::make_shared<Pair>(*this);
-}
+// Copy constructor
+Pair::Pair(const Pair& other)
+  : value(other.value) { init(); }
 
-void Pair::print(std::ostream& os) const {
-  os << "(";
-  value.first->print(os);
-  os << ", ";
-  value.second->print(os);
-  os << ")";
-}
+// Move constructor
+Pair::Pair(Pair&& other) noexcept
+  : value(std::move(other.value)) { init(); }
 
 // ------------------ Native operators ------------------
 Pair& Pair::operator=(const Pair& other) {
@@ -107,6 +101,21 @@ void Pair::setSecond(const var& second) {
 
 void Pair::swap(Pair& other) noexcept {
   std::swap(value, other.value);
+}
+
+// Print function
+void Pair::print(std::ostream& os) const {
+  os << "(";
+  value.first->print(os);
+  os << ", ";
+  value.second->print(os);
+  os << ")";
+}
+
+void Pair::init() {
+  _methods["__len__"];
+  _methods["__bool__"];
+  _methods["__str__"];
 }
 
 // Non-member swap for ADL
