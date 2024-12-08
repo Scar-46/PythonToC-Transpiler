@@ -61,7 +61,7 @@ class var {
  public:
   var();
   template <typename T, typename = std::enable_if_t<std::is_base_of<Object, T>::value>>
-  implicit var(const T& value) : value(std::make_shared<T>(value)) { init(); }
+  implicit var(const T& value) : value(std::make_shared<T>(value)) { }
 
   // Specialized constructors for base types
   implicit var(int32_t value);

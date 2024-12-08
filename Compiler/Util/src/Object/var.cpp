@@ -189,13 +189,13 @@ ObjectPtr var::Call(const std::string& name, std::initializer_list<ObjectPtr> pa
 
 // ------------------ Iterator ------------------
 
-Iterator::Iterator(Object::ObjectIt iterator): objectIterator(std::move(iterator)), isEnd(false) {this->}
+Iterator::Iterator(Object::ObjectIt iterator): objectIterator(std::move(iterator)), isEnd(false) {this->init();}
 
-Iterator::Iterator() : objectIterator(nullptr), isEnd(true) {this->}
+Iterator::Iterator() : objectIterator(nullptr), isEnd(true) {this->init();}
 
 Iterator::  Iterator(const Iterator& other)
     : objectIterator(other.objectIterator), isEnd(other.isEnd) {
-    this->
+    this->init();
 }
 
 Iterator& Iterator::operator++() {
@@ -256,5 +256,5 @@ Object::Method::result_type Iterator::asBoolean(const std::vector<ObjectPtr>& pa
         throw std::runtime_error("__bool__: Invalid number of arguments");
     }
 
-    return std::make_shared<Boolean>(isEnd || !objectIterator);
+    return std::make_shared<Boolean>(!isEnd && !objectIterator);
 }

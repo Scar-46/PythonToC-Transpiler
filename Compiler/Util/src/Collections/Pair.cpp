@@ -115,6 +115,10 @@ void Pair::print(std::ostream& os) const {
   os << ")";
 }
 
+ObjectPtr Pair::clone() const {
+  return std::make_shared<Pair>(*this);
+};
+
 void Pair::init() {
   _methods["__len__"] = std::bind(&Pair::len, this, std::placeholders::_1);
   _methods["__bool__"] = std::bind(&Pair::asBoolean, this, std::placeholders::_1);

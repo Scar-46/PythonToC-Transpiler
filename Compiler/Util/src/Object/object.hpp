@@ -20,9 +20,6 @@ class Object;
 using ObjectPtr = std::shared_ptr<Object>;
 
 class Object {
- private:
-  void init();
-
  protected:
   // Callable methods by name and parameters
   using Method = std::function<ObjectPtr(const std::vector<ObjectPtr>&)>;
@@ -79,8 +76,6 @@ class Object {
 
   // Call method supported by object instance
   Method::result_type Call(const std::string& name, std::initializer_list<ObjectPtr> params);
-
-  Method::result_type Iter(const std::vector<ObjectPtr>& params);
 
   // ------------------ Iterator ------------------
 

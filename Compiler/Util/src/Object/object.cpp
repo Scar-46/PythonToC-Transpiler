@@ -66,11 +66,6 @@ bool Object::isSameType(const Object& other) const {
 return typeid(*this) == typeid(other);
 }
 
-// ------------------ Global methods ------------------
-
-void Object::init() {
-    _methods["__iter__"] = std::bind()
-}
 // ------------------ Per-instance methods ------------------
 
 // Call method supported by object instance
@@ -82,11 +77,6 @@ Object::Method::result_type Object::Call(const std::string& name, std::initializ
     }
 
     return matchedMethod->second(params);
-}
-
-// Get current iterator to this object
-Object::Method::result_type Object::Iter(const std::vector<ObjectPtr>& params) {
-    return this->getIterator();
 }
 
 // ------------------ Iterator ------------------
