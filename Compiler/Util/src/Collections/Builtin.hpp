@@ -5,39 +5,18 @@
 
 // Implement orphan built in functions
 namespace Builtin {
-  var len(const std::vector<var>& params) {
-    if (params.size() != 1) {
-      std::cerr << "len: Invalid number of arguments\n";
-      return nullptr;
-    }
+  // Get an iterator to the collection / container
+  var iter(const std::vector<var>& params);
 
-    return params[0]->Call("__len__", {});
-  }
+  // Get amount of elements in the collection / container
+  var len(const std::vector<var>& params);
 
-  var sum(const std::vector<var>& params) {
-    if (params.size() != 1) {
-      std::cerr << "sum: Invalid number of arguments\n";
-      return nullptr;
-    }
+  // Sum all of the elements in the collection / contaienr
+  var sum(const std::vector<var>& params);
 
-    return params[0]->Call("__sum__", {});
-  }
+  // Get the lesser of the elements in the collection / contaienr
+  var min(const std::vector<var>& params);
 
-  var min(const std::vector<var>& params) {
-    if (params.size() != 1) {
-      std::cerr << "min: Invalid number of arguments\n";
-      return nullptr;
-    }
-
-    return params[0]->Call("__min__", {});
-  }
-
-  var max(const std::vector<var>& params) {
-    if (params.size() != 1) {
-      std::cerr << "max: Invalid number of arguments\n";
-      return nullptr;
-    }
-
-    return params[0]->Call("__max__", {});
-  }
+  // Get the greatest of the elements in the collection / contaienr
+  var max(const std::vector<var>& params);
 }
