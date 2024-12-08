@@ -13,11 +13,15 @@
 class var;
 
 class Iterator : public Object{
-  // Underlying object iterator
-  Object::ObjectIt objectIterator;
+  private:
+    // Underlying object iterator
+    Object::ObjectIt objectIterator;
 
-  // Whether the end has been reached or not
-  bool isEnd;
+    // Whether the end has been reached or not
+    bool isEnd;
+
+    // Register methods
+    void init();
 
  public:
   // Constructor for a valid iterator
@@ -28,9 +32,6 @@ class Iterator : public Object{
 
   // Copy constructor
   Iterator(const Iterator& other);
-
-  // Object methods intialization
-  void init();
 
   // Inherited methods from Object 
   void print(std::ostream& os) const override;
@@ -43,8 +44,11 @@ class Iterator : public Object{
   // Advancing
   Iterator& operator++();
 
-  // Object Next Method
+  // Get next iterator after this one
   Method::result_type next(const std::vector<ObjectPtr>& params);
+
+  // True if this iterator has a next one
+  Method::result_type asBoolean(const std::vector<ObjectPtr>& params);
 
   // Comparison
   bool operator!=(const Iterator& other) const;
@@ -57,7 +61,7 @@ class var {
  public:
   var();
   template <typename T, typename = std::enable_if_t<std::is_base_of<Object, T>::value>>
-  implicit var(const T& value) : value(std::make_shared<T>(value)) {}
+  implicit var(const T& value) : value(std::make_shared<T>(value)) { init(); }
 
   // Specialized constructors for base types
   implicit var(int32_t value);
