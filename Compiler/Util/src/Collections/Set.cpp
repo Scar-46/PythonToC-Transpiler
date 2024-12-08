@@ -102,6 +102,14 @@ Method::result_type Set::intersectionW(const std::vector<ObjectPtr>& params) {
     }
 
   std::unordered_set<var> result;
+
+  for (const var& element : this->_elements) {
+    if (other->_elements.contains(element)) {
+      result.insert(element);
+    }
+  }
+
+  return std::make_shared<Set>(result);
 }
 
 Method::result_type Set::differenceW(const std::vector<ObjectPtr>& params) {
@@ -137,16 +145,17 @@ Object::Method::result_type Set::asString(const std::vector<ObjectPtr>& params) 
   result.append("{");
   
   for (auto it = _elements.begin(); it != _elements.end(); ++it) {
-    ObjectPtr stringElement = (*it)->Call("__str__", {});
-
-    if (auto stringPtr = dynamic_cast<const String*>(stringElement.get())) {
+    if (
+      auto stringPtr = std::dynamic_pointer_cast<String>(
+        (*it)->Call("__str__", {})
+      )
+    ) {
       result.append(stringPtr->getValue());
-      result.append(", ");
-    }
-  }
 
-  if (result.size() > 2) { // Remove trailing comma, if any placed
-    result.erase(result.size()-2, 2);
+      if (std::next(it) != _elements.end()) {
+        result.append(", ");
+      }
+    }
   }
 
   result.append("}");

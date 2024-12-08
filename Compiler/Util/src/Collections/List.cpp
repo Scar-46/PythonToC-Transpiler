@@ -8,6 +8,7 @@ void List::init() {
   _methods["insert"] = std::bind(&List::insert, this, std::placeholders::_1);
   _methods["index"] = std::bind(&List::index, this, std::placeholders::_1);
   _methods["slice"] = std::bind(&List::slice, this, std::placeholders::_1);
+  _methods["__str__"] = std::bind(&List::asString, this, std::placeholders::_1);
 }
 
 // ------------------ Constructors and destructor ------------------
@@ -138,4 +139,32 @@ ObjectPtr List::slice(const std::vector<ObjectPtr>& params) {
     [](const std::vector<var>& resultContainer) {
       return std::make_shared<List>(resultContainer);
     });
+}
+
+// Get string representation of list
+Object::Method::result_type List::asString(const std::vector<ObjectPtr>& params) {
+  if (params.size() != 0) {
+    throw std::runtime_error("__str__: Invalid number of arguments");
+  }
+
+  std::string result;
+  result.append("[");
+  
+  for (auto it = _elements.begin(); it != _elements.end(); ++it) {
+    if (
+      auto stringPtr = std::dynamic_pointer_cast<String>(
+        (*it)->Call("__str__", {})
+      )
+    ) {
+      result.append(stringPtr->getValue());
+      
+      if (std::next(it) != _elements.end()) {
+        result.append(", ");
+      }
+    }
+  }
+
+  result.append("]");
+
+  return std::make_shared<String>(result);
 }

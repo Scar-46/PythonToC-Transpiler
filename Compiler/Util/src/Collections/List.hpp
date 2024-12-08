@@ -53,4 +53,6 @@ class List : public Collection<List, std::vector> {
   Method::result_type index(const std::vector<ObjectPtr>& params);
   // Return sliced list
   Method::result_type slice(const std::vector<ObjectPtr>& params);
+  // Get string representation of set
+  Method::result_type asString(const std::vector<ObjectPtr>& params);
 };

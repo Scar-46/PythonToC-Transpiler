@@ -1,5 +1,5 @@
 // Copyright (c) 2024 Syntax Errors.
-#include "Map.hpp"
+#include "./Map.hpp"
 
 // ------------------ Private methods ------------------
 void Map::init() {
@@ -14,6 +14,8 @@ void Map::init() {
   _methods["__min__"] = std::bind(&Map::min, this, std::placeholders::_1);
   _methods["__max__"] = std::bind(&Map::max, this, std::placeholders::_1);
   _methods["__sum__"] = std::bind(&Map::sum, this, std::placeholders::_1);
+  _methods["__str__"] = std::bind(&Map::asString, this, std::placeholders::_1);
+  _methods["__bool__"] = std::bind(&Map::asBoolean, this, std::placeholders::_1);
 }
 
 // ------------------ Constructors and destructor ------------------
@@ -88,8 +90,6 @@ Map Map::operator+(const Map& other) const {
   }
   return result;
 }
-
-#include "Map.hpp"
 
 // ------------------ Management Methods ------------------
 using Method = std::function<ObjectPtr(const std::vector<ObjectPtr>&)>;
@@ -245,6 +245,51 @@ Method::result_type Map::sum(const std::vector<ObjectPtr>& params) {
   }
 
   return result.getValue();
+}
+
+Method::result_type Map::asBoolean(const std::vector<ObjectPtr>& params) {
+  if (params.size() != 0) {
+    throw std::runtime_error("__bool__: Invalid number of arguments");
+  }
+
+  return std::make_shared<Boolean>(! this->elements.empty());
+}
+
+Method::result_type Map::asString(const std::vector<ObjectPtr>& params) {
+  if (params.size() != 0) {
+    throw std::runtime_error("__str__: Invalid number of arguments");
+  }
+
+  std::string result;
+
+  result.append("{");
+
+  for (auto it = elements.begin(); it != elements.end(); ++it) {
+    if (
+      auto stringPtr = std::dynamic_pointer_cast<String>(
+        it->first->Call("__str__", {})
+      )
+    ) {
+      result.append(stringPtr->getValue());
+      result.append(": ");
+    }
+
+    if (
+      auto stringPtr = std::dynamic_pointer_cast<String>(
+        it->second->Call("__str__", {})
+      )
+    ) {
+      result.append(stringPtr->getValue());
+    }
+
+    if (std::next(it) != elements.end()) {
+      result.append(", ");
+    }
+  }
+
+  result.append("}");
+
+  return std::make_shared<String>(result);
 }
 
 // ------------------ Iterator ------------------

@@ -138,16 +138,17 @@ Object::Method::result_type Tuple::asString(const std::vector<ObjectPtr>& params
   result.append("(");
   
   for (size_t i = 0; i < elements.size(); ++i) {
-    ObjectPtr stringElement = elements[i]->Call("__str__", {});
-
-    if (auto stringPtr = dynamic_cast<const String*>(stringElement.get())) {
+    if (
+      auto stringPtr = std::dynamic_pointer_cast<String>(
+        elements[i]->Call("__str__", {})
+      )
+    ) {
       result.append(stringPtr->getValue());
-      result.append(", ");
-    }
-  }
 
-  if (result.size() > 2) { // Remove trailing comma, if any placed
-    result.erase(result.size()-2, 2);
+      if (i + 1 != elements.size()) {
+        result.append(", ");
+      }
+    }
   }
 
   result.append(")");

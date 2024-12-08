@@ -1,4 +1,7 @@
 #include "Pair.hpp"
+#include "../Primitive/String.hpp"
+#include "../Primitive/Boolean.hpp"
+#include "../Numeric/Integer.hpp"
 
 Pair::Pair() { init(); }
 
@@ -113,9 +116,60 @@ void Pair::print(std::ostream& os) const {
 }
 
 void Pair::init() {
-  _methods["__len__"];
-  _methods["__bool__"];
-  _methods["__str__"];
+  _methods["__len__"] = std::bind(&Pair::len, this, std::placeholders::_1);
+  _methods["__bool__"] = std::bind(&Pair::asBoolean, this, std::placeholders::_1);
+  _methods["__str__"] = std::bind(&Pair::asString, this, std::placeholders::_1);
+}
+
+// Return two
+Object::Method::result_type Pair::len(const std::vector<ObjectPtr>& params) {
+  if (params.size() != 0) {
+    throw std::runtime_error("__str__: Invalid number of arguments");
+  }
+
+  return std::make_shared<Integer>(2);
+}
+
+// Get string representation of pair
+Object::Method::result_type Pair::asString(const std::vector<ObjectPtr>& params) {
+  if (params.size() != 0) {
+    throw std::runtime_error("__str__: Invalid number of arguments");
+  }
+
+  std::string result;
+  
+  result.append("(");
+  
+  if (
+    auto stringPtr = std::dynamic_pointer_cast<String>(
+      this->value.first.Call("__str__", {})
+    )
+  ) {
+    result.append(stringPtr->getValue());
+  };
+
+  result.append(", ");
+
+  if (
+    auto stringPtr = std::dynamic_pointer_cast<String>(
+      this->value.second.Call("__str__", {})
+    )
+  ) {
+    result.append(stringPtr->getValue());
+  };
+
+  result.append(")");
+
+  return std::make_shared<String>(result);
+}
+
+// Return true
+Object::Method::result_type Pair::asBoolean(const std::vector<ObjectPtr>& params) {
+  if (params.size() != 0) {
+    throw std::runtime_error("__bool__: Invalid number of arguments");
+  }
+
+  return std::make_shared<Boolean>(true);
 }
 
 // Non-member swap for ADL

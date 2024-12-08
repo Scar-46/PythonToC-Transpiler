@@ -77,6 +77,10 @@ class Map : public Object {
   Method::result_type max(const std::vector<ObjectPtr>& params);
   // Sum of all keys in the map
   Method::result_type sum(const std::vector<ObjectPtr>& params);
+  // True if any items remain in the map
+  Method::result_type asBoolean(const std::vector<ObjectPtr>& params);
+  // String representation of map
+  Method::result_type asString(const std::vector<ObjectPtr>& params);
 
   // ------------------ Iterator ------------------
   class MapIterator : public Object::ObjectIterator {

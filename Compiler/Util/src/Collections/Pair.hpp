@@ -71,6 +71,11 @@ class Pair : public Object {
 
   // Print function
   void print(std::ostream& os) const override;
+
+  // Management methods
+  Object::Method::result_type len(const std::vector<ObjectPtr>& params);
+  Object::Method::result_type asString(const std::vector<ObjectPtr>& params);
+  Object::Method::result_type asBoolean(const std::vector<ObjectPtr>& params);
 };
 
 // Non-member swap for ADL
