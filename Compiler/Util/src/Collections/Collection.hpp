@@ -47,10 +47,6 @@ class Collection : public Object {
   explicit Collection(const ContainerType<var>& elements) : _elements(elements) { init(); }
   explicit Collection(const Collection<Derived, ContainerType>& other) : Object(other), _elements(other._elements) { init(); }
   
-  // Brace-list constructor
-  template <typename... Args>
-  explicit Collection(std::initializer_list<var> initList) : _elements(initList) { init(); }
-  
   virtual ~Collection() override = default;
 
   inline const ContainerType<var>& getValue() const { return _elements; }

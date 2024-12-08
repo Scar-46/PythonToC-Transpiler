@@ -19,8 +19,6 @@ List::List(const List& other) : Collection<List, std::vector>(other) { init(); }
 
 List::List(const std::vector<var>& elements) : Collection<List, std::vector>(elements) { init(); }
 
-List::List(std::initializer_list<var> initList) : Collection<List, std::vector>(initList) { init(); }
-
 List::~List() = default;
 
 // ------------------ Native overrides ------------------

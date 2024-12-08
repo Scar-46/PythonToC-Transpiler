@@ -21,9 +21,6 @@ class Set : public Collection<Set, std::unordered_set> {
   Set(const Set& other);
   Set(const std::unordered_set<var>& elements);
 
-  // Brace-list constructor
-  Set(std::initializer_list<var> initList);
-
   virtual ~Set() override = default;
 
   // ------------------ Native overrides ------------------

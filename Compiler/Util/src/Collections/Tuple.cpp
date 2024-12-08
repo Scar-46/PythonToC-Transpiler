@@ -26,11 +26,6 @@ Tuple::Tuple(const std::vector<var>& elements) : Collection<Tuple, std::vector>(
   init();
 }
 
-// Brace-list constructor
-Tuple::Tuple(std::initializer_list<var> initList) : elements(initList) {
-  init();
-}
-
 // ------------------ Native overrides ------------------
 // Print contents
 void Tuple::print(std::ostream& os) const {

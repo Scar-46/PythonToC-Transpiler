@@ -22,8 +22,6 @@ class List : public Collection<List, std::vector> {
   // Copy constructor
   List(const List& other);
   explicit List(const std::vector<var>& elements);
-  // Brace-list constructor
-  List(std::initializer_list<var> initList);
   // Destructor
   virtual ~List() override;
 

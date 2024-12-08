@@ -24,9 +24,6 @@ class Tuple : public Collection<Tuple, std::vector> {       // TODO(Dwayne): var
   Tuple(const Tuple& other);
   explicit Tuple(const std::vector<var>& elements);
 
-  // Brace-list constructor
-  Tuple(std::initializer_list<var> initList);
-
   ~Tuple() override = default;
 
   // ------------------ Native overrides ------------------

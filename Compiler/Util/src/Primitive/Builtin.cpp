@@ -9,8 +9,8 @@ namespace Builtin {
             return (var) std::make_shared<String>("");
         }
 
-        if (params.size() > 0) {
-            std::cerr << "abs: Invalid number of arguments\n";
+        if (params.size() > 1) {
+            std::cerr << "str: Invalid number of arguments\n";
             return nullptr;
         }
 
@@ -28,7 +28,7 @@ namespace Builtin {
             return (var) std::make_shared<Boolean>(false);
         }
 
-        if (params.size() > 0) {
+        if (params.size() > 1) {
             std::cerr << "bool: Invalid number of arguments\n";
             return nullptr;
         }

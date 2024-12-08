@@ -21,15 +21,7 @@ class Map : public Object {
  public:
   Map();
   Map(const Map& other);
-  Map(std::initializer_list<std::pair<var, var>> initList);
-
-  template <typename... Args>
-  explicit Map(Args&&... args) {
-    if constexpr (sizeof...(args) > 0) {
-      (addPair(std::forward<Args>(args)), ...);
-    }
-    this->init();
-  }
+  Map(const std::vector<Pair>& pairs);
 
   // ------------------ Native overrides ------------------
 
@@ -43,6 +35,8 @@ class Map : public Object {
   void print(std::ostream& os) const override;
   // Clone itself
   ObjectPtr clone() const override;
+  // Get underlying map
+  const std::unordered_map<var, var>& getValue();
 
   // ------------------ Native operators ------------------
 

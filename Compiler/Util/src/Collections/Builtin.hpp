@@ -22,4 +22,28 @@ namespace Builtin {
 
   // Get the greatest of the elements in the collection / contaienr
   var max(const std::vector<var>& params);
+
+  // Construct a tuple
+  var tuple(const std::vector<var>& params);
+
+  // Construct a list
+  var list(const std::vector<var>& params);
+
+  // Construct a set
+  var set(const std::vector<var>& params);
+
+  // Construct a map
+  var dict(const std::vector<var>& params);
+
+  // Construct a tuple from inline definition
+  var inlineTuple(const std::vector<var>& params);
+
+  // Construct a list from inline definition
+  var inlineList(const std::vector<var>& params);
+
+  // Construct a list from inline definition
+  var inlineSet(const std::vector<var>& params);
+
+  // Construct a map from inline definition
+  var inlineDict(const std::vector<var>& params);
 }

@@ -320,7 +320,7 @@ class CodeGenerator():
 
 # ------------------------ Tuple ------------------------
     def visit_tuple(self, node):
-        code_strs = [self.emit("Tuple(", add_newline=False)]
+        code_strs = [self.emit("Builtin::inlineTuple(", add_newline=False)]
         for i, child in enumerate(node.children):
             code_strs.append(self.visit(child))
             if i < len(node.children) - 1:
@@ -330,7 +330,7 @@ class CodeGenerator():
 
 # ------------------------ Dictionary ------------------------
     def visit_dictionary(self, node):
-        code_strs = [self.emit("Map(", add_newline=True)]
+        code_strs = [self.emit("Builtin::inlineDict(", add_newline=True)]
         self.indent_level += 1
         for i, child in enumerate(node.children[0].children):
             code_strs.append(self.visit(child))
@@ -351,7 +351,7 @@ class CodeGenerator():
     
 # ------------------------ List ------------------------
     def visit_list(self, node):
-        code_strs = [self.emit("List(", add_newline=False)]
+        code_strs = [self.emit("Builtin::inlineList(", add_newline=False)]
         
         for i, child in enumerate(node.children):
             if i > 0:
@@ -363,7 +363,7 @@ class CodeGenerator():
     
 # ------------------------ Set ------------------------
     def visit_set(self, node):
-        code_strs = [self.emit("List(", add_newline=False)]
+        code_strs = [self.emit("Builtin::inlineSet(", add_newline=False)]
         for i, child in enumerate(node.children):
             if i > 0:
                 code_strs.append(self.emit(", ", add_newline=False))

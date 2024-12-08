@@ -18,12 +18,6 @@ Set::Set() { init(); }
 Set::Set(const Set& other) : Collection<Set, std::unordered_set>(other) { init(); }
 Set::Set(const std::unordered_set<var>& elements) : Collection<Set, std::unordered_set>(elements) { init(); }
 
-// Brace-list constructor
-Set::Set(std::initializer_list<var> initList)
-  : Collection<Set, std::unordered_set>(initList) {
-  init();
-}
-
 // ------------------ Native overrides ------------------
 void Set::print(std::ostream& os) const {
   os << "{";

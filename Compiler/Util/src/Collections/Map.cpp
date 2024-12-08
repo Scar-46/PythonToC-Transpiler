@@ -25,12 +25,11 @@ Map::Map(const Map& other) : Object(other), elements(other.elements) {
   this->init();
 }
 
-Map::Map(std::initializer_list<std::pair<var, var>> initList) {
-  for (const auto& pair : initList) {
-    elements[pair.first] = pair.second;
+Map::Map(const std::vector<Pair>& pairs) {
+  for (const Pair& pair : pairs) {
+    elements[pair.getFirst()] = elements[pair.getSecond()];
   }
-  this->init();
-}
+} 
 
 // ------------------ Native overrides ------------------
 
@@ -70,6 +69,8 @@ void Map::print(std::ostream& os) const {
 ObjectPtr Map::clone() const {
   return std::make_shared<Map>(*this);
 }
+
+const std::unordered_map<var, var>& Map::getValue() { return elements; }
 
 // ------------------ Native operators ------------------
 
