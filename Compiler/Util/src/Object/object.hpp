@@ -80,7 +80,7 @@ class Object {
   // ------------------ Iterator ------------------
 
   class ObjectIterator;
-  using ObjectIt = std::unique_ptr<Object::ObjectIterator>;
+  using ObjectIt = std::shared_ptr<Object::ObjectIterator>;
 
   // Default iteration behavior
   class ObjectIterator {

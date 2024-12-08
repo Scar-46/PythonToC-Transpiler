@@ -147,6 +147,14 @@ std::ostream& operator<<(std::ostream& os, const var& variable) {
 }
 
 // Iterators
+
+Iterator var::getIterator() const {
+if (!value) {
+    throw std::runtime_error("Cannot retrieve iterator from null var");
+}
+return Iterator(value->getIterator());
+}
+
 Iterator var::cbegin() const {
     if (!value) {
         throw std::runtime_error("Cannot iterate over null var");
@@ -181,9 +189,18 @@ ObjectPtr var::Call(const std::string& name, std::initializer_list<ObjectPtr> pa
 
 // ------------------ Iterator ------------------
 
-Iterator::Iterator(Object::ObjectIt iterator): objectIterator(std::move(iterator)), isEnd(false) {}
+Iterator::Iterator(Object::ObjectIt iterator): objectIterator(std::move(iterator)), isEnd(false) {this->init();}
 
-Iterator::Iterator() : objectIterator(nullptr), isEnd(true) {}
+Iterator::Iterator() : objectIterator(nullptr), isEnd(true) {this->init();}
+
+Iterator::  Iterator(const Iterator& other)
+    : objectIterator(other.objectIterator), isEnd(other.isEnd) {
+    this->init();
+}
+
+void Iterator::init() {
+    _methods["next"] = std::bind(&Iterator::next, this, std::placeholders::_1);
+}
 
 Iterator& Iterator::operator++() {
     if (!objectIterator || isEnd) {
@@ -207,10 +224,23 @@ var Iterator::operator*() const {
     return var(objectIterator->next());
 }
 
+void Iterator::print(std::ostream& os) const { os << ""; }
+
+ObjectPtr Iterator::clone() const { return nullptr; }
+
 var Iterator::operator*() {
     if (!objectIterator || isEnd || !objectIterator->hasNext()) {
         throw std::runtime_error("Dereferencing an invalid iterator");
     }
 
     return var(objectIterator->next());
+}
+
+ObjectPtr Iterator::next(const std::vector<ObjectPtr>& params) {
+  if (isEnd || !objectIterator) {
+    throw std::runtime_error("No more elements to iterate over");
+  }
+  var current = **this;
+  ++(*this);
+  return current.getValue();
 }

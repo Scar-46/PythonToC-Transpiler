@@ -1,23 +1,31 @@
-// Copyright (c) 2024 Syntax Errors.
 #include "Pair.hpp"
 
+// ------------------ Constructors and destructor ------------------
+Pair::Pair() : value() {}
+Pair::Pair(var first, var second) : value(std::make_pair(first, second)) {}
+Pair::Pair(const Pair& other) : value(other.value) {}
+Pair::Pair(Pair&& other) noexcept : value(std::move(other.value)) {}
+Pair::~Pair() noexcept = default;
+
+// ------------------ Native overrides ------------------
 Pair::operator ObjectPtr() {
   return std::make_shared<Pair>(*this);
 }
 
-// Parameterized constructor
-Pair::Pair(var first, var second)
-  : value(std::make_pair(first, second)) {}
 
-// Copy constructor
-Pair::Pair(const Pair& other)
-  : value(other.value) {}
+ObjectPtr Pair::clone() const {
+  return std::make_shared<Pair>(*this);
+}
 
-// Move constructor
-Pair::Pair(Pair&& other) noexcept
-  : value(std::move(other.value)) {}
+void Pair::print(std::ostream& os) const {
+  os << "(";
+  value.first->print(os);
+  os << ", ";
+  value.second->print(os);
+  os << ")";
+}
 
-// Copy assignment operator
+// ------------------ Native operators ------------------
 Pair& Pair::operator=(const Pair& other) {
   if (this != &other) {
     value = other.value;
@@ -25,7 +33,6 @@ Pair& Pair::operator=(const Pair& other) {
   return *this;
 }
 
-// Move assignment operator
 Pair& Pair::operator=(Pair&& other) noexcept {
   if (this != &other) {
     value = std::move(other.value);
@@ -33,34 +40,16 @@ Pair& Pair::operator=(Pair&& other) noexcept {
   return *this;
 }
 
-// Equality operators
 inline bool Pair::operator==(const Pair& other) const {
   return value == other.value;
-}
-
-bool Pair::equals(const Object& other) const {
-  auto otherObj = dynamic_cast<const Pair*>(&other);
-  if (otherObj) {
-    return value == otherObj->value;
-  }
-  throw std::runtime_error("Pair does not support comparison with given type");
 }
 
 bool Pair::operator!=(const Pair& other) const {
   return !(*this == other);
 }
 
-// Comparison operators
 bool Pair::operator<(const Pair& other) const {
   return value < other.value;
-}
-
-bool Pair::less(const Object& other) const {
-  auto otherObj = dynamic_cast<const Pair*>(&other);
-  if (otherObj) {
-    return value < otherObj->value;
-  }
-  throw std::runtime_error("Pair does not support comparison with given type");
 }
 
 bool Pair::operator<=(const Pair& other) const {
@@ -71,6 +60,26 @@ bool Pair::operator>(const Pair& other) const {
   return value > other.value;
 }
 
+bool Pair::operator>=(const Pair& other) const {
+  return value >= other.value;
+}
+
+bool Pair::equals(const Object& other) const {
+  auto otherObj = dynamic_cast<const Pair*>(&other);
+  if (otherObj) {
+    return value == otherObj->value;
+  }
+  throw std::runtime_error("Pair does not support comparison with given type");
+}
+
+bool Pair::less(const Object& other) const {
+  auto otherObj = dynamic_cast<const Pair*>(&other);
+  if (otherObj) {
+    return value < otherObj->value;
+  }
+  throw std::runtime_error("Pair does not support comparison with given type");
+}
+
 bool Pair::greater(const Object& other) const {
   auto otherObj = dynamic_cast<const Pair*>(&other);
   if (otherObj) {
@@ -79,11 +88,7 @@ bool Pair::greater(const Object& other) const {
   throw std::runtime_error("Pair does not support comparison with given type");
 }
 
-bool Pair::operator>=(const Pair& other) const {
-  return value >= other.value;
-}
-
-// Accessors
+// ------------------ Accessors ------------------
 var Pair::getFirst() const {
   return value.first;
 }
@@ -100,22 +105,8 @@ void Pair::setSecond(const var& second) {
   value.second = second;
 }
 
-ObjectPtr Pair::clone() const {
-  return std::make_shared<Pair>(*this);
-}
-
-// Swap method
 void Pair::swap(Pair& other) noexcept {
   std::swap(value, other.value);
-}
-
-// Print function
-void Pair::print(std::ostream& os) const {
-  os << "(";
-  value.first->print(os);
-  os << ", ";
-  value.second->print(os);
-  os << ")";
 }
 
 // Non-member swap for ADL

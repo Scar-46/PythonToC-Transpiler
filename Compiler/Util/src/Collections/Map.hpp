@@ -5,45 +5,24 @@
 #include <memory>
 #include <utility>
 #include <vector>
-
+#include <list>
 #include "../Object/object.hpp"
 #include "../Object/var.hpp"
 #include "../Primitive/Boolean.hpp"
 #include "./Pair.hpp"
 #include "./List.hpp"
-#include <list>
 
 class Map : public Object {
  private:
   std::unordered_map<var, var> elements;
 
-  void init() {
-    _methods["keys"] = std::bind(&Map::keys, this, std::placeholders::_1);
-    _methods["values"] = std::bind(&Map::values, this, std::placeholders::_1);
-    _methods["items"] = std::bind(&Map::items, this, std::placeholders::_1);
-    _methods["addElement"] = std::bind(&Map::addElement, this, std::placeholders::_1);
-    _methods["pop"] = std::bind(&Map::pop, this, std::placeholders::_1);
-    _methods["clear"] = std::bind(&Map::clear, this, std::placeholders::_1);
-    _methods["get"] = std::bind(&Map::get, this, std::placeholders::_1);
-    _methods["__len__"] = std::bind(&Map::len, this, std::placeholders::_1);
-    _methods["__min__"] = std::bind(&Map::min, this, std::placeholders::_1);
-    _methods["__max__"] = std::bind(&Map::max, this, std::placeholders::_1);
-    _methods["__sum__"] = std::bind(&Map::sum, this, std::placeholders::_1);
-    _methods["__bool__"] = std::bind(&Map::asBoolean, this, std::placeholders::_1);
-  }
+  void init();
 
  public:
-  Map(): elements() { this->init(); }
+  Map();
+  Map(const Map& other);
+  Map(std::initializer_list<std::pair<var, var>> initList);
 
-  Map(const Map& other) : Object(other), elements(other.elements) {
-      this->init();  // Initialize methods for the new object
-  }
-  Map(std::initializer_list<std::pair<var, var>> initList) {
-    for (const auto& pair : initList) {
-      elements[pair.first] = pair.second;
-    }
-    this->init();
-  }
   template <typename... Args>
   explicit Map(Args&&... args) {
     if constexpr (sizeof...(args) > 0) {
@@ -55,279 +34,63 @@ class Map : public Object {
   // ------------------ Native overrides ------------------
 
   // Override the addition method to implement map addition
-  ObjectPtr add(unused const Object& other) const override {
-    // Implement map addition logic
-    return std::make_shared<Map>(*this);
-  }
-
+  ObjectPtr add(unused const Object& other) const override;
   // Get value from associated key-value pair
-  ObjectPtr subscript(const Object& other) const override {
-    for (const auto& kv : this->elements) {
-      if (kv.first->equals(other)) {
-        return kv.second.getValue();
-      }
-    }
-    std::cerr << "Key not found\n";
-    return nullptr;
-  }
-
+  ObjectPtr subscript(const Object& other) const override;
   // Test equality with other maps
-  bool equals(const Object& other) const override {
-    auto otherMap  = dynamic_cast<const Map*>(&other);
-    if (!otherMap) {
-      throw std::invalid_argument("Cannot compare map with given type");
-    }
-    return elements == otherMap->elements;
-  }
-
+  bool equals(const Object& other) const override;
   // Print contents
-  void print(std::ostream& os) const override {
-    os << "{";
-    for (auto it = elements.begin(); it != elements.end(); ++it) {
-      os << it->first << ": " << it->second;
-      if (std::next(it) != elements.end()) {
-        os << ", ";
-      }
-    }
-    os << "}";
-  }
-
+  void print(std::ostream& os) const override;
   // Clone itself
-  ObjectPtr clone() const override {
-    return std::make_shared<Map>(*this);
-  }
+  ObjectPtr clone() const override;
 
   // ------------------ Native operators ------------------
 
   // Access elements in key-value pairs by key
-  var operator[](const var& key) const {
-    auto it = elements.find(key);
-    if (it != elements.end()) {
-      return it->second;
-    } else {
-      std::cerr << "Key not found\n";
-      return var();  // Or throw an exception
-    }
-  }
-
+  var operator[](const var& key) const;
   // Return merge of itself and another map
-  Map operator+(const Map& other) const {
-    Map result = *this;   // Start with a copy of the current map
-    for (const auto& pair : other.elements) {
-      result.elements[pair.first] = pair.second;  // Overwrite or insert new key-value pairs
-    }
-    return result;
-  }
+  Map operator+(const Map& other) const;
 
   // ------------------ Management Methods ------------------
 
   // Add key-value entry 
-  Method::result_type addElement(const std::vector<ObjectPtr>& params) {
-    if (params.size() != 2) {
-      throw std::runtime_error("addElement: Invalid number of arguments");
-    }
-
-    var key = params[0];
-    var value = params[1];
-
-    if (!key.getValue()) {
-      throw std::runtime_error("Map: cannot add null key");
-    }
-
-    auto it = this->elements.find(key);
-    if (it == this->elements.end()) {
-      std::cout << "New Key" << std::endl;
-      this->elements.insert({key, value});
-    }
-
-    return nullptr;
-  }
-
+  Method::result_type addElement(const std::vector<ObjectPtr>& params);
   // Remove key-value entry by given key
-  Method::result_type pop(const std::vector<ObjectPtr>& params) {
-    if (params.size() != 1) {
-      throw std::runtime_error("pop: Invalid number of arguments");
-    }
-
-    var key = params[0];
-    auto it = elements.find(key);
-
-    if (it != elements.end()) {
-      var removedElement = it->second;
-      elements.erase(it);
-      return removedElement.getValue();
-    } else {
-      std::cerr << "Key not found\n";
-      return nullptr;
-    }
-  }
-
+  Method::result_type pop(const std::vector<ObjectPtr>& params);
   // Remove all key-value entries
-  Method::result_type clear(const std::vector<ObjectPtr>& params) {
-    if (params.size() != 0) {
-      throw std::runtime_error("clear: Invalid number of arguments");
-    }
-
-    elements.clear();
-    return nullptr;
-  }
-
-  size_t size() const {
-    return elements.size();
-  }
-
-  // Returns a list of all keys in the map
-  Method::result_type keys(const std::vector<ObjectPtr>& params) {
-    if (params.size() != 0) {
-      throw std::runtime_error("keys: Invalid number of arguments");
-    }
-
-    std::vector<var> keyList;
-    for (const auto& kv : elements) {
-      keyList.push_back(kv.first);
-    }
-    return std::make_shared<List>(keyList);
-  }
-
+  Method::result_type clear(const std::vector<ObjectPtr>& params);
+  // Returns the size of the map
+  size_t size() const;
   // Returns a list of all values in the map
-  Method::result_type values(const std::vector<ObjectPtr>& params) {
-    if (params.size() != 0) {
-      throw std::runtime_error("values: Invalid number of arguments");
-    }
-  
-    std::vector<var> valueList;
-    for (const auto& kv : elements) {
-      valueList.push_back(kv.second);
-    }
-    return std::make_shared<List>(valueList);
-  }
-
+  Method::result_type keys(const std::vector<ObjectPtr>& params);
+  // Returns a list of all values in the map
+  Method::result_type values(const std::vector<ObjectPtr>& params);
   // Returns a list of key-value pairs as Pair objects
-  Method::result_type items(const std::vector<ObjectPtr>& params) {
-    if (params.size() != 0) {
-      throw std::runtime_error("items: Invalid number of arguments");
-    }
-
-    std::vector<var> itemList;
-    for (const auto& kv : elements) {
-      itemList.push_back(var(Pair(kv.first, kv.second)));
-    }
-    return std::make_shared<List>(itemList);
-  }
-
+  Method::result_type items(const std::vector<ObjectPtr>& params);
   // Get value associated with key-value pair by key
-  Method::result_type get(const std::vector<ObjectPtr>& params) {
-    if (params.size() != 1) {
-      throw std::runtime_error("get: Invalid number of arguments");
-    }
-
-    var key = params[0];
-    auto it = elements.find(key);
-
-    if (it != elements.end()) {
-      var match = it->second;
-      return match.getValue();
-    }
-    
-    std::cerr << "get: Key not found\n";
-    return nullptr;
-  }
-
+  Method::result_type get(const std::vector<ObjectPtr>& params);
   // Amount of key-value entries in the map
-  Method::result_type len(const std::vector<ObjectPtr>& params) {
-    if (params.size() != 0) {
-      throw std::runtime_error("__len__: Invalid number of arguments");
-    }
-
-    return std::make_shared<Integer>(elements.size());
-  }
-
-  // True if there are any entries in the map
-  Method::result_type asBoolean(const std::vector<ObjectPtr>& params) {
-    if (params.size() != 0) {
-      throw std::runtime_error("__bool__: Invalid number of arguments");
-    }
-
-    return std::make_shared<Boolean>(elements.size() > 0);
-  }
-
+  Method::result_type len(const std::vector<ObjectPtr>& params);
   // Smallest key in map
-  Method::result_type min(const std::vector<ObjectPtr>& params) {
-    if (params.size() != 0) {
-      throw std::runtime_error("__min__: Invalid number of arguments");
-    }
-
-    auto lesserSlot = std::min_element(std::begin(elements), std::end(elements));
-    if (lesserSlot == elements.end()) {
-      return nullptr;
-    }
-
-    return std::make_shared<Integer>(elements.size());
-  }
-
+  Method::result_type min(const std::vector<ObjectPtr>& params);
   // Greatest key in map
-  Method::result_type max(const std::vector<ObjectPtr>& params) {
-    if (params.size() != 0) {
-      throw std::runtime_error("__max__: Invalid number of arguments");
-    }
-
-    auto greatestSlot = std::max_element(std::begin(elements), std::end(elements));
-    if (greatestSlot == elements.end()) {
-      return nullptr;
-    }
-
-    return std::make_shared<Integer>(elements.size());
-  }
-
+  Method::result_type max(const std::vector<ObjectPtr>& params);
   // Sum of all keys in the map
-  virtual Method::result_type sum(const std::vector<ObjectPtr>& params) {
-    if (params.size() != 0) {
-      throw std::runtime_error("__sum__: Invalid number of arguments");
-    }
-
-    var result = Integer(0);
-
-    for (const auto& kv : elements) {
-      result = result->add(kv.first);
-    }
-
-    return result.getValue();
-  }
+  Method::result_type sum(const std::vector<ObjectPtr>& params);
 
   // ------------------ Iterator ------------------
-
   class MapIterator : public Object::ObjectIterator {
    private:
     const Map& _map;
     size_t _currentIndex;
 
    public:
-    explicit MapIterator(const Map& list) : _map(list), _currentIndex(0) {}
-
-    bool hasNext() const override {
-      return _currentIndex < _map.size();
-    }
-
-    ObjectPtr next() override {
-      if (!this->hasNext()) {
-        throw std::out_of_range("Iterator out of range");
-      }
-
-      auto it = _map.elements.begin();
-      std::advance(it, _currentIndex++);
-
-      // TODO(Dwayne): find an approiate way of returning the key-value pair.
-      return std::make_shared<Pair>(it->first, it->second);
-    }
-
-    ObjectIt clone() const override {
-      return std::make_unique<MapIterator>(*this);
-    }
+    explicit MapIterator(const Map& list);
+    bool hasNext() const override;
+    ObjectPtr next() override;
+    ObjectIt clone() const override;
   };
 
   // Override iteration methods
-  ObjectIt getIterator() const override {
-    return std::make_unique<MapIterator>(*this);
-  }
-
+  ObjectIt getIterator() const override;
 };
