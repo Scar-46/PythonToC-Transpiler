@@ -157,7 +157,7 @@ class CodeGenerator():
     def visit_if_stmt(self, node):
         code_strs = [self.emit("if(", add_newline=False)]
         code_strs.append(self.visit(node.children[0]))  # Condition
-        code_strs.append(self.emit("){", add_newline=True))
+        code_strs.append(self.emit(") {", add_newline=True))
 
         if len(node.children) > 1:  # If block
             code_strs.append(self.visit(node.children[1]))
@@ -171,7 +171,7 @@ class CodeGenerator():
     def visit_elif_stmt(self, node):
         code_strs = [self.emit("else if(", add_newline=False)]
         code_strs.append(self.visit(node.children[0]))  # Condition
-        code_strs.append(self.emit("){", add_newline=True))
+        code_strs.append(self.emit(") {", add_newline=True))
 
         if len(node.children) > 1:  # Elif block
             code_strs.append(self.visit(node.children[1]))
@@ -342,11 +342,11 @@ class CodeGenerator():
         return ''.join(code_strs)
 
     def visit_key_value_pair(self, node):
-        code_strs = [self.emit("Pair(", add_newline=False)]
+        code_strs = [self.emit("var(Pair(", add_newline=False)]
         code_strs.append(self.visit(node.children[0]))  # Key
         code_strs.append(self.emit(", ", add_newline=False))
         code_strs.append(self.visit(node.children[1]))  # Value
-        code_strs.append(self.emit(")", add_newline=False))
+        code_strs.append(self.emit("))", add_newline=False))
         return ''.join(code_strs)
     
 # ------------------------ List ------------------------
@@ -379,11 +379,11 @@ class CodeGenerator():
             return self.emit(str(node.value).lower(), add_newline=False)
 
     def visit_number(self, node):
-        return self.emit("Double(" + str(node.value) + ")", add_newline=False)
+        return self.emit("var(Double(" + str(node.value) + "))", add_newline=False)
 
     def visit_string(self, node):
         escaped_string = node.value.replace('"', '\\"')  # Escape double quotes
-        return self.emit(f"String(\"{escaped_string}\")", add_newline=False)
+        return self.emit(f"var(String(\"{escaped_string}\"))", add_newline=False)
 
     def visit_group(self, node):
         code_strs = [self.emit("(", add_newline=False)]
@@ -433,5 +433,7 @@ class CodeGenerator():
     def visit_aug_assign(self, node):
         code_strs = [self.visit(node.children[0])]  # Target
         code_strs.append(self.emit(f" {node.children[1].value} ", add_newline=False))  # Operator
+        code_strs.append(self.emit("var(", add_newline=False))
         code_strs.append(self.visit(node.children[2]))  # Value
+        code_strs.append(self.emit(")", add_newline=False))
         return ''.join(code_strs)
