@@ -66,6 +66,9 @@ void TestSet() {
   for (const auto& item : set) {
     std::cout << "Set item: " << item << std::endl;
   }
+  if (var result = set->Call("has", {Integer(0)})) {
+    std::cout << "Set has " << result << std::endl;
+  }
 }
 
 void TestMap() {
@@ -75,6 +78,11 @@ void TestMap() {
 
   map->Call("addElement", {String("Hello"), String("World")});
   map->Call("addElement", {Integer(1), Double(3.1415)});
+  try {
+    map->Call("addElement", {nullptr, Double(3.1415)});
+  } catch (std::runtime_error& e) {
+    std::cout << "Tried and failed to add nullptr to map" << std::endl;
+  }
 
   std::cout << "Map: " << map << std::endl << " | Keys: " << var(map->Call("keys", {}))
     << std::endl << " | Values: " << var(map->Call("values", {})) << std::endl;

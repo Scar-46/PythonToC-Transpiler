@@ -1,5 +1,6 @@
 // Copyright (c) 2024 Syntax Errors.
 #include <memory>
+#include <string>
 
 #include "Tuple.hpp"
 #include "../Object/object.hpp"
@@ -22,7 +23,7 @@ Tuple::Tuple(const Tuple& other) : Collection<Tuple, std::vector>(other) {
   init();
 }
 
-Tuple::Tuple(const std::vector<var>& elements) : Collection<Tuple, std::vector>(elements) {
+Tuple::Tuple(const std::vector<var>& _elements) : Collection<Tuple, std::vector>(_elements) {
   init();
 }
 
@@ -30,9 +31,9 @@ Tuple::Tuple(const std::vector<var>& elements) : Collection<Tuple, std::vector>(
 // Print contents
 void Tuple::print(std::ostream& os) const {
   os << "(";
-  for (size_t i = 0; i < elements.size(); ++i) {
-    os << elements[i];
-    if (i < elements.size() - 1) {
+  for (size_t i = 0; i < _elements.size(); ++i) {
+    os << _elements[i];
+    if (i < _elements.size() - 1) {
       os << ", ";
     }
   }
@@ -70,7 +71,7 @@ bool Tuple::greater(const Object& other) const {
   return this->_elements > otherTuple->_elements;
 }
 
-// Return a tuple with elements from both tuples (self, then other's)
+// Return a tuple with _elements from both tuples (self, then other's)
 ObjectPtr Tuple::add(const Object& other) const {
   auto otherTuple = dynamic_cast<const Tuple*>(&other);
 
@@ -79,9 +80,9 @@ ObjectPtr Tuple::add(const Object& other) const {
     return nullptr;
   }
 
-  std::vector<var> result = this->elements;
+  std::vector<var> result = this->_elements;
   result.insert(
-    result.end(), otherTuple->elements.begin(), otherTuple->elements.end());
+    result.end(), otherTuple->_elements.begin(), otherTuple->_elements.end());
 
   return std::make_shared<Tuple>(result);
 }
@@ -114,8 +115,8 @@ Object::Method::result_type Tuple::index(const std::vector<ObjectPtr>& params) {
   }
 
   var query = params[0];
-  for (size_t i = 0; i < elements.size(); ++i) {
-    if (elements[i] == query) {
+  for (size_t i = 0; i < _elements.size(); ++i) {
+    if (_elements[i] == query) {
       return std::make_shared<Integer>(i);
     }
   }
@@ -131,16 +132,16 @@ Object::Method::result_type Tuple::asString(const std::vector<ObjectPtr>& params
 
   std::string result;
   result.append("(");
-  
-  for (size_t i = 0; i < elements.size(); ++i) {
+
+  for (size_t i = 0; i < _elements.size(); ++i) {
     if (
       auto stringPtr = std::dynamic_pointer_cast<String>(
-        elements[i]->Call("__str__", {})
+        _elements[i]->Call("__str__", {})
       )
     ) {
       result.append(stringPtr->getValue());
 
-      if (i + 1 != elements.size()) {
+      if (i + 1 != _elements.size()) {
         result.append(", ");
       }
     }

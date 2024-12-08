@@ -12,8 +12,6 @@
 
 class Tuple : public Collection<Tuple, std::vector> {
  private:
-  std::vector<var> elements;
-
   void init();
 
  public:

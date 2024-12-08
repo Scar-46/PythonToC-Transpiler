@@ -38,9 +38,11 @@ class Set : public Collection<Set, std::unordered_set> {
   bool equals(const Object& other) const override;
 
   // ------------------ Management Methods ------------------
-
   // Add element to set
   Method::result_type add(const std::vector<ObjectPtr>& params);
+
+  // Lookup an element in set
+  Method::result_type has(const std::vector<ObjectPtr>& params);
 
   // Remove specified element from set
   Method::result_type remove(const std::vector<ObjectPtr>& params) override;

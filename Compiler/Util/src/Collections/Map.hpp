@@ -15,7 +15,6 @@
 class Map : public Object {
  private:
   std::unordered_map<var, var> elements;
-
   void init();
 
  public:

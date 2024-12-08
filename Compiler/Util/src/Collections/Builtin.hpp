@@ -14,13 +14,13 @@ namespace Builtin {
   // Get amount of elements in the collection / container
   var len(const std::vector<var>& params);
 
-  // Sum all of the elements in the collection / contaienr
+  // Sum all of the elements in the collection / container
   var sum(const std::vector<var>& params);
 
-  // Get the lesser of the elements in the collection / contaienr
+  // Get the lesser of the elements in the collection / container
   var min(const std::vector<var>& params);
 
-  // Get the greatest of the elements in the collection / contaienr
+  // Get the greatest of the elements in the collection / container
   var max(const std::vector<var>& params);
 
   // Construct a tuple

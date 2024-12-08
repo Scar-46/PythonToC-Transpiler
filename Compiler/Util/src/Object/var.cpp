@@ -86,7 +86,7 @@ std::strong_ordering var::operator<=>(const var& other) const {
     if (value->equals(*other.value)) return std::strong_ordering::equal;
     if (value->less(*other.value)) return std::strong_ordering::less;
     if (value->greater(*other.value)) return std::strong_ordering::greater;
-    
+
     throw std::runtime_error("Failed three-way comparison");
 }
 
@@ -100,7 +100,7 @@ var var::operator+(const var& other) const {
     if (!value || !other.value) {
         throw std::runtime_error("Addition not supported for null values");
     }
-    
+
     return var(value->add(*other.value));
 }
 

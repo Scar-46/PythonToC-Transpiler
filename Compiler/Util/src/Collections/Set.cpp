@@ -6,6 +6,7 @@
 // ------------------ Private methods ------------------
 void Set::init() {
   _methods["add"] = std::bind(&Set::add, this, std::placeholders::_1);
+  _methods["has"] = std::bind(&Set::has, this, std::placeholders::_1);
   _methods["union"] = std::bind(&Set::unionW, this, std::placeholders::_1);
   _methods["intersection"] = std::bind(&Set::intersectionW, this, std::placeholders::_1);
   _methods["difference"] = std::bind(&Set::differenceW, this, std::placeholders::_1);
@@ -57,6 +58,16 @@ Method::result_type Set::add(const std::vector<ObjectPtr>& params) {
   }
   _elements.insert(params[0]);
   return nullptr;
+}
+
+Method::result_type Set::has(const std::vector<ObjectPtr>& params) {
+  if (params.size() != 1) {
+    throw std::runtime_error("has: Invalid number of arguments");
+  }
+  auto elementToFind = var(params[0]);
+  auto result = Boolean(_elements.find(elementToFind) != _elements.end());
+
+  return std::make_shared<Boolean>(result);
 }
 
 Method::result_type Set::remove(const std::vector<ObjectPtr>& params) {

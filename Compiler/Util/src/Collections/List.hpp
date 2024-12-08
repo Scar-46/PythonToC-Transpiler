@@ -11,7 +11,6 @@
 
 class List : public Collection<List, std::vector> {
  private:
-  std::vector<var> elements;
   void init();
 
  public:
