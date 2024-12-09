@@ -1,9 +1,6 @@
-import sys
-sys.path.insert(0, 'Compiler\ICGenerator')
-
 import pytest
-from Parser import Parser
-from common import error_logger
+from ICGenerator.Parser import Parser
+from ICGenerator.common import error_logger
 
 def read_file(file_name):
     try:

@@ -1,6 +1,4 @@
-import sys
-sys.path.insert(0, 'Compiler\ICGenerator')
-from Lexer import Lexer, NEW_TOKEN
+from ICGenerator.Lexer import Lexer, NEW_TOKEN
 
 # Helper function to assert that the lexer produces the expected tokens.
 def assert_tokens(input_str, expected_tokens):
