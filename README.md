@@ -12,10 +12,10 @@ pip install -r requirements.txt
 
 ## Manual de uso
 
-Para usar el transpiler, el usuario debe ejecutar el siguiente comando en la terminal:
+Para usar el transpiler, el usuario debe ejecutar el siguiente comando en la terminal tras haber navegado a `Compiler` como su directorio de trabajo:
 
 ```bash
-    python PythonLexerParser/main.py <ruta_del_archivo>
+python -m CppGenerator <ruta_del_archivo>
 ```
 
 Donde `<ruta_del_archivo>` es la dirección del archivo que se desea analizar. Es importante proporcionar la ruta completa o relativa al archivo que se quiere procesar.
@@ -23,16 +23,33 @@ Donde `<ruta_del_archivo>` es la dirección del archivo que se desea analizar. E
 Por ejemplo:
 
 ```bash
-    python PythonLexerParser/main.py ./codigo_ejemplo.py
+python -m GppGenerator ./codigo_ejemplo.py
 ```
 
 Este comando permitirá analizar el archivo especificado y generará la salida correspondiente al proceso de análisis.
 
-## Ejecutar Pruebas
-Las pruebas para este proyecto están escritas usando pytest. Para ejecutar las pruebas, simplemente ejecute el siguiente comando en la terminal:
+El fuente transpilado a C++ se encuentra en `Compiler/Util/src/main.cpp`. Para compilarlo es necesario incluir la biblioteca auxiliar presente en este proyecto bajo `Compiler/Util/src`.
+
+Para compilar el fuente generado de C++ a un ejecutable, se recomienda utilizar toolchain de Make incluida en el proyecto. El usuario puede ejecutar el siguiente comando en la terminal tras haber navegado a `Compiler/Util` como su directorio de trabajo:
 
 ```bash
-    pytest
+make -j
+```
+
+Y de manera semejante, para limpiar una compilación previa de la biblioteca y recompilarla de nuevo
+
+```bash
+make clean 
+make -j
+```
+
+El ejecutable se encontrará bajo `Compiler/Util/bin/` y su nombre puede variar.
+
+## Ejecutar Pruebas
+Las pruebas para este proyecto están escritas usando pytest. Para ejecutar las pruebas, simplemente ejecute el siguiente comando en la terminal, de nuevo, tras haber navegado a `Compiler` como su directorio de trabajo: 
+
+```bash
+python -m pytest
 ```
 Este comando descubrirá y ejecutará automáticamente todos los casos de prueba ubicados en el directorio `PythonLexerParser/Tests`.
 
