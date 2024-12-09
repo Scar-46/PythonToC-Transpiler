@@ -79,6 +79,6 @@ def test_tuple(parser):
 
 # Test case for reading from a file
 def test_read_file(parser):
-    code = read_file("Compiler/ICGenerator/Tests/sample.py")
+    code = read_file("ICGenerator/Tests/sample1.py")
     parse_code(parser, code)
     assert error_logger.error_count() == 0
