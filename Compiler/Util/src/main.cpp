@@ -103,20 +103,12 @@ var se_string_ex(){
 }
 int main(){
     std::cout << se_fibonacci(var(4)) << std::endl;
-    std::cout << "se_fibonacci(var(4))" << std::endl;
     std::cout << se_iter_example() << std::endl;
-    std::cout << "se_iter_example()" << std::endl;
     std::cout << se_map_ex() << std::endl;
-    std::cout << "se_map_ex()" << std::endl;
     std::cout << se_default_ex() << std::endl;
-    std::cout << "se_default_ex()" << std::endl;
     std::cout << se_tuple_ex() << std::endl;
-    std::cout << "se_tuple_ex()" << std::endl;
     std::cout << se_set_ex() << std::endl;
-    std::cout << "se_set_ex()" << std::endl;
     std::cout << se_slices_ex() << std::endl;
-    std::cout << "se_slices_ex()" << std::endl;
     se_string_ex();
-    std::cout << "se_string_ex()" << std::endl;
     return 0;
 }
