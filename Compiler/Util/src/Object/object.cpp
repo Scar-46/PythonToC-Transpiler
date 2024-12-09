@@ -15,23 +15,19 @@ Object::operator bool() const {
 
 // Conversion to hash (for associative containers)
 std::size_t Object::hash() const {
-    printf("std::size_t Object::hash() const\n");
     throw std::runtime_error("Comparison not supported for this type");
 }
 
 // Comparison operators
 bool Object::equals(unused const Object& other) const {
-    printf("bool Object::equals(unused const Object& other) const\n");
     throw std::runtime_error("Comparison not supported for this type");
 }
 
 bool Object::less(unused const Object& other) const {
-    printf("bool Object::less(unused const Object& other) const\n");
     throw std::runtime_error("Comparison not supported for this type");
 }
 
 bool Object::greater(unused const Object& other) const {
-    printf("bool Object::greater(unused const Object& other) const\n");
     throw std::runtime_error("Comparison not supported for this type");
 }
 

@@ -206,11 +206,7 @@ Iterator::Iterator(Object::ObjectIt iterator): objectIterator(std::move(iterator
 Iterator::Iterator() : objectIterator(nullptr), isEnd(true) {this->init();}
 
 Iterator::Iterator(const Iterator& other)
-    : objectIterator(other.objectIterator), isEnd(other.isEnd) {
-    this->init();
-
-    std::cout << "Iterator::Iterator(const Iterator& other)" << std::endl;
-}
+    : objectIterator(other.objectIterator), isEnd(other.isEnd) { this->init(); }
 
 Iterator& Iterator::operator++() {
     if (!objectIterator || isEnd) {
