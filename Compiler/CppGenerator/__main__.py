@@ -31,8 +31,8 @@ def main():
     transpiled_code = generator.visit(ast)
     
     if error_logger.error_count() <= 0:
-        output_folder = "Output"
-        output_file = "CodeTranspiled.cpp"
+        output_folder = "Util/src"
+        output_file = "main.cpp"
         write_to_file(output_folder, output_file, transpiled_code)
         print(f"############# File transpiled successfully and saved in '{output_folder}/{output_file}'! #############")
         exit(0)
