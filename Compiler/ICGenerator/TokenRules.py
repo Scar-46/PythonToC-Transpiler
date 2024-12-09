@@ -1,7 +1,7 @@
 # module: TokenRules.py
 # Lexing rule definitions
 
-from common import log_error
+from ICGenerator.common import log_error
 # ------------ Lexemes and patterns ------------
 # Fixed-size reserved keywords
 keywords = {

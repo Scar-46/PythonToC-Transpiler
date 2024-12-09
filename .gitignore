@@ -1,3 +1,7 @@
+# === Templated ==
+.vscode/
+.vscode/**
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -18,7 +22,7 @@ lib/
 lib64/
 parts/
 sdist/
-var/
+CMakeFiles/
 wheels/
 share/python-wheels/
 *.egg-info/
@@ -161,11 +165,19 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-#Specific files
+# === Specific files ==
+# VSCode workspace
+.vscode/*
 
-*parser.out
-*parsetab.py
-*out.txt
-*.dot
-.vscode/launch.json
-.vscode/tasks.json
+# Parser output
+**/parser.out
+**/parsetab.py
+**/*.dot
+
+# Transpiler output
+/Compiler/Util/bin
+/Compiler/Util/src/main.cpp
+Compiler/Util/cmake_install.cmake
+*.txt
+Compiler/Util/Makefile
+Compiler/Util/Makefile

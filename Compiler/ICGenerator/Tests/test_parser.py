@@ -1,9 +1,6 @@
-import sys
-sys.path.insert(0, 'Compiler\ICGenerator')
-
 import pytest
-from Parser import Parser
-from common import error_logger
+from ICGenerator.Parser import Parser
+from ICGenerator.common import error_logger
 
 def read_file(file_name):
     try:
@@ -82,6 +79,6 @@ def test_tuple(parser):
 
 # Test case for reading from a file
 def test_read_file(parser):
-    code = read_file("Compiler/ICGenerator/Tests/sample.py")
+    code = read_file("ICGenerator/Tests/sample1.py")
     parse_code(parser, code)
     assert error_logger.error_count() == 0
