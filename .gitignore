@@ -175,8 +175,8 @@ cython_debug/
 **/*.dot
 
 # Transpiler output
-/Compiler/Output
 /Compiler/Util/bin
+/Compiler/Util/src/main.cpp
 Compiler/Util/cmake_install.cmake
 *.txt
 Compiler/Util/Makefile
