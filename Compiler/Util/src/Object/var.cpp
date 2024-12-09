@@ -236,7 +236,16 @@ var Iterator::operator*() const {
 
 void Iterator::print(std::ostream& os) const { os << ""; }
 
-ObjectPtr Iterator::clone() const { return nullptr; }
+ObjectPtr Iterator::clone() const {
+    auto clonedIterator = std::make_shared<Iterator>();
+
+    if (objectIterator) {
+        clonedIterator->objectIterator = objectIterator->clone(); // Assuming objectIterator has a clone method
+    }
+    clonedIterator->isEnd = this->isEnd;
+
+    return clonedIterator;
+}
 
 var Iterator::operator*() {
     if (!objectIterator || isEnd || !objectIterator->hasNext()) {

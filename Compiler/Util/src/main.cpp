@@ -47,7 +47,7 @@ var se_iter_example(){
     se_l = Builtin::inlineList({var(1), var(2.5), var(3), var("hola"), var(5), var("mundo")});
     se_it = Builtin::iter({se_l});
     for (auto se_i : (var) se_l){
-        // std::cout << Builtin::next({se_it}) << std::endl;
+        std::cout << Builtin::next({se_it}) << std::endl;
     }
     return true;
     return var();
