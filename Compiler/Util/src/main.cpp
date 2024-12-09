@@ -49,7 +49,7 @@ var se_iter_example(){
     for (auto se_i : (var) se_l){
         std::cout << Builtin::next({se_it}) << std::endl;
     }
-    return true;
+    return var(true);
     return var();
 }
 var se_map_ex(){
@@ -57,8 +57,7 @@ var se_map_ex(){
     se_d = Builtin::inlineDict({
         Pair(var("hola"), var("mundo")),
         Pair(var(1), Builtin::inlineList({var(1), var(2), var(3), var(4), var(5)})),
-        Pair(var("dict"), Builtin::inlineDict({
-            Pair(var("adios"), var(":D"))
+        Pair(var("dict"), Builtin::inlineDict({Pair(var("adios"), var(":D"))
         }))
     });
     for (auto se_k : (var) se_d->Call("keys", {})){
@@ -102,21 +101,21 @@ var se_string_ex(){
     return var();
 }
 int main(){
+    std::cout << "------------- se_fibonacci(var(4)) -------------" << std::endl;
     std::cout << se_fibonacci(var(4)) << std::endl;
-    std::cout << "se_fibonacci(var(4))" << std::endl;
+    std::cout << "------------- se_iter_example() -------------" << std::endl;
     std::cout << se_iter_example() << std::endl;
-    std::cout << "se_iter_example()" << std::endl;
+    std::cout << "------------- se_map_ex() -------------" << std::endl;
     std::cout << se_map_ex() << std::endl;
-    std::cout << "se_map_ex()" << std::endl;
+    std::cout << "------------- se_default_ex() -------------" << std::endl;
     std::cout << se_default_ex() << std::endl;
-    std::cout << "se_default_ex()" << std::endl;
+    std::cout << "------------- se_tuple_ex() -------------" << std::endl;
     std::cout << se_tuple_ex() << std::endl;
-    std::cout << "se_tuple_ex()" << std::endl;
+    std::cout << "------------- se_set_ex() -------------" << std::endl;
     std::cout << se_set_ex() << std::endl;
-    std::cout << "se_set_ex()" << std::endl;
+    std::cout << "------------- se_slices_ex() -------------" << std::endl;
     std::cout << se_slices_ex() << std::endl;
-    std::cout << "se_slices_ex()" << std::endl;
+    std::cout << "------------- se_string_ex() -------------" << std::endl;
     se_string_ex();
-    std::cout << "se_string_ex()" << std::endl;
     return 0;
 }
