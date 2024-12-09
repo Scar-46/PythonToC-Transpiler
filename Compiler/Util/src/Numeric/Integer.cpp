@@ -11,7 +11,7 @@ Integer::operator ObjectPtr(){
 ObjectPtr Integer::addHelper(const Object& other) const {
     auto otherObj = dynamic_cast<const Double*>(&other);
     if (otherObj) {
-        return std::make_shared<Integer>(value + otherObj->getValue());
+        return std::make_shared<Double>(value + otherObj->getValue());
     }
 
     throw std::runtime_error("Integer does not support addition with given type");
@@ -20,7 +20,7 @@ ObjectPtr Integer::addHelper(const Object& other) const {
 ObjectPtr Integer::subtractHelper(const Object& other) const {
     auto otherObj = dynamic_cast<const Double*>(&other);
     if (otherObj) {
-        return std::make_shared<Integer>(value - otherObj->getValue());
+        return std::make_shared<Double>(value - otherObj->getValue());
     }
 
     throw std::runtime_error("Integer does not support subtraction with given type");
@@ -29,7 +29,7 @@ ObjectPtr Integer::subtractHelper(const Object& other) const {
 ObjectPtr Integer::multiplyHelper(const Object& other) const {
     auto otherObj = dynamic_cast<const Double*>(&other);
     if (otherObj) {
-        return std::make_shared<Integer>(value + otherObj->getValue());
+        return std::make_shared<Double>(value + otherObj->getValue());
     }
 
     throw std::runtime_error("Integer does not support multiplication with given type");
@@ -38,7 +38,7 @@ ObjectPtr Integer::multiplyHelper(const Object& other) const {
 ObjectPtr Integer::divideHelper(const Object& other) const {
     auto otherObj = dynamic_cast<const Double*>(&other);
     if (otherObj) {
-        return std::make_shared<Integer>(value + otherObj->getValue());
+        return std::make_shared<Double>(value + otherObj->getValue());
     }
 
     throw std::runtime_error("Integer does not support division with given type");
